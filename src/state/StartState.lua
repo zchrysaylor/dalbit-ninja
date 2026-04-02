@@ -45,11 +45,11 @@ function StartState:draw()
 end
 
 function StartState.new()
-	local self = setmetatable({}, StartState)
+	local self = BaseState.new()
+	setmetatable(self, StartState)
 	self.alpha = 1
 	self.isFading = false
 	return self
 end
 
 return StartState
-

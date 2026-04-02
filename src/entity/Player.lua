@@ -9,8 +9,8 @@ function Player:createCollision()
 	self.collision.body:setLinearDamping(0) -- no friction slowdown since you control velocity directly
 end
 
-local function newPlayer(def)
-	return Entity.newEntity(def, Player)
+function Player.new(def)
+	return Entity.new(def, Player)
 end
 
-return { newPlayer = newPlayer }
+return Player

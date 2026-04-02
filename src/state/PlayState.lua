@@ -12,7 +12,7 @@ function PlayState:enterState(options)
 		for i, obj in pairs(Map.layers["wall"].objects) do
 			local centerX = obj.x + obj.width / 2
 			local centerY = obj.y + obj.height / 2
-			local wall = Collision.newRectangleCollision(World, centerX, centerY, obj.width, obj.height)
+			local wall = Collision.newRectangle(World, centerX, centerY, obj.width, obj.height)
 			table.insert(self.walls, wall)
 		end
 	end
@@ -65,7 +65,7 @@ function PlayState:draw()
 	-- Map:drawLayer(Map.layers["hill"])
 	Map:drawLayer(Map.layers["building"])
 	self.player:draw()
-	Collision.drawCollisions(World, 0.7)
+	Collision.drawAll(World, 0.7)
 
 	Camera:detach()
 
@@ -188,9 +188,10 @@ function PlayState:CameraLookAtPlayer()
 end
 
 function PlayState.new()
-	local self = setmetatable({}, PlayState)
+	local self = BaseState.new()
+	setmetatable(self, PlayState)
 
-	self.player = Player.newPlayer({
+	self.player = Player.new({
 		x = 180,
 		y = 200,
 		width = 14,

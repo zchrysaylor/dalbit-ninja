@@ -41,7 +41,7 @@ end
 ---@param h number Height in pixels
 ---@param bodyType? love.BodyType Body type (default "static")
 ---@return Collision
-local function newRectangleCollision(world, x, y, w, h, bodyType)
+function Collision.newRectangle(world, x, y, w, h, bodyType)
 	local self = setmetatable({}, Collision)
 	bodyType = bodyType or "static"
 
@@ -62,7 +62,7 @@ end
 ---@param s? number Corner cut size (default 4)
 ---@param bodyType? love.BodyType Body type (default "dynamic")
 ---@return Collision
-local function newOctagonCollision(world, x, y, w, h, s, bodyType)
+function Collision.newOctagon(world, x, y, w, h, s, bodyType)
 	local self = setmetatable({}, Collision)
 	s = s or 4
 	bodyType = bodyType or "dynamic"
@@ -92,10 +92,12 @@ local function newOctagonCollision(world, x, y, w, h, s, bodyType)
 	return self
 end
 
+-- TODO:: enable collisions with button press in-game
+
 ---Draw collision outlines for debugging.
 ---@param world love.World
 ---@param alpha? number The optional alpha value to make collision outlines semi-transparent (decimal value from 0 to 1)
-local function drawCollisions(world, alpha)
+function Collision.drawAll(world, alpha)
 	-- save current colors to reset since love.graphics.setColor() is global state
 	local r, g, b, a = love.graphics.getColor()
 
@@ -118,8 +120,4 @@ local function drawCollisions(world, alpha)
 	love.graphics.setColor(r, g, b, a)
 end
 
-return {
-	newRectangleCollision = newRectangleCollision,
-	newOctagonCollision = newOctagonCollision,
-	drawCollisions = drawCollisions,
-}
+return Collision

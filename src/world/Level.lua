@@ -9,7 +9,7 @@ function Level:draw()
 	self.currentLevelMap:draw()
 end
 
-local function newLevel(player, levelMaps, startX, startY)
+function Level.new(player, levelMaps, startX, startY)
 	local self = setmetatable({}, Level)
 	self.player = player
 	self.levelMaps = levelMaps or {}
@@ -17,4 +17,4 @@ local function newLevel(player, levelMaps, startX, startY)
 	return self
 end
 
-return { newLevel = newLevel }
+return Level

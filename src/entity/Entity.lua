@@ -18,8 +18,7 @@ function Entity:createCollision()
 	local shapeHeight = self.height * self.scale
 	local shapeCornerCutSize = 3 * self.scale
 	-- TODO: figure out why adjusting height doesn't work as expected
-	self.collision =
-		Collision.newOctagonCollision(World, self.x, self.y, shapeWidth - 2, shapeHeight, shapeCornerCutSize)
+	self.collision = Collision.newOctagon(World, self.x, self.y, shapeWidth - 2, shapeHeight, shapeCornerCutSize)
 end
 
 function Entity:update(dt)
@@ -39,7 +38,7 @@ function Entity:draw()
 	)
 end
 
-local function newEntity(def)
+function Entity.new(def)
 	local self = setmetatable({}, class or Entity)
 	self.x = def.x
 	self.y = def.y
@@ -53,4 +52,4 @@ local function newEntity(def)
 	return self
 end
 
-return { newEntity = newEntity }
+return Entity

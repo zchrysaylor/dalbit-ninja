@@ -13,7 +13,7 @@ function LevelMap:draw()
 	self.player:draw()
 end
 
-local function newLevelMap(player, x, y)
+function LevelMap.new(player, x, y)
 	local self = setmetatable({}, LevelMap)
 	self.map = Tiled("maps/map-start.lua")
 	self.player = player
@@ -25,4 +25,4 @@ local function newLevelMap(player, x, y)
 	self.entities = {}
 end
 
-return { newLevelMap = newLevelMap }
+return LevelMap
