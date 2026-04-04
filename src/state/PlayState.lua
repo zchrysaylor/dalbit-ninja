@@ -6,7 +6,9 @@ setmetatable(PlayState, { __index = BaseState })
 
 local pauseGame = false
 
+-- TODO: refactors options to args
 function PlayState:enterState(options)
+	-- TODO: extract into own walls class
 	self.walls = {}
 	if Map.layers["wall"] then
 		for i, obj in pairs(Map.layers["wall"].objects) do
@@ -14,6 +16,16 @@ function PlayState:enterState(options)
 			local centerY = obj.y + obj.height / 2
 			local wall = Collision.newRectangle(World, centerX, centerY, obj.width, obj.height)
 			table.insert(self.walls, wall)
+		end
+	end
+
+	self.triggers = {}
+	if Map.layers["trigger"] then
+		for i, obj in pairs(Map.layers["trigger"].objects) do
+			local centerX = obj.x + obj.width / 2
+			local centerY = obj.y + obj.height / 2
+			local trigger = Collision.newRectangle(World, centerX, centerY, obj.width, obj.height)
+			table.insert(self.triggers, trigger)
 		end
 	end
 
@@ -192,7 +204,7 @@ function PlayState.new()
 	setmetatable(self, PlayState)
 
 	self.player = Player.new({
-		x = 180,
+		x = 160,
 		y = 200,
 		width = 14,
 		height = 17,
