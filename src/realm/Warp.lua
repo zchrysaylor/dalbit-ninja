@@ -4,8 +4,10 @@ Warp.__index = Warp
 -- TODO: refactor to live in Deps or some global file
 -- Map transition lookup: trigger name -> {mapFile, destX, destY}
 local MAP_TRANSITIONS = {
-	["toForestTrigger"] = { mapName = "map-forest-color", destX = 176, destY = 300 },
-	["toHometownTrigger"] = { mapName = "map-hometown-color", destX = 176, destY = 20 },
+	["warpToForest"] = { mapName = "map-forest", destX = 176, destY = 300 },
+	["warpToHometown"] = { mapName = "map-hometown", destX = 176, destY = 20 },
+	["warpToInterior1"] = { mapName = "map-interior-1", destX = 116, destY = 310 },
+	["warpToExterior1"] = { mapName = "map-hometown", destX = 72, destY = 192 },
 }
 
 function Warp:spawn(world, obj)

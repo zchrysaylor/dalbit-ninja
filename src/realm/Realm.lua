@@ -26,8 +26,8 @@ function Realm:loadMap(mapName, destX, destY)
 		end
 	end
 
-	if self.map.layers["trigger"] then
-		for _, obj in pairs(self.map.layers["trigger"].objects) do
+	if self.map.layers["warp"] then
+		for _, obj in pairs(self.map.layers["warp"].objects) do
 			self.warps:spawn(self.world, obj)
 		end
 	end

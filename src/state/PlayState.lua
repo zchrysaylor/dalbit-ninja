@@ -70,7 +70,7 @@ function PlayState.new()
 	setmetatable(self, PlayState)
 
 	self.realm = Realm.new()
-	self.realm:loadMap("map-hometown-color", self.realm.player.x, self.realm.player.y)
+	self.realm:loadMap("map-hometown", self.realm.player.x, self.realm.player.y)
 
 	self.fadeAlpha = 1
 	self.isFading = false
