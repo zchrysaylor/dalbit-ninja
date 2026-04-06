@@ -117,11 +117,11 @@ Player.__index = Player
 setmetatable(Player, { __index = Entity })
 
 function Player.new(def)
-    return Entity.new(def, Player)
+    return Entity.new(def)
 end
 
-function Player:createCollision()
-    Entity.createCollision(self)  -- Call parent method
+function Player:createCollision(world)
+    Entity.createCollision(self, world)  -- Call parent method
     -- Additional Player-specific logic
 end
 
@@ -197,7 +197,7 @@ Heavy use of globals for shared resources (defined in `src/Deps.lua`):
 ### State Machine Pattern
 
 States inherit from `BaseState` and implement:
-- `enterState(options)` - Called when entering the state
+- `enterState(args)` - Called when entering the state
 - `exitState()` - Called when leaving the state
 - `update(dt)` - Called every frame
 - `draw()` - Called every frame for rendering

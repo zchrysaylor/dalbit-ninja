@@ -1,11 +1,11 @@
 local StateMachine = {}
 StateMachine.__index = StateMachine
 
-function StateMachine:changeState(state, options)
+function StateMachine:changeState(state, args)
 	assert(self.states[state])
 	self.currentState:exitState()
 	self.currentState = self.states[state]()
-	self.currentState:enterState(options)
+	self.currentState:enterState(args)
 end
 
 function StateMachine:update(dt)

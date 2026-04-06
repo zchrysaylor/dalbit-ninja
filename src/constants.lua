@@ -6,11 +6,13 @@ VIRTUAL_HEIGHT = 160
 WINDOW_WIDTH = 1080
 WINDOW_HEIGHT = 720
 
--- movement keys
+-- key constants for configurability
 KEY_UP = "w"
 KEY_DOWN = "s"
 KEY_LEFT = "a"
 KEY_RIGHT = "d"
+KEY_PAUSE = "p"
+KEY_DEBUG = "."
 
 -- rate in seconds of the start screen fade duration
 FADE_RATE = 0.6

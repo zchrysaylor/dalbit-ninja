@@ -13,12 +13,12 @@ function Entity:createAnimations()
 	self.animations.current = self.animations.down
 end
 
-function Entity:createCollision()
+function Entity:createCollision(world)
 	local shapeWidth = self.width * self.scale
 	local shapeHeight = self.height * self.scale
 	local shapeCornerCutSize = 3 * self.scale
 	-- TODO: figure out why adjusting height doesn't work as expected
-	self.collision = Collision.newOctagon(World, self.x, self.y, shapeWidth - 2, shapeHeight, shapeCornerCutSize)
+	self.collision = Collision.newOctagon(world, self.x, self.y, shapeWidth - 2, shapeHeight, shapeCornerCutSize)
 end
 
 function Entity:update(dt)
@@ -48,7 +48,7 @@ function Entity.new(def)
 	self.scale = def.scale
 	self.spriteSheet = def.spriteSheet
 	self:createAnimations()
-	self:createCollision()
+	self:createCollision(def.world)
 	return self
 end
 

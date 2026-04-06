@@ -7,8 +7,6 @@ function love.load()
 
 	Camera = HumpCamera()
 	Camera:zoomTo(1)
-	Map = Tiled("maps/map-hometown-color.lua")
-	World = love.physics.newWorld(0, 0)
 
 	-- TODO: refactor to use love.keyboard.keysPressed
 	KeyPress = {}

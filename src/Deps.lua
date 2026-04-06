@@ -19,8 +19,10 @@ Tiled = require("lib.sti")
 Timer = require("lib.timer")
 
 require("src.constants")
-require("src.world.Level")
-require("src.world.LevelMap")
+require("src.PhysicsUtils")
+
+Realm = require("src.realm.Realm")
+Warp = require("src.realm.Warp")
 
 Collision = require("src.Collision")
 Entity = require("src.entity.Entity")
@@ -33,6 +35,7 @@ GFonts = {
 	["sproutlandsSmall"] = love.graphics.newFont("fonts/sproutlands.ttf", 12),
 	["sproutlandsMedium"] = love.graphics.newFont("fonts/sproutlands.ttf", 20),
 	["sproutlandsLarge"] = love.graphics.newFont("fonts/sproutlands.ttf", 36),
+	["antiquity"] = love.graphics.newFont("fonts/antiquity-print.ttf", 12),
 }
 
 GArt = { ["sprite-player"] = love.graphics.newImage("art/gb-sprite.png") }
