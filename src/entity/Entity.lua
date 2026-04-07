@@ -38,8 +38,8 @@ function Entity:draw()
 	)
 end
 
-function Entity.new(def)
-	local self = setmetatable({}, class or Entity)
+function Entity.new(def, subclass)
+	local self = setmetatable({}, subclass or Entity)
 	self.x = def.x
 	self.y = def.y
 	self.width = def.width

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.12.0" orientation="orthogonal" renderorder="right-down" width="40" height="40" tilewidth="8" tileheight="8" infinite="0" nextlayerid="5" nextobjectid="22">
+<map version="1.10" tiledversion="1.12.0" orientation="orthogonal" renderorder="right-down" width="40" height="40" tilewidth="8" tileheight="8" infinite="0" nextlayerid="6" nextobjectid="23">
  <editorsettings>
-  <export target="map-forest-color.lua" format="lua"/>
+  <export target="map-forest.lua" format="lua"/>
  </editorsettings>
  <tileset firstgid="1" name="gb-tileset-color" tilewidth="8" tileheight="8" tilecount="16384" columns="128">
   <image source="../art/gb-tileset-color.png" width="1024" height="1024"/>
@@ -112,5 +112,10 @@
  </objectgroup>
  <objectgroup id="4" name="warp">
   <object id="20" name="warpToHometown" x="160" y="312" width="32" height="8"/>
+ </objectgroup>
+ <objectgroup id="5" name="entity">
+  <object id="22" name="pointFireEnemy" x="176" y="120">
+   <point/>
+  </object>
  </objectgroup>
 </map>

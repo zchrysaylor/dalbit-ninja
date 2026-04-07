@@ -29,7 +29,7 @@ function PlayState:update(dt)
 	-- Should be fixable when implmenting player idle state
 	-- Adding gotoFrame is a workaround
 	if self.isFading then
-		self.realm.player.animations.current:gotoFrame(2)
+		self.realm.player.animations.current:gotoFrame(1)
 		return
 	end
 

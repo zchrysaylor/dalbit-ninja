@@ -31,6 +31,24 @@ function Realm:loadMap(mapName, destX, destY)
 			self.warps:spawn(self.world, obj)
 		end
 	end
+
+	if self.map.layers["entity"] then
+		for _, obj in pairs(self.map.layers["entity"].objects) do
+			if obj.name == "pointFireEnemy" then
+				local fireEnemy = Entity.new({
+					x = obj.x,
+					y = obj.y,
+					width = 16,
+					height = 16,
+					speed = 0.8,
+					scale = 1,
+					spriteSheet = GArt["sprite-enemy-fire"],
+					world = self.world,
+				})
+				table.insert(self.entities, fireEnemy)
+			end
+		end
+	end
 end
 
 function Realm:destroyAll()
@@ -55,6 +73,10 @@ function Realm:update(dt)
 	self.player.animations.current:update(dt)
 	self:checkWarps()
 
+	for _, entity in pairs(self.entities) do
+		entity:update(dt)
+	end
+
 	if love.keyboard.wasPressed(KEY_DEBUG) then
 		debug = not debug
 	end
@@ -72,6 +94,10 @@ function Realm:draw()
 	end
 	if self.map.layers["building"] then
 		self.map:drawLayer(self.map.layers["building"])
+	end
+
+	for _, entity in pairs(self.entities) do
+		entity:draw()
 	end
 
 	self.player:draw()
@@ -147,41 +173,36 @@ function Realm:AnimatePlayer(isMoving, moveUp, moveDown, moveLeft, moveRight)
 	local horizontal = (moveLeft or moveRight) and not (moveLeft and moveRight)
 	local vertical = (moveUp or moveDown) and not (moveUp and moveDown)
 
-	-- use tracked keystroke order to determine actual direction for animations
-	-- prevents weird diagonal movement animations
+	if not isMoving then
+		self.player.animations.current:gotoFrame(1)
+		return
+	end
+
+	-- diagonal movement
 	if horizontal and vertical then
-		-- diagonal: force left/right animation
+		if moveUp and moveLeft then
+			self.player.animations.current = self.player.animations.upLeft
+		elseif moveUp and moveRight then
+			self.player.animations.current = self.player.animations.upRight
+		elseif moveDown and moveLeft then
+			self.player.animations.current = self.player.animations.downLeft
+		elseif moveDown and moveRight then
+			self.player.animations.current = self.player.animations.downRight
+		end
+	elseif vertical and not horizontal then
+		-- vertical only
+		if moveUp then
+			self.player.animations.current = self.player.animations.up
+		else
+			self.player.animations.current = self.player.animations.down
+		end
+	elseif horizontal and not vertical then
+		-- horizontal only
 		if moveLeft then
 			self.player.animations.current = self.player.animations.left
 		else
 			self.player.animations.current = self.player.animations.right
 		end
-	elseif vertical and not horizontal then
-		-- vertical only: find most recent vertical key in order
-		for _, key in ipairs(KeyPress.order) do
-			if key == KEY_UP then
-				self.player.animations.current = self.player.animations.up
-				break
-			elseif key == KEY_DOWN then
-				self.player.animations.current = self.player.animations.down
-				break
-			end
-		end
-	elseif horizontal and not vertical then
-		-- horizontal only: find most recent horizontal key in order
-		for _, key in ipairs(KeyPress.order) do
-			if key == KEY_LEFT then
-				self.player.animations.current = self.player.animations.left
-				break
-			elseif key == KEY_RIGHT then
-				self.player.animations.current = self.player.animations.right
-				break
-			end
-		end
-	end
-
-	if isMoving == false then
-		self.player.animations.current:gotoFrame(2)
 	end
 end
 
@@ -207,8 +228,8 @@ function Realm.new()
 	self.player = Player.new({
 		x = 160,
 		y = 200,
-		width = 14,
-		height = 17,
+		width = 16,
+		height = 16,
 		speed = 0.8,
 		scale = 1, -- can remove if keep 16x16
 		spriteSheet = GArt["sprite-player"],

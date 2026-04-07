@@ -38,4 +38,7 @@ GFonts = {
 	["antiquity"] = love.graphics.newFont("fonts/antiquity-print.ttf", 12),
 }
 
-GArt = { ["sprite-player"] = love.graphics.newImage("art/gb-sprite.png") }
+GArt = {
+	["sprite-player"] = love.graphics.newImage("art/sprite-player.png"),
+	["sprite-enemy-fire"] = love.graphics.newImage("art/sprite-enemy-fire.png"),
+}

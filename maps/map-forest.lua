@@ -9,8 +9,8 @@ return {
   height = 40,
   tilewidth = 8,
   tileheight = 8,
-  nextlayerid = 5,
-  nextobjectid = 22,
+  nextlayerid = 6,
+  nextobjectid = 23,
   properties = {},
   tilesets = {
     {
@@ -399,6 +399,36 @@ return {
           y = 312,
           width = 32,
           height = 8,
+          rotation = 0,
+          opacity = 1,
+          visible = true,
+          properties = {}
+        }
+      }
+    },
+    {
+      type = "objectgroup",
+      draworder = "topdown",
+      id = 5,
+      name = "entity",
+      class = "",
+      visible = true,
+      opacity = 1,
+      offsetx = 0,
+      offsety = 0,
+      parallaxx = 1,
+      parallaxy = 1,
+      properties = {},
+      objects = {
+        {
+          id = 22,
+          name = "pointFireEnemy",
+          type = "",
+          shape = "point",
+          x = 176,
+          y = 120,
+          width = 0,
+          height = 0,
           rotation = 0,
           opacity = 1,
           visible = true,
