@@ -6,7 +6,6 @@ function love.load()
 	love.window.setTitle("LBA: Lua Boy Advance")
 
 	Camera = HumpCamera()
-	Camera:zoomTo(1)
 
 	-- TODO: refactor to use love.keyboard.keysPressed
 	KeyPress = {}
@@ -31,6 +30,7 @@ function love.load()
 	love.keyboard.keysPressed = {}
 end
 
+-- resize the game window using Push's pixel-perfect scaling
 function love.resize(w, h)
 	Push:resize(w, h)
 end
