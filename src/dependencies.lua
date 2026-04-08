@@ -19,14 +19,14 @@ Tiled = require("lib.sti")
 Timer = require("lib.timer")
 
 require("src.constants")
-require("src.PhysicsUtils")
+Physics = require("src.engine.physics")
 
 Realm = require("src.realm.Realm")
 WallSpawner = require("src.realm.WallSpawner")
 WarpSpawner = require("src.realm.WarpSpawner")
 EntitySpawner = require("src.realm.EntitySpawner")
 
-Collision = require("src.Collision")
+Collision = require("src.engine.collision")
 Entity = require("src.entity.Entity")
 Player = require("src.entity.Player")
 StateMachine = require("src.state.StateMachine")

@@ -1,7 +1,8 @@
 -- A util class for common love.physics use cases
+local physics = {}
 
 -- Checks if two objects are colliding
-function isColliding(body1, body2)
+function physics.isColliding(body1, body2)
 	for _, contact in ipairs(body1:getContacts()) do
 		if contact:isTouching() then
 			local f1, f2 = contact:getFixtures()
@@ -13,3 +14,5 @@ function isColliding(body1, body2)
 	end
 	return false
 end
+
+return physics

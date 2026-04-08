@@ -26,7 +26,7 @@ end
 function WarpSpawner.check(playerBody, warps)
 	-- Check all warp bodies for collision with player
 	for _, warp in ipairs(warps) do
-		if isColliding(playerBody, warp.body) then
+		if Physics.isColliding(playerBody, warp.body) then
 			local data = warp.body:getUserData()
 			if data and data.isWarp then
 				return MAP_TRANSITIONS[data.name]

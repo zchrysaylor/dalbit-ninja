@@ -2,6 +2,8 @@ love.graphics.setDefaultFilter("nearest", "nearest")
 
 require("src.dependencies")
 
+-- TODO: refactor to use Vessel (the collider itself) -> Soul (mobile objects) and Husk (stationary objects); Effects (not a vessel)
+
 function love.load()
 	love.window.setTitle("LBA: Lua Boy Advance")
 

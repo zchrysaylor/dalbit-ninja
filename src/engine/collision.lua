@@ -1,3 +1,5 @@
+-- TODO: refactor to self-less module
+
 ---@class Collision
 ---@field body love.Body
 ---@field shape love.Shape
