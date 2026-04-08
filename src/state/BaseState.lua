@@ -6,8 +6,8 @@ function BaseState:exitState() end
 function BaseState:update(dt) end
 function BaseState:draw() end
 
-function BaseState.new()
-	return setmetatable({}, BaseState)
+function BaseState.new(subclass)
+	return setmetatable({}, subclass or BaseState)
 end
 
 return BaseState

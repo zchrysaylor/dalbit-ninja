@@ -45,8 +45,7 @@ function StartState:draw()
 end
 
 function StartState.new()
-	local self = BaseState.new()
-	setmetatable(self, StartState)
+	local self = BaseState.new(StartState)
 	self.alpha = 1
 	self.isFading = false
 	return self
