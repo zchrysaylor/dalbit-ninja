@@ -47,18 +47,31 @@ lua-boy-advance/
 ├── main.lua              # Entry point (love.load, love.update, love.draw)
 ├── conf.lua              # LOVE configuration
 ├── src/                  # Source code
-│   ├── Deps.lua          # Centralized dependency loading (globals)
+│   ├── deps.lua          # Centralized dependency loading (globals)
 │   ├── constants.lua     # Global constants
-│   ├── Collision.lua     # Physics collision utilities
-│   ├── entity/           # Game entities
-│   │   ├── Entity.lua    # Base entity class
-│   │   └── Player.lua    # Player entity (extends Entity)
+│   ├── engine/           # Core systems
+│   │   ├── collision.lua # Physics collision utilities
+│   │   ├── input.lua     # Input handling extensions
+│   │   └── physics.lua   # Physics world management
+│   ├── realm/            # World/level management
+│   │   ├── Realm.lua     # Main world controller
+│   │   ├── SoulSpawner.lua   # Spawn souls/entities from map data
+│   │   ├── WallSpawner.lua   # Spawn walls from map data
+│   │   └── WarpSpawner.lua   # Spawn warps/teleports from map data
 │   ├── state/            # Game state management
 │   │   ├── BaseState.lua
 │   │   ├── StateMachine.lua
 │   │   ├── StartState.lua
-│   │   └── PlayState.lua
-│   └── world/            # World/level management
+│   │   ├── PlayState.lua
+│   │   └── vessel/soul/  # Soul state machines
+│   │       ├── SoulIdleState.lua
+│   │       └── player/
+│   │           ├── PlayerIdleState.lua
+│   │           └── PlayerWalkState.lua
+│   └── vessel/           # Game entities (vessels/souls)
+│       └── soul/
+│           ├── Soul.lua  # Base soul class
+│           └── Player.lua # Player entity (extends Soul)
 ├── lib/                  # Third-party libraries (do not modify)
 ├── art/                  # Graphics assets (.png)
 ├── fonts/                # Font files (.ttf)
@@ -78,7 +91,7 @@ lua-boy-advance/
 
 | Type | Convention | Example |
 |------|------------|---------|
-| Modules/Classes | PascalCase | `Player`, `StateMachine` |
+| Modules/Classes | PascalCase | `Player`, `StateMachine`, `Soul` |
 | Global variables | PascalCase | `Camera`, `World`, `Map` |
 | Global tables | G-prefix PascalCase | `GFonts`, `GArt`, `GStateMachine` |
 | Constants | SCREAMING_SNAKE_CASE | `VIRTUAL_WIDTH`, `KEY_UP` |
@@ -110,18 +123,18 @@ return ModuleName
 ### Inheritance Pattern
 
 ```lua
-local Entity = require("src.entity.Entity")
+local Soul = require("src.vessel.soul.Soul")
 
 local Player = {}
 Player.__index = Player
-setmetatable(Player, { __index = Entity })
+setmetatable(Player, { __index = Soul })
 
 function Player.new(def)
-    return Entity.new(def)
+    return Soul.new(def, Player)
 end
 
 function Player:createCollision(world)
-    Entity.createCollision(self, world)  -- Call parent method
+    Soul.createCollision(self, world)  -- Call parent method
     -- Additional Player-specific logic
 end
 
@@ -130,8 +143,8 @@ return Player
 
 ### Import/Require Conventions
 
-1. All shared dependencies go in `src/Deps.lua`
-2. Use dot notation for paths: `require("src.entity.Player")`
+1. All shared dependencies go in `src/deps.lua`
+2. Use dot notation for paths: `require("src.vessel.soul.Player")`
 3. Local requires at top of file for non-global dependencies:
    ```lua
    local BaseState = require("src.state.BaseState")
@@ -189,10 +202,11 @@ self.player = Player.new({
 
 ### Global State
 
-Heavy use of globals for shared resources (defined in `src/Deps.lua`):
+Heavy use of globals for shared resources (defined in `src/deps.lua`):
 - Libraries: `Anim8`, `HumpCamera`, `Push`, `Tiled`, `Timer`
 - Game state: `Camera`, `Map`, `World`, `GStateMachine`, `KeyPress`
 - Assets: `GFonts`, `GArt`
+- Core modules: `Soul`, `Player`, `SoulSpawner`, `WallSpawner`, `WarpSpawner`, `Realm`, `Physics`, `Collision`
 
 ### State Machine Pattern
 
@@ -213,6 +227,13 @@ States inherit from `BaseState` and implement:
 - Box2D world with zero gravity: `love.physics.newWorld(0, 0)`
 - Use `Collision` module factory methods: `Collision.newRectangle()`, `Collision.newOctagon()`
 - Debug rendering: `Collision.drawAll(World, alpha)`
+
+### Soul/Entity System
+
+- `Soul` is the base class for all game entities (previously called `Entity`)
+- `Player` extends `Soul` with 8-directional movement and specific collision settings
+- `SoulSpawner` creates souls from Tiled map object layers
+- Souls have built-in animation support via Anim8
 
 ## Third-Party Libraries (lib/)
 

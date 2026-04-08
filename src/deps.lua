@@ -20,18 +20,23 @@ Timer = require("lib.timer")
 
 require("src.constants")
 Physics = require("src.engine.physics")
+Collision = require("src.engine.collision")
 
 Realm = require("src.realm.Realm")
 WallSpawner = require("src.realm.WallSpawner")
 WarpSpawner = require("src.realm.WarpSpawner")
-EntitySpawner = require("src.realm.EntitySpawner")
+SoulSpawner = require("src.realm.SoulSpawner")
 
-Collision = require("src.engine.collision")
-Entity = require("src.vessel.soul.Entity")
+Soul = require("src.vessel.soul.Soul")
 Player = require("src.vessel.soul.Player")
+
 StateMachine = require("src.state.StateMachine")
 StartState = require("src.state.StartState")
 PlayState = require("src.state.PlayState")
+SoulIdleState = require("src.state.vessel.soul.SoulIdleState")
+SoulWalkState = require("src.state.vessel.soul.SoulWalkState")
+PlayerIdleState = require("src.state.vessel.soul.player.PlayerIdleState")
+PlayerWalkState = require("src.state.vessel.soul.player.PlayerWalkState")
 
 GFonts = {
 	["sproutlandsSmall"] = love.graphics.newFont("fonts/sproutlands.ttf", 12),

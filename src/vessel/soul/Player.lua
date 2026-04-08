@@ -1,8 +1,8 @@
-local Entity = require("src.vessel.soul.Entity")
+local Soul = require("src.vessel.soul.Soul")
 
 local Player = {}
 Player.__index = Player
-setmetatable(Player, { __index = Entity })
+setmetatable(Player, { __index = Soul })
 
 local ANIMATION_SPEED = 0.1
 
@@ -22,12 +22,22 @@ function Player:createAnimations()
 end
 
 function Player:createCollision(world)
-	Entity.createCollision(self, world)
+	Soul.createCollision(self, world)
 	self.collision.body:setLinearDamping(0) -- no friction slowdown since you control velocity directly
 end
 
 function Player.new(def)
-	return Entity.new(def, Player)
+	local self = Soul.new(def, Player)
+	self.stateMachine = StateMachine.new({
+		["idle"] = function()
+			return PlayerIdleState.new()
+		end,
+		["walk"] = function()
+			return PlayerWalkState.new()
+		end,
+	})
+	self.stateMachine:changeState("idle")
+	return self
 end
 
 return Player

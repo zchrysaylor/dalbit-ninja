@@ -1,8 +1,8 @@
---@class Entity
-local Entity = {}
-Entity.__index = Entity
+--@class Soul
+local Soul = {}
+Soul.__index = Soul
 
-function Entity:createAnimations()
+function Soul:createAnimations()
 	self.grid = Anim8.newGrid(self.width, self.height, self.spriteSheet:getWidth(), self.spriteSheet:getHeight())
 	self.animations.down = Anim8.newAnimation(self.grid("1-4", 1), 0.1)
 	self.animations.left = Anim8.newAnimation(self.grid("1-4", 2), 0.1)
@@ -11,7 +11,7 @@ function Entity:createAnimations()
 	self.animations.current = self.animations.down
 end
 
-function Entity:createCollision(world)
+function Soul:createCollision(world)
 	local shapeWidth = self.width * self.scale
 	local shapeHeight = self.height * self.scale
 	local shapeCornerCutSize = 3 * self.scale
@@ -19,11 +19,11 @@ function Entity:createCollision(world)
 	self.collision = Collision.newOctagon(world, self.x, self.y, shapeWidth - 2, shapeHeight, shapeCornerCutSize)
 end
 
-function Entity:update(dt)
+function Soul:update(dt)
 	self.animations.current:update(dt)
 end
 
-function Entity:draw()
+function Soul:draw()
 	self.animations.current:draw(
 		self.spriteSheet,
 		self.x,
@@ -36,8 +36,8 @@ function Entity:draw()
 	)
 end
 
-function Entity.new(def, subclass)
-	local self = setmetatable({}, subclass or Entity)
+function Soul.new(def, subclass)
+	local self = setmetatable({}, subclass or Soul)
 	self.x = def.x
 	self.y = def.y
 	self.width = def.width
@@ -46,9 +46,10 @@ function Entity.new(def, subclass)
 	self.scale = def.scale
 	self.spriteSheet = def.spriteSheet
 	self.animations = {}
+	self.stateMachine = {}
 	self:createAnimations()
 	self:createCollision(def.world)
 	return self
 end
 
-return Entity
+return Soul

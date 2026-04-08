@@ -1,8 +1,8 @@
-local EntitySpawner = {}
+local SoulSpawner = {}
 
-function EntitySpawner.spawn(world, obj)
+function SoulSpawner.spawn(world, obj)
 	if obj.name == "pointFireEnemy" then
-		local fireEnemy = Entity.new({
+		local fireEnemy = Soul.new({
 			x = obj.x,
 			y = obj.y,
 			width = 16,
@@ -16,10 +16,10 @@ function EntitySpawner.spawn(world, obj)
 	end
 end
 
-function EntitySpawner.destroyAll(entities)
+function SoulSpawner.destroyAll(entities)
 	for _, entity in ipairs(entities) do
 		entity.collision.body:destroy()
 	end
 end
 
-return EntitySpawner
+return SoulSpawner

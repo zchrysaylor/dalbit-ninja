@@ -33,7 +33,7 @@ function Realm:loadMap(mapName, destX, destY)
 
 	if self.map.layers["entity"] then
 		for _, obj in pairs(self.map.layers["entity"].objects) do
-			local entity = EntitySpawner.spawn(self.world, obj)
+			local entity = SoulSpawner.spawn(self.world, obj)
 			table.insert(self.entities, entity)
 		end
 	end
@@ -46,7 +46,7 @@ function Realm:destroyAll()
 	WarpSpawner.destroyAll(self.warps)
 	self.warps = {}
 
-	EntitySpawner.destroyAll(self.entities)
+	SoulSpawner.destroyAll(self.entities)
 	self.entities = {}
 
 	self.map = {}

@@ -25,3 +25,5 @@ function PlayerIdleState.new(player)
 	self.player = player
 	return self
 end
+
+return PlayerIdleState

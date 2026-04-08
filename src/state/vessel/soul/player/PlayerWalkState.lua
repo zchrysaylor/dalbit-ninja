@@ -4,18 +4,11 @@ local PlayerWalkState = {}
 PlayerWalkState.__index = PlayerWalkState
 setmetatable(PlayerWalkState, { __index = SoulWalkState })
 
--- TODO: implement walk functionality here
-function PlayerWalkState:update(dt) end
-
-function PlayerWalkState.new(player)
-	local self = SoulWalkState.new(player)
-	self.player = player
-	return self
+function PlayerWalkState:update(dt)
+	self:MovePlayer()
 end
 
-function Realm:MovePlayer()
-	local isMoving = false
-
+function PlayerWalkState:MovePlayer()
 	local moveUp = love.keyboard.isDown(KEY_UP)
 	local moveLeft = love.keyboard.isDown(KEY_LEFT)
 	local moveDown = love.keyboard.isDown(KEY_DOWN)
@@ -27,33 +20,28 @@ function Realm:MovePlayer()
 
 	if moveUp and not moveDown then
 		vy = -speed
-		isMoving = true
 	elseif moveDown and not moveUp then
 		vy = speed
-		isMoving = true
 	end
 
 	if moveLeft and not moveRight then
 		vx = -speed
-		isMoving = true
 	elseif moveRight and not moveLeft then
 		vx = speed
-		isMoving = true
+	end
+
+	if not moveUp and not moveDown and not moveLeft and not moveRight then
+		self.player:changeState("idle")
 	end
 
 	-- move the body with physics and animations
 	self.player.collision:setLinearVelocity(vx, vy)
-	self:AnimatePlayer(isMoving, moveUp, moveDown, moveLeft, moveRight)
+	self:AnimatePlayer(moveUp, moveDown, moveLeft, moveRight)
 end
 
-function Realm:AnimatePlayer(isMoving, moveUp, moveDown, moveLeft, moveRight)
+function PlayerWalkState:AnimatePlayer(moveUp, moveDown, moveLeft, moveRight)
 	local horizontal = (moveLeft or moveRight) and not (moveLeft and moveRight)
 	local vertical = (moveUp or moveDown) and not (moveUp and moveDown)
-
-	if not isMoving then
-		self.player.animations.current:gotoFrame(1)
-		return
-	end
 
 	-- diagonal movement
 	if horizontal and vertical then
@@ -82,3 +70,11 @@ function Realm:AnimatePlayer(isMoving, moveUp, moveDown, moveLeft, moveRight)
 		end
 	end
 end
+
+function PlayerWalkState.new(player)
+	local self = SoulWalkState.new(player)
+	self.player = player
+	return self
+end
+
+return PlayerWalkState
