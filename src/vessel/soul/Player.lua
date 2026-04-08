@@ -1,4 +1,4 @@
-local Entity = require("src.entity.Entity")
+local Entity = require("src.vessel.soul.Entity")
 
 local Player = {}
 Player.__index = Player
