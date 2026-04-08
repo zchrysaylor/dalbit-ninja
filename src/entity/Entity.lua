@@ -4,12 +4,10 @@ Entity.__index = Entity
 
 function Entity:createAnimations()
 	self.grid = Anim8.newGrid(self.width, self.height, self.spriteSheet:getWidth(), self.spriteSheet:getHeight())
-
-	self.animations = {}
-	self.animations.up = Anim8.newAnimation(self.grid("1-4", 4), 0.1)
 	self.animations.down = Anim8.newAnimation(self.grid("1-4", 1), 0.1)
 	self.animations.left = Anim8.newAnimation(self.grid("1-4", 2), 0.1)
 	self.animations.right = Anim8.newAnimation(self.grid("1-4", 3), 0.1)
+	self.animations.up = Anim8.newAnimation(self.grid("1-4", 4), 0.1)
 	self.animations.current = self.animations.down
 end
 
@@ -47,6 +45,7 @@ function Entity.new(def, subclass)
 	self.speed = def.speed
 	self.scale = def.scale
 	self.spriteSheet = def.spriteSheet
+	self.animations = {}
 	self:createAnimations()
 	self:createCollision(def.world)
 	return self

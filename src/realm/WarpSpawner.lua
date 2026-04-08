@@ -1,5 +1,4 @@
-local Warp = {}
-Warp.__index = Warp
+local WarpSpawner = {}
 
 -- TODO: refactor to live in Deps or some global file
 -- Map transition lookup: trigger name -> {mapFile, destX, destY}
@@ -10,7 +9,7 @@ local MAP_TRANSITIONS = {
 	["warpToExterior1"] = { mapName = "map-hometown", destX = 72, destY = 192 },
 }
 
-function Warp:spawn(world, obj)
+function WarpSpawner.spawn(world, obj)
 	local centerX = obj.x + obj.width / 2
 	local centerY = obj.y + obj.height / 2
 	local warp = Collision.newRectangle(world, centerX, centerY, obj.width, obj.height)
@@ -21,12 +20,12 @@ function Warp:spawn(world, obj)
 		isWarp = true,
 	})
 
-	table.insert(self.bodies, warp)
+	return warp
 end
 
-function Warp:check(playerBody)
+function WarpSpawner.check(playerBody, warps)
 	-- Check all warp bodies for collision with player
-	for _, warp in ipairs(self.bodies) do
+	for _, warp in ipairs(warps) do
 		if isColliding(playerBody, warp.body) then
 			local data = warp.body:getUserData()
 			if data and data.isWarp then
@@ -37,17 +36,10 @@ function Warp:check(playerBody)
 	return nil
 end
 
-function Warp:destroyAll()
-	for _, warp in ipairs(self.bodies) do
+function WarpSpawner.destroyAll(warps)
+	for _, warp in ipairs(warps) do
 		warp.body:destroy()
 	end
-	self.bodies = {}
 end
 
-function Warp.new()
-	local self = setmetatable({}, Warp)
-	self.bodies = {}
-	return self
-end
-
-return Warp
+return WarpSpawner

@@ -19,47 +19,36 @@ function Realm:loadMap(mapName, destX, destY)
 
 	if self.map.layers["wall"] then
 		for _, obj in pairs(self.map.layers["wall"].objects) do
-			local centerX = obj.x + obj.width / 2
-			local centerY = obj.y + obj.height / 2
-			local wall = Collision.newRectangle(self.world, centerX, centerY, obj.width, obj.height)
+			local wall = WallSpawner.spawn(self.world, obj)
 			table.insert(self.walls, wall)
 		end
 	end
 
 	if self.map.layers["warp"] then
 		for _, obj in pairs(self.map.layers["warp"].objects) do
-			self.warps:spawn(self.world, obj)
+			local warp = WarpSpawner.spawn(self.world, obj)
+			table.insert(self.warps, warp)
 		end
 	end
 
 	if self.map.layers["entity"] then
 		for _, obj in pairs(self.map.layers["entity"].objects) do
-			if obj.name == "pointFireEnemy" then
-				local fireEnemy = Entity.new({
-					x = obj.x,
-					y = obj.y,
-					width = 16,
-					height = 16,
-					speed = 0.8,
-					scale = 1,
-					spriteSheet = GArt["sprite-enemy-fire"],
-					world = self.world,
-				})
-				table.insert(self.entities, fireEnemy)
-			end
+			local entity = EntitySpawner.spawn(self.world, obj)
+			table.insert(self.entities, entity)
 		end
 	end
 end
 
 function Realm:destroyAll()
-	for _, wall in ipairs(self.walls) do
-		wall.body:destroy()
-	end
+	WallSpawner.destroyAll(self.walls)
 	self.walls = {}
 
-	self.warps:destroyAll()
+	WarpSpawner.destroyAll(self.warps)
+	self.warps = {}
 
+	EntitySpawner.destroyAll(self.entities)
 	self.entities = {}
+
 	self.map = {}
 end
 
@@ -208,9 +197,9 @@ end
 
 -- Trigger a warp if a player has collided with it
 function Realm:checkWarps()
-	local warp = self.warps:check(self.player.collision.body)
-	if warp then
-		self:loadMap(warp.mapName, warp.destX, warp.destY)
+	local triggeredWarp = WarpSpawner.check(self.player.collision.body, self.warps)
+	if triggeredWarp then
+		self:loadMap(triggeredWarp.mapName, triggeredWarp.destX, triggeredWarp.destY)
 	end
 end
 
@@ -223,7 +212,8 @@ function Realm.new()
 	-- TODO: figure right data type sti returns or instantiate with default map
 	self.map = {}
 	self.walls = {}
-	self.warps = Warp.new()
+	self.warps = {}
+	self.entities = {}
 
 	self.player = Player.new({
 		x = 160,
@@ -235,8 +225,6 @@ function Realm.new()
 		spriteSheet = GArt["sprite-player"],
 		world = self.world,
 	})
-
-	self.entities = {}
 
 	return self
 end

@@ -1,6 +1,6 @@
 love.graphics.setDefaultFilter("nearest", "nearest")
 
-require("src.Deps")
+require("src.dependencies")
 
 function love.load()
 	love.window.setTitle("LBA: Lua Boy Advance")

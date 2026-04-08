@@ -22,7 +22,9 @@ require("src.constants")
 require("src.PhysicsUtils")
 
 Realm = require("src.realm.Realm")
-Warp = require("src.realm.Warp")
+WallSpawner = require("src.realm.WallSpawner")
+WarpSpawner = require("src.realm.WarpSpawner")
+EntitySpawner = require("src.realm.EntitySpawner")
 
 Collision = require("src.Collision")
 Entity = require("src.entity.Entity")
