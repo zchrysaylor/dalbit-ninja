@@ -1,8 +1,25 @@
-local PlayerWalkState = require("src.state.vessel.soul.SoulWalkState")
+local SoulWalkState = require("src.state.vessel.soul.SoulWalkState")
 
+---@class PlayerWalkState : SoulWalkState
+---@field entity Player
 local PlayerWalkState = {}
 PlayerWalkState.__index = PlayerWalkState
 setmetatable(PlayerWalkState, { __index = SoulWalkState })
+
+-- If you eventually want shared walk behavior (e.g., footstep sounds, encounter checks), the right pattern would be to extract that into a separate method on SoulWalkState that both implementations call explicitly:
+-- -- SoulWalkState.lua
+-- function SoulWalkState:onWalking(dt)
+--     -- shared: footstep timer, encounter check, etc.
+-- end
+-- function SoulWalkState:update(dt)
+--     self:onWalking(dt)  -- shared behavior
+--     -- NPC position-based movement...
+-- end
+-- -- PlayerWalkState.lua
+-- function PlayerWalkState:update(dt)
+--     SoulWalkState.onWalking(self, dt)  -- shared behavior
+--     self:MovePlayer()  -- player-specific physics movement
+-- end
 
 function PlayerWalkState:update(dt)
 	self:MovePlayer()
@@ -16,7 +33,7 @@ function PlayerWalkState:MovePlayer()
 
 	-- build velocity from input
 	local vx, vy = 0, 0
-	local speed = self.player.speed * 100 -- velocity is pixels/sec
+	local speed = self.entity.speed * 100 -- velocity is pixels/sec
 
 	if moveUp and not moveDown then
 		vy = -speed
@@ -31,11 +48,12 @@ function PlayerWalkState:MovePlayer()
 	end
 
 	if not moveUp and not moveDown and not moveLeft and not moveRight then
-		self.player:changeState("idle")
+		self.entity:changeState("idle")
+		return
 	end
 
 	-- move the body with physics and animations
-	self.player.collision:setLinearVelocity(vx, vy)
+	self.entity.collision:setLinearVelocity(vx, vy)
 	self:AnimatePlayer(moveUp, moveDown, moveLeft, moveRight)
 end
 
@@ -46,34 +64,36 @@ function PlayerWalkState:AnimatePlayer(moveUp, moveDown, moveLeft, moveRight)
 	-- diagonal movement
 	if horizontal and vertical then
 		if moveUp and moveLeft then
-			self.player.animations.current = self.player.animations.upLeft
+			self.entity.animations.current = self.entity.animations.upLeft
 		elseif moveUp and moveRight then
-			self.player.animations.current = self.player.animations.upRight
+			self.entity.animations.current = self.entity.animations.upRight
 		elseif moveDown and moveLeft then
-			self.player.animations.current = self.player.animations.downLeft
+			self.entity.animations.current = self.entity.animations.downLeft
 		elseif moveDown and moveRight then
-			self.player.animations.current = self.player.animations.downRight
+			self.entity.animations.current = self.entity.animations.downRight
 		end
 	elseif vertical and not horizontal then
 		-- vertical only
 		if moveUp then
-			self.player.animations.current = self.player.animations.up
+			self.entity.animations.current = self.entity.animations.up
 		else
-			self.player.animations.current = self.player.animations.down
+			self.entity.animations.current = self.entity.animations.down
 		end
 	elseif horizontal and not vertical then
 		-- horizontal only
 		if moveLeft then
-			self.player.animations.current = self.player.animations.left
+			self.entity.animations.current = self.entity.animations.left
 		else
-			self.player.animations.current = self.player.animations.right
+			self.entity.animations.current = self.entity.animations.right
 		end
 	end
 end
 
+---@param player Player
+---@return PlayerWalkState
 function PlayerWalkState.new(player)
 	local self = SoulWalkState.new(player)
-	self.player = player
+	setmetatable(self, PlayerWalkState)
 	return self
 end
 

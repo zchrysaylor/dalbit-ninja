@@ -19,17 +19,13 @@ end
 
 function PlayState:exitState()
 	-- TODO: should be done in realm class after loading new map or need more global destroyAll here
-	self.realm:destroyMap()
+	self.realm:destroyAll()
 end
 
 function PlayState:update(dt)
 	self.realm:CameraLookAtPlayer()
 
-	-- TODO: player currently looks walking on start, because animation not updated yet due to this early return
-	-- Should be fixable when implmenting player idle state
-	-- Adding gotoFrame is a workaround
 	if self.isFading then
-		self.realm.player.animations.current:gotoFrame(1)
 		return
 	end
 

@@ -19,6 +19,7 @@ end
 function StateMachine.new(states)
 	local self = setmetatable({}, StateMachine)
 	self.states = states or {}
+	-- TODO: can replace with BaseState.new()?
 	self.emptyState = {
 		update = function() end,
 		draw = function() end,

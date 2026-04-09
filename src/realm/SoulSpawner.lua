@@ -19,6 +19,8 @@ end
 function SoulSpawner.destroyAll(entities)
 	for _, entity in ipairs(entities) do
 		entity.collision.body:destroy()
+		-- TODO: call exitState() on cleanup?
+		-- entity.stateMachine.currentState:exitState()
 	end
 end
 

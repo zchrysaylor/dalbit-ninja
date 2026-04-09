@@ -26,18 +26,19 @@ function Player:createCollision(world)
 	self.collision.body:setLinearDamping(0) -- no friction slowdown since you control velocity directly
 end
 
-function Player.new(def)
-	local self = Soul.new(def, Player)
+function Player:createStateMachine()
 	self.stateMachine = StateMachine.new({
 		["idle"] = function()
-			return PlayerIdleState.new()
+			return PlayerIdleState.new(self)
 		end,
 		["walk"] = function()
-			return PlayerWalkState.new()
+			return PlayerWalkState.new(self)
 		end,
 	})
-	self.stateMachine:changeState("idle")
-	return self
+end
+
+function Player.new(def)
+	return Soul.new(def, Player)
 end
 
 return Player

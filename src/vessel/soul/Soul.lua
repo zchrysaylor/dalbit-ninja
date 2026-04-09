@@ -19,8 +19,24 @@ function Soul:createCollision(world)
 	self.collision = Collision.newOctagon(world, self.x, self.y, shapeWidth - 2, shapeHeight, shapeCornerCutSize)
 end
 
+function Soul:createStateMachine()
+	self.stateMachine = StateMachine.new({
+		["idle"] = function()
+			return SoulIdleState.new(self)
+		end,
+		["walk"] = function()
+			return SoulWalkState.new(self)
+		end,
+	})
+end
+
+function Soul:changeState(state, args)
+	self.stateMachine:changeState(state, args)
+end
+
 function Soul:update(dt)
 	self.animations.current:update(dt)
+	self.stateMachine:update(dt)
 end
 
 function Soul:draw()
@@ -46,9 +62,10 @@ function Soul.new(def, subclass)
 	self.scale = def.scale
 	self.spriteSheet = def.spriteSheet
 	self.animations = {}
-	self.stateMachine = {}
+	self:createStateMachine()
 	self:createAnimations()
 	self:createCollision(def.world)
+	self:changeState("idle")
 	return self
 end
 
