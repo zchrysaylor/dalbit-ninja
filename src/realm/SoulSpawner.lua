@@ -16,11 +16,11 @@ function SoulSpawner.spawn(world, obj)
 	end
 end
 
-function SoulSpawner.destroyAll(entities)
-	for _, entity in ipairs(entities) do
-		entity.collision.body:destroy()
+function SoulSpawner.destroyAll(souls)
+	for _, soul in ipairs(souls) do
+		soul.collision.body:destroy()
 		-- TODO: call exitState() on cleanup?
-		-- entity.stateMachine.currentState:exitState()
+		-- soul.stateMachine.currentState:exitState()
 	end
 end
 

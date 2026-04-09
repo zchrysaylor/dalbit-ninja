@@ -1,7 +1,7 @@
 local SoulWalkState = require("src.state.vessel.soul.SoulWalkState")
 
 ---@class PlayerWalkState : SoulWalkState
----@field entity Player
+---@field soul Player
 local PlayerWalkState = {}
 PlayerWalkState.__index = PlayerWalkState
 setmetatable(PlayerWalkState, { __index = SoulWalkState })
@@ -33,7 +33,7 @@ function PlayerWalkState:MovePlayer()
 
 	-- build velocity from input
 	local vx, vy = 0, 0
-	local speed = self.entity.speed * 100 -- velocity is pixels/sec
+	local speed = self.soul.speed * 100 -- velocity is pixels/sec
 
 	if moveUp and not moveDown then
 		vy = -speed
@@ -48,12 +48,12 @@ function PlayerWalkState:MovePlayer()
 	end
 
 	if not moveUp and not moveDown and not moveLeft and not moveRight then
-		self.entity:changeState("idle")
+		self.soul:changeState("idle")
 		return
 	end
 
 	-- move the body with physics and animations
-	self.entity.collision:setLinearVelocity(vx, vy)
+	self.soul.collision:setLinearVelocity(vx, vy)
 	self:AnimatePlayer(moveUp, moveDown, moveLeft, moveRight)
 end
 
@@ -64,27 +64,27 @@ function PlayerWalkState:AnimatePlayer(moveUp, moveDown, moveLeft, moveRight)
 	-- diagonal movement
 	if horizontal and vertical then
 		if moveUp and moveLeft then
-			self.entity.animations.current = self.entity.animations.upLeft
+			self.soul.animations.current = self.soul.animations.upLeft
 		elseif moveUp and moveRight then
-			self.entity.animations.current = self.entity.animations.upRight
+			self.soul.animations.current = self.soul.animations.upRight
 		elseif moveDown and moveLeft then
-			self.entity.animations.current = self.entity.animations.downLeft
+			self.soul.animations.current = self.soul.animations.downLeft
 		elseif moveDown and moveRight then
-			self.entity.animations.current = self.entity.animations.downRight
+			self.soul.animations.current = self.soul.animations.downRight
 		end
 	elseif vertical and not horizontal then
 		-- vertical only
 		if moveUp then
-			self.entity.animations.current = self.entity.animations.up
+			self.soul.animations.current = self.soul.animations.up
 		else
-			self.entity.animations.current = self.entity.animations.down
+			self.soul.animations.current = self.soul.animations.down
 		end
 	elseif horizontal and not vertical then
 		-- horizontal only
 		if moveLeft then
-			self.entity.animations.current = self.entity.animations.left
+			self.soul.animations.current = self.soul.animations.left
 		else
-			self.entity.animations.current = self.entity.animations.right
+			self.soul.animations.current = self.soul.animations.right
 		end
 	end
 end

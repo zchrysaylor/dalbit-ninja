@@ -31,10 +31,11 @@ function Realm:loadMap(mapName, destX, destY)
 		end
 	end
 
+	-- TODO: refactor map layer to be "soul"
 	if self.map.layers["entity"] then
 		for _, obj in pairs(self.map.layers["entity"].objects) do
-			local entity = SoulSpawner.spawn(self.world, obj)
-			table.insert(self.entities, entity)
+			local soul = SoulSpawner.spawn(self.world, obj)
+			table.insert(self.souls, soul)
 		end
 	end
 end
@@ -46,8 +47,8 @@ function Realm:destroyAll()
 	WarpSpawner.destroyAll(self.warps)
 	self.warps = {}
 
-	SoulSpawner.destroyAll(self.entities)
-	self.entities = {}
+	SoulSpawner.destroyAll(self.souls)
+	self.souls = {}
 
 	self.map = {}
 end
@@ -61,8 +62,8 @@ function Realm:update(dt)
 	self.player:update(dt)
 	self:checkWarps()
 
-	for _, entity in pairs(self.entities) do
-		entity:update(dt)
+	for _, soul in pairs(self.souls) do
+		soul:update(dt)
 	end
 
 	if love.keyboard.wasPressed(KEY_DEBUG) then
@@ -84,8 +85,8 @@ function Realm:draw()
 		self.map:drawLayer(self.map.layers["building"])
 	end
 
-	for _, entity in pairs(self.entities) do
-		entity:draw()
+	for _, soul in pairs(self.souls) do
+		soul:draw()
 	end
 
 	self.player:draw()
@@ -142,7 +143,7 @@ function Realm.new()
 	self.map = {}
 	self.walls = {}
 	self.warps = {}
-	self.entities = {}
+	self.souls = {}
 
 	self.player = Player.new({
 		x = 160,

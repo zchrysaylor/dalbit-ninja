@@ -1,23 +1,22 @@
 local BaseState = require("src.state.BaseState")
 
 ---@class SoulIdleState : BaseState
----@field entity Soul
+---@field soul Soul
 local SoulIdleState = {}
 SoulIdleState.__index = SoulIdleState
 setmetatable(SoulIdleState, { __index = BaseState })
 
 function SoulIdleState:enterState(args)
-	self.entity.animations.current:pauseAtStart()
+	self.soul.animations.current:pauseAtStart()
 end
 
 function SoulIdleState:update(dt) end
 
----@param entity Soul
+---@param soul Soul
 ---@return SoulIdleState
-function SoulIdleState.new(entity)
+function SoulIdleState.new(soul)
 	local self = BaseState.new(SoulIdleState)
-	-- TODO: refactor to self.soul
-	self.entity = entity
+	self.soul = soul
 	return self
 end
 
