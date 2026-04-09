@@ -16,6 +16,7 @@ function SoulIdleState:update(dt) end
 ---@return SoulIdleState
 function SoulIdleState.new(entity)
 	local self = BaseState.new(SoulIdleState)
+	-- TODO: refactor to self.soul
 	self.entity = entity
 	return self
 end
