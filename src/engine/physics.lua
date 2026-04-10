@@ -20,4 +20,6 @@ function physics.isColliding(body1, body2)
 	return false
 end
 
+-- TODO: add vector normalization function to account for diagonal speed
+
 return physics

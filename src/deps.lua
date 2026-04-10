@@ -30,6 +30,7 @@ Timer = require("lib.timer")
 require("src.constants")
 Physics = require("src.engine.physics")
 Collision = require("src.engine.collision")
+Signal = require("src.engine.signal")
 
 Vessel = require("src.vessel.Vessel")
 Soul = require("src.vessel.soul.Soul")
