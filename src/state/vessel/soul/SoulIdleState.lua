@@ -6,16 +6,18 @@ local SoulIdleState = {}
 SoulIdleState.__index = SoulIdleState
 setmetatable(SoulIdleState, { __index = BaseState })
 
+---Pause the current animation at its first frame when entering idle.
+---@param args? table Unused; present for BaseState interface compatibility
 function SoulIdleState:enterState(args)
 	self.soul.animations.current:pauseAtStart()
 end
 
-function SoulIdleState:update(dt) end
-
+---@generic T : SoulIdleState
 ---@param soul Soul
----@return SoulIdleState
-function SoulIdleState.new(soul)
-	local self = BaseState.new(SoulIdleState)
+---@param subclass? T Metatable to use (defaults to SoulIdleState)
+---@return T
+function SoulIdleState.new(soul, subclass)
+	local self = BaseState.new(subclass or SoulIdleState)
 	self.soul = soul
 	return self
 end

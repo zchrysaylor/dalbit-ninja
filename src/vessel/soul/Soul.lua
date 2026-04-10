@@ -1,7 +1,15 @@
---@class Soul
+local Vessel = require("src.vessel.Vessel")
+
+---@class Soul : Vessel
+---@field speed number Movement speed multiplier
+---@field animations table Directional animation set (keys: "down", "left", "right", "up", "current")
+---@field stateMachine StateMachine Per-entity state machine managing idle/walk transitions
 local Soul = {}
 Soul.__index = Soul
+setmetatable(Soul, { __index = Vessel })
 
+---Build the animation grid and directional animations from the sprite sheet.
+---Populates self.animations with "down", "left", "right", "up", and "current".
 function Soul:createAnimations()
 	self.grid = Anim8.newGrid(self.width, self.height, self.spriteSheet:getWidth(), self.spriteSheet:getHeight())
 	self.animations.down = Anim8.newAnimation(self.grid("1-4", 1), 0.1)
@@ -11,14 +19,8 @@ function Soul:createAnimations()
 	self.animations.current = self.animations.down
 end
 
-function Soul:createCollision(world)
-	local shapeWidth = self.width * self.scale
-	local shapeHeight = self.height * self.scale
-	local shapeCornerCutSize = 3 * self.scale
-	-- TODO: figure out why adjusting height doesn't work as expected
-	self.collision = Collision.newOctagon(world, self.x, self.y, shapeWidth - 2, shapeHeight, shapeCornerCutSize)
-end
-
+---Build the state machine.
+---Subclasses override this to register their own state factories.
 function Soul:createStateMachine()
 	self.stateMachine = StateMachine.new({
 		["idle"] = function()
@@ -30,15 +32,22 @@ function Soul:createStateMachine()
 	})
 end
 
+---Transition this Soul to a new state.
+---@param state string State key (e.g. "idle", "walk")
+---@param args? table Optional arguments forwarded to the state's enterState()
 function Soul:changeState(state, args)
 	self.stateMachine:changeState(state, args)
 end
 
+---Update the current animation frame and delegate to the active state.
+---@param dt number Delta time in seconds
 function Soul:update(dt)
 	self.animations.current:update(dt)
 	self.stateMachine:update(dt)
 end
 
+---Draw the current animation frame centered at (x, y).
+---Overrides Vessel:draw() to use animation-based rendering.
 function Soul:draw()
 	self.animations.current:draw(
 		self.spriteSheet,
@@ -52,19 +61,17 @@ function Soul:draw()
 	)
 end
 
+---Create a new Soul.
+---@generic T : Soul
+---@param def table {x, y, width, height, scale, speed, spriteSheet, world}
+---@param subclass? T Metatable for subclass (defaults to Soul)
+---@return T
 function Soul.new(def, subclass)
-	local self = setmetatable({}, subclass or Soul)
-	self.x = def.x
-	self.y = def.y
-	self.width = def.width
-	self.height = def.height
+	local self = Vessel.new(def, subclass or Soul)
 	self.speed = def.speed
-	self.scale = def.scale
-	self.spriteSheet = def.spriteSheet
 	self.animations = {}
 	self:createStateMachine()
 	self:createAnimations()
-	self:createCollision(def.world)
 	self:changeState("idle")
 	return self
 end

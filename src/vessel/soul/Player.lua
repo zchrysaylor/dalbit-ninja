@@ -1,15 +1,16 @@
 local Soul = require("src.vessel.soul.Soul")
 
+---@class Player : Soul
 local Player = {}
 Player.__index = Player
 setmetatable(Player, { __index = Soul })
 
 local ANIMATION_SPEED = 0.1
 
+---Build the 8-directional animation set from the player sprite sheet.
+---Overrides Soul:createAnimations() to add diagonal directions.
 function Player:createAnimations()
 	self.grid = Anim8.newGrid(self.width, self.height, self.spriteSheet:getWidth(), self.spriteSheet:getHeight())
-
-	self.animations = {}
 	self.animations.down = Anim8.newAnimation(self.grid("1-4", 1), ANIMATION_SPEED)
 	self.animations.downLeft = Anim8.newAnimation(self.grid("1-4", 2), ANIMATION_SPEED)
 	self.animations.left = Anim8.newAnimation(self.grid("1-4", 3), ANIMATION_SPEED)
@@ -21,11 +22,16 @@ function Player:createAnimations()
 	self.animations.current = self.animations.down
 end
 
+---Create the physics body and disable linear damping so velocity is fully player-controlled.
+---Overrides Soul:createCollision() to disable linear damping on the resulting body.
+---@param world love.World
 function Player:createCollision(world)
 	Soul.createCollision(self, world)
 	self.collision.body:setLinearDamping(0) -- no friction slowdown since you control velocity directly
 end
 
+---Build the state machine.
+---Overrides Soul:createStateMachine() to wire player-specific states.
 function Player:createStateMachine()
 	self.stateMachine = StateMachine.new({
 		["idle"] = function()
@@ -37,6 +43,9 @@ function Player:createStateMachine()
 	})
 end
 
+---Create a new Player.
+---@param def table {x, y, width, height, scale, speed, spriteSheet, world}
+---@return Player
 function Player.new(def)
 	return Soul.new(def, Player)
 end

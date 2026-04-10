@@ -6,14 +6,16 @@ local PlayerIdleState = {}
 PlayerIdleState.__index = PlayerIdleState
 setmetatable(PlayerIdleState, { __index = SoulIdleState })
 
+---Pause animation and zero out velocity when the player enters idle.
+---@param args? table Forwarded to SoulIdleState.enterState()
 function PlayerIdleState:enterState(args)
 	SoulIdleState.enterState(self, args)
-	self.soul.collision:setLinearVelocity(0, 0)
+	self.soul:setLinearVelocity(0, 0)
 end
 
+---Transition to "walk" if any directional key is held.
+---@param dt number Delta time in seconds
 function PlayerIdleState:update(dt)
-	SoulIdleState.update(self, dt)
-
 	if
 		love.keyboard.isDown(KEY_UP)
 		or love.keyboard.isDown(KEY_DOWN)
@@ -32,9 +34,7 @@ end
 ---@param player Player
 ---@return PlayerIdleState
 function PlayerIdleState.new(player)
-	local self = SoulIdleState.new(player)
-	setmetatable(self, PlayerIdleState)
-	return self
+	return SoulIdleState.new(player, PlayerIdleState)
 end
 
 return PlayerIdleState

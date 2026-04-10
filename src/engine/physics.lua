@@ -1,7 +1,12 @@
--- A util class for common love.physics use cases
+--- Utility module for common love.physics queries.
+---@module physics
 local physics = {}
 
--- Checks if two objects are colliding
+---Check whether two Box2D bodies are currently touching.
+---Iterates all active contacts on body1 and looks for a contact that involves body2.
+---@param body1 love.Body First physics body
+---@param body2 love.Body Second physics body
+---@return boolean `true` if the two bodies have an active touching contact
 function physics.isColliding(body1, body2)
 	for _, contact in ipairs(body1:getContacts()) do
 		if contact:isTouching() then

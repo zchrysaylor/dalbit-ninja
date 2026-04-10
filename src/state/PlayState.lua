@@ -1,11 +1,20 @@
 local BaseState = require("src.state.BaseState")
 
+---Main gameplay state. Owns a Realm and handles pause, fade-in from StartState, and rendering.
+---@class PlayState : BaseState
+---@field realm Realm The active world/level controller
+---@field fadeAlpha number Black overlay opacity during transition (0 = transparent, 1 = opaque)
+---@field isFading boolean True while the entry fade-in tween is running
 local PlayState = {}
 PlayState.__index = PlayState
 setmetatable(PlayState, { __index = BaseState })
 
+-- Module-level pause flag shared across all PlayState instances
 local pauseGame = false
 
+---Called when this state becomes active.
+---If transitioning from "start", starts a black-overlay fade-in tween.
+---@param args? {previousState?: string} Optional table; check previousState == "start"
 function PlayState:enterState(args)
 	if args and args.previousState and args.previousState == "start" then
 		self.fadeAlpha = 1
@@ -17,11 +26,14 @@ function PlayState:enterState(args)
 	end
 end
 
+---Destroy all current realm entities when leaving this state.
 function PlayState:exitState()
 	-- TODO: should be done in realm class after loading new map or need more global destroyAll here
 	self.realm:destroyAll()
 end
 
+---Update camera, handle pause toggling, and delegate to realm update (skipped while fading or paused).
+---@param dt number Delta time in seconds
 function PlayState:update(dt)
 	self.realm:CameraLookAtPlayer()
 
@@ -38,6 +50,7 @@ function PlayState:update(dt)
 	end
 end
 
+---Render the realm, the fade overlay (if fading), and the pause text (if paused).
 function PlayState:draw()
 	self.realm:draw()
 
@@ -61,6 +74,8 @@ function PlayState:draw()
 	end
 end
 
+---Create a new PlayState: instantiates a Realm and loads the starting map.
+---@return PlayState
 function PlayState.new()
 	local self = BaseState.new(PlayState)
 

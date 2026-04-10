@@ -21,11 +21,15 @@ setmetatable(PlayerWalkState, { __index = SoulWalkState })
 --     self:MovePlayer()  -- player-specific physics movement
 -- end
 
+---Delegate per-frame movement to movePlayer().
+---@param dt number Delta time in seconds
 function PlayerWalkState:update(dt)
-	self:MovePlayer()
+	self:movePlayer()
 end
 
-function PlayerWalkState:MovePlayer()
+---Read directional input, compute Box2D velocity, and select the correct animation.
+---Transitions back to "idle" if no directional key is held.
+function PlayerWalkState:movePlayer()
 	local moveUp = love.keyboard.isDown(KEY_UP)
 	local moveLeft = love.keyboard.isDown(KEY_LEFT)
 	local moveDown = love.keyboard.isDown(KEY_DOWN)
@@ -53,11 +57,17 @@ function PlayerWalkState:MovePlayer()
 	end
 
 	-- move the body with physics and animations
-	self.soul.collision:setLinearVelocity(vx, vy)
-	self:AnimatePlayer(moveUp, moveDown, moveLeft, moveRight)
+	self.soul:setLinearVelocity(vx, vy)
+	self:animatePlayer(moveUp, moveDown, moveLeft, moveRight)
 end
 
-function PlayerWalkState:AnimatePlayer(moveUp, moveDown, moveLeft, moveRight)
+---Select the correct directional animation based on the active input flags.
+---Handles 8-way animation: cardinal and diagonal directions.
+---@param moveUp boolean
+---@param moveDown boolean
+---@param moveLeft boolean
+---@param moveRight boolean
+function PlayerWalkState:animatePlayer(moveUp, moveDown, moveLeft, moveRight)
 	local horizontal = (moveLeft or moveRight) and not (moveLeft and moveRight)
 	local vertical = (moveUp or moveDown) and not (moveUp and moveDown)
 
@@ -92,9 +102,7 @@ end
 ---@param player Player
 ---@return PlayerWalkState
 function PlayerWalkState.new(player)
-	local self = SoulWalkState.new(player)
-	setmetatable(self, PlayerWalkState)
-	return self
+	return SoulWalkState.new(player, PlayerWalkState)
 end
 
 return PlayerWalkState

@@ -6,30 +6,45 @@ local SoulWalkState = {}
 SoulWalkState.__index = SoulWalkState
 setmetatable(SoulWalkState, { __index = BaseState })
 
+---Resume the current animation when entering walk.
 function SoulWalkState:enterState()
 	self.soul.animations.current:resume()
 end
 
-function SoulWalkState:update(dt)
-	if self.soul.direction == "up" then
-		self.soul.y = self.soul.y - self.soul.speed * dt
-	elseif self.soul.direction == "down" then
-		self.soul.y = self.soul.y + self.soul.speed * dt
-	elseif self.soul.direction == "left" then
-		self.soul.x = self.soul.x - self.soul.speed * dt
-	elseif self.soul.direction == "right" then
-		self.soul.x = self.soul.x + self.soul.speed * dt
-	end
+---Halt the soul's physics velocity when leaving walk.
+function SoulWalkState:exitState()
+	self.soul:setLinearVelocity(0, 0)
 end
 
+---Apply velocity in the soul's current direction each frame.
+---Used by NPC souls whose direction is set externally (e.g. by AI or scripted movement).
+---@param dt number Delta time in seconds
+function SoulWalkState:update(dt)
+	local speed = self.soul.speed * 100
+	local vx, vy = 0, 0
+	if self.soul.direction == "up" then
+		vy = -speed
+	elseif self.soul.direction == "down" then
+		vy = speed
+	elseif self.soul.direction == "left" then
+		vx = -speed
+	elseif self.soul.direction == "right" then
+		vx = speed
+	end
+	self.soul:setLinearVelocity(vx, vy)
+end
+
+---Stub for future NPC AI movement logic.
 function SoulWalkState:simulate()
 	-- TODO: AI logic here
 end
 
+---@generic T : SoulWalkState
 ---@param soul Soul
----@return SoulWalkState
-function SoulWalkState.new(soul)
-	local self = BaseState.new(SoulWalkState)
+---@param subclass? T Metatable to use (defaults to SoulWalkState)
+---@return T
+function SoulWalkState.new(soul, subclass)
+	local self = BaseState.new(subclass or SoulWalkState)
 	self.soul = soul
 	self.walkTimer = 0
 	self.walkDuration = 0
