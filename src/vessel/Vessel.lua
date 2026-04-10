@@ -5,7 +5,7 @@
 ---@field height number
 ---@field scale number
 ---@field spriteSheet love.Image
----@field collision table {body: love.Body, shape: love.Shape, fixture: love.Fixture}
+---@field collision CollisionData
 local Vessel = {}
 Vessel.__index = Vessel
 

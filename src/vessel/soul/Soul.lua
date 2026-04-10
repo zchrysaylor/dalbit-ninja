@@ -4,6 +4,8 @@ local Vessel = require("src.vessel.Vessel")
 ---@field speed number Movement speed multiplier
 ---@field animations table Directional animation set (keys: "down", "left", "right", "up", "current")
 ---@field stateMachine StateMachine Per-entity state machine managing idle/walk transitions
+---@field grid any Animation grid produced by Anim8.newGrid()
+---@field direction? string Cardinal direction for NPC movement ("up", "down", "left", "right")
 local Soul = {}
 Soul.__index = Soul
 setmetatable(Soul, { __index = Vessel })

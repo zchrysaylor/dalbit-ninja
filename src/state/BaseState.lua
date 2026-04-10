@@ -5,8 +5,8 @@ local BaseState = {}
 BaseState.__index = BaseState
 
 ---Called when this state becomes active. Override to perform setup.
----@param args? table Optional arguments passed from StateMachine:changeState()
-function BaseState:enterState() end
+---@param args? table Optional arguments
+function BaseState:enterState(args) end
 
 ---Called when this state is about to be replaced. Override to perform teardown.
 function BaseState:exitState() end
@@ -18,7 +18,7 @@ function BaseState:update(dt) end
 ---Called every frame to render this state.
 function BaseState:draw() end
 
----Construct a new BaseState (or subclass) instance.
+---Create a new BaseState
 ---@generic T : BaseState
 ---@param subclass? T Metatable to use (defaults to BaseState)
 ---@return T

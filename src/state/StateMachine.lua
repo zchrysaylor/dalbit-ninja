@@ -3,6 +3,7 @@
 ---@class StateMachine
 ---@field states table<string, fun(): BaseState> Map of state key → factory function
 ---@field currentState BaseState The currently active state instance
+---@field emptyState BaseState No-op placeholder state used before the first transition
 local StateMachine = {}
 StateMachine.__index = StateMachine
 
@@ -27,7 +28,7 @@ function StateMachine:draw()
 	self.currentState:draw()
 end
 
----Create a new StateMachine with the given state factory map.
+---Create a new StateMachine
 ---@param states table<string, fun(): BaseState> Map of state key → factory function
 ---@return StateMachine
 function StateMachine.new(states)

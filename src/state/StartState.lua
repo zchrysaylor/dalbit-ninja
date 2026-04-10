@@ -52,7 +52,7 @@ function StartState:draw()
 	love.graphics.printf("Press Enter", 0, VIRTUAL_HEIGHT / 2 + 64, VIRTUAL_WIDTH, "center")
 end
 
----Create a new StartState with the title fully visible (alpha = 1).
+---Create a new StartState
 ---@return StartState
 function StartState.new()
 	local self = BaseState.new(StartState)

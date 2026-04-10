@@ -2,12 +2,15 @@ local BaseState = require("src.state.BaseState")
 
 ---@class SoulWalkState : BaseState
 ---@field soul Soul
+---@field walkTimer number
+---@field walkDuration number
 local SoulWalkState = {}
 SoulWalkState.__index = SoulWalkState
 setmetatable(SoulWalkState, { __index = BaseState })
 
 ---Resume the current animation when entering walk.
-function SoulWalkState:enterState()
+---@param args? table Optional arguments
+function SoulWalkState:enterState(args)
 	self.soul.animations.current:resume()
 end
 
@@ -39,6 +42,7 @@ function SoulWalkState:simulate()
 	-- TODO: AI logic here
 end
 
+---Create a new SoulWalkState
 ---@generic T : SoulWalkState
 ---@param soul Soul
 ---@param subclass? T Metatable to use (defaults to SoulWalkState)

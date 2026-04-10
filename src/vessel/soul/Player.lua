@@ -1,6 +1,8 @@
 local Soul = require("src.vessel.soul.Soul")
 
 ---@class Player : Soul
+---@field dirX number Horizontal direction (-1 = left, 0 = none, 1 = right)
+---@field dirY number Vertical direction (-1 = up, 0 = none, 1 = down)
 local Player = {}
 Player.__index = Player
 setmetatable(Player, { __index = Soul })
@@ -44,10 +46,13 @@ function Player:createStateMachine()
 end
 
 ---Create a new Player.
----@param def table {x, y, width, height, scale, speed, spriteSheet, world}
+---@param def table {x, y, width, height, scale, speed, spriteSheet, world, dirX, dirY}
 ---@return Player
 function Player.new(def)
-	return Soul.new(def, Player)
+	local self = Soul.new(def, Player)
+	self.dirX = def.dirX or 0
+	self.dirY = def.dirY or 1
+	return self
 end
 
 return Player

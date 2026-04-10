@@ -6,6 +6,17 @@ local PlayerWalkState = {}
 PlayerWalkState.__index = PlayerWalkState
 setmetatable(PlayerWalkState, { __index = SoulWalkState })
 
+---@param args? table Optional arguments
+function PlayerWalkState:enterState(args)
+	-- resume paused animation
+	SoulWalkState.enterState(self, args)
+
+	self:animateFromDirection()
+
+	-- set immediately to walking frame for accurate animation on key press
+	self.soul.animations.current:gotoFrame(2)
+end
+
 -- If you eventually want shared walk behavior (e.g., footstep sounds, encounter checks), the right pattern would be to extract that into a separate method on SoulWalkState that both implementations call explicitly:
 -- -- SoulWalkState.lua
 -- function SoulWalkState:onWalking(dt)
@@ -35,26 +46,19 @@ function PlayerWalkState:movePlayer()
 	local moveDown = love.keyboard.isDown(KEY_DOWN)
 	local moveRight = love.keyboard.isDown(KEY_RIGHT)
 
-	-- build velocity from input
-	local vx, vy = 0, 0
-	local speed = self.soul.speed * 100 -- velocity is pixels/sec
-
-	if moveUp and not moveDown then
-		vy = -speed
-	elseif moveDown and not moveUp then
-		vy = speed
-	end
-
-	if moveLeft and not moveRight then
-		vx = -speed
-	elseif moveRight and not moveLeft then
-		vx = speed
-	end
-
 	if not moveUp and not moveDown and not moveLeft and not moveRight then
 		self.soul:changeState("idle")
 		return
 	end
+
+	-- Update direction on player
+	self.soul.dirX = (moveRight and 1 or 0) - (moveLeft and 1 or 0)
+	self.soul.dirY = (moveDown and 1 or 0) - (moveUp and 1 or 0)
+
+	-- build velocity from direction
+	local speed = self.soul.speed * 100 -- velocity is pixels/sec
+	local vx = self.soul.dirX * speed
+	local vy = self.soul.dirY * speed
 
 	-- normalize diagonal movement so the player doesn't move faster on diagonals
 	if vx ~= 0 and vy ~= 0 then
@@ -65,47 +69,31 @@ function PlayerWalkState:movePlayer()
 
 	-- move the body with physics and animations
 	self.soul:setLinearVelocity(vx, vy)
-	self:animatePlayer(moveUp, moveDown, moveLeft, moveRight)
+	self:animateFromDirection()
 end
 
----Select the correct directional animation based on the active input flags.
+---Select the correct directional animation based on the player vector direction
 ---Handles 8-way animation: cardinal and diagonal directions.
----@param moveUp boolean
----@param moveDown boolean
----@param moveLeft boolean
----@param moveRight boolean
-function PlayerWalkState:animatePlayer(moveUp, moveDown, moveLeft, moveRight)
-	local horizontal = (moveLeft or moveRight) and not (moveLeft and moveRight)
-	local vertical = (moveUp or moveDown) and not (moveUp and moveDown)
+function PlayerWalkState:animateFromDirection()
+	local dirX = self.soul.dirX
+	local dirY = self.soul.dirY
+	local anims = self.soul.animations
 
-	-- diagonal movement
-	if horizontal and vertical then
-		if moveUp and moveLeft then
-			self.soul.animations.current = self.soul.animations.upLeft
-		elseif moveUp and moveRight then
-			self.soul.animations.current = self.soul.animations.upRight
-		elseif moveDown and moveLeft then
-			self.soul.animations.current = self.soul.animations.downLeft
-		elseif moveDown and moveRight then
-			self.soul.animations.current = self.soul.animations.downRight
-		end
-	elseif vertical and not horizontal then
-		-- vertical only
-		if moveUp then
-			self.soul.animations.current = self.soul.animations.up
+	if dirX ~= 0 and dirY ~= 0 then
+		-- diagonal
+		if dirY < 0 then
+			anims.current = dirX < 0 and anims.upLeft or anims.upRight
 		else
-			self.soul.animations.current = self.soul.animations.down
+			anims.current = dirX < 0 and anims.downLeft or anims.downRight
 		end
-	elseif horizontal and not vertical then
-		-- horizontal only
-		if moveLeft then
-			self.soul.animations.current = self.soul.animations.left
-		else
-			self.soul.animations.current = self.soul.animations.right
-		end
+	elseif dirY ~= 0 then
+		anims.current = dirY < 0 and anims.up or anims.down
+	elseif dirX ~= 0 then
+		anims.current = dirX < 0 and anims.left or anims.right
 	end
 end
 
+---Create a new PlayerWalkState
 ---@param player Player
 ---@return PlayerWalkState
 function PlayerWalkState.new(player)

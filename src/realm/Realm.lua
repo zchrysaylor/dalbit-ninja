@@ -157,8 +157,7 @@ function Realm:checkWarps()
 	end
 end
 
----Create a new Realm with a zero-gravity Box2D world and a default Player.
----Call loadMap() after construction to populate the first map.
+---Create a new Realm
 ---@return Realm
 function Realm.new()
 	local self = setmetatable({}, Realm)

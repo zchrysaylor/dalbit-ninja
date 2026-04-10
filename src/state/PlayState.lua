@@ -14,7 +14,7 @@ local pauseGame = false
 
 ---Called when this state becomes active.
 ---If transitioning from "start", starts a black-overlay fade-in tween.
----@param args? {previousState?: string} Optional table; check previousState == "start"
+---@param args? table Optional arguments
 function PlayState:enterState(args)
 	if args and args.previousState and args.previousState == "start" then
 		self.fadeAlpha = 1
@@ -74,7 +74,7 @@ function PlayState:draw()
 	end
 end
 
----Create a new PlayState: instantiates a Realm and loads the starting map.
+---Create a new PlayState
 ---@return PlayState
 function PlayState.new()
 	local self = BaseState.new(PlayState)

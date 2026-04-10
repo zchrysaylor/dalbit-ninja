@@ -4,27 +4,26 @@
 
 -- animation library
 -- https://github.com/kikito/anim8
----@type table anim8 sprite animation library
 Anim8 = require("lib.anim8")
 
 -- camera library
 -- https://github.com/vrld/hump
----@type table HUMP camera with attach/detach and lookAt support
 HumpCamera = require("lib.camera")
+
+-- tween library
+-- https://github.com/rxi/flux
+Flux = require("lib.flux")
 
 -- resolution handling library
 -- https://github.com/Ulydev/push
----@type table push virtual-resolution library
 Push = require("lib.push")
 
 -- Simple Tiled Implementation map library
 -- https://github.com/karai17/Simple-Tiled-Implementation
----@type fun(path: string): table STI Tiled map loader; call as Tiled("maps/name.lua")
 Tiled = require("lib.sti")
 
 -- timer management library
 -- https://github.com/airstruck/knife
----@type table knife timer/tween library
 Timer = require("lib.timer")
 
 require("src.constants")
