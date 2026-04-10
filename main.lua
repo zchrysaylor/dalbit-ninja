@@ -7,10 +7,6 @@ function love.load()
 
 	Camera = HumpCamera()
 
-	-- TODO: refactor to use love.keyboard.keysPressed
-	KeyPress = {}
-	KeyPress.order = {}
-
 	Push:setupScreen(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT, {
 		vsync = true,
 		fullscreen = false,
@@ -41,31 +37,9 @@ end
 
 function love.keypressed(key)
 	love.keyboard.keysPressed[key] = true
-	if key == KEY_UP or key == KEY_DOWN or key == KEY_LEFT or key == KEY_RIGHT then
-		-- Remove if already in stack (prevent duplicates)
-		for i, k in ipairs(KeyPress.order) do
-			if k == key then
-				table.remove(KeyPress.order, i)
-				break
-			end
-		end
-
-		-- Push to stack (most recent)
-		table.insert(KeyPress.order, 1, key)
-	end
 
 	if key == "escape" then
 		love.event.quit()
-	end
-end
-
-function love.keyreleased(key)
-	-- Remove from tracking when released
-	for i, k in ipairs(KeyPress.order) do
-		if k == key then
-			table.remove(KeyPress.order, i)
-			break
-		end
 	end
 end
 

@@ -16,14 +16,11 @@ end
 ---Transition to "walk" if any directional key is held.
 ---@param dt number Delta time in seconds
 function PlayerIdleState:update(dt)
-	local moveUp = love.keyboard.isDown(KEY_UP)
-	local moveDown = love.keyboard.isDown(KEY_DOWN)
-	local moveLeft = love.keyboard.isDown(KEY_LEFT)
-	local moveRight = love.keyboard.isDown(KEY_RIGHT)
-	if moveUp or moveDown or moveLeft or moveRight then
+	local dirX, dirY, isMoving = Input.getDirection()
+	if isMoving then
 		-- Set direction before transitioning
-		self.soul.dirX = (moveRight and 1 or 0) - (moveLeft and 1 or 0)
-		self.soul.dirY = (moveDown and 1 or 0) - (moveUp and 1 or 0)
+		self.soul.dirX = dirX
+		self.soul.dirY = dirY
 		self.soul:changeState("walk")
 	end
 

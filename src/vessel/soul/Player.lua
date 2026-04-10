@@ -1,8 +1,8 @@
 local Soul = require("src.vessel.soul.Soul")
 
 ---@class Player : Soul
----@field dirX number Horizontal direction (-1 = left, 0 = none, 1 = right)
----@field dirY number Vertical direction (-1 = up, 0 = none, 1 = down)
+---@field dirX number  -1, 0, or 1
+---@field dirY number  -1, 0, or 1
 local Player = {}
 Player.__index = Player
 setmetatable(Player, { __index = Soul })

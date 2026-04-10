@@ -41,19 +41,15 @@ end
 ---Read directional input, compute Box2D velocity, and select the correct animation.
 ---Transitions back to "idle" if no directional key is held.
 function PlayerWalkState:movePlayer()
-	local moveUp = love.keyboard.isDown(KEY_UP)
-	local moveLeft = love.keyboard.isDown(KEY_LEFT)
-	local moveDown = love.keyboard.isDown(KEY_DOWN)
-	local moveRight = love.keyboard.isDown(KEY_RIGHT)
-
-	if not moveUp and not moveDown and not moveLeft and not moveRight then
+	local dirX, dirY, isMoving = Input.getDirection()
+	if not isMoving then
 		self.soul:changeState("idle")
 		return
 	end
 
 	-- Update direction on player
-	self.soul.dirX = (moveRight and 1 or 0) - (moveLeft and 1 or 0)
-	self.soul.dirY = (moveDown and 1 or 0) - (moveUp and 1 or 0)
+	self.soul.dirX = dirX
+	self.soul.dirY = dirY
 
 	-- build velocity from direction
 	local speed = self.soul.speed * 100 -- velocity is pixels/sec

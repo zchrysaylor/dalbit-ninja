@@ -47,8 +47,9 @@ lua-boy-advance/
 │   ├── constants.lua     # Global constants (resolution, key bindings, rates)
 │   ├── engine/
 │   │   ├── collision.lua # Box2D collision factory + debug rendering
-│   │   ├── input.lua     # Input handling extensions (placeholder)
-│   │   └── physics.lua   # isColliding() utility
+│   │   ├── input.lua     # Directional input reading (getDirection)
+│   │   ├── physics.lua   # isColliding() utility
+│   │   └── signal.lua    # Pub/sub event bus
 │   ├── realm/
 │   │   ├── Realm.lua         # World/level controller (map, camera, entities)
 │   │   ├── SoulSpawner.lua   # Spawn Soul entities from Tiled object layers
@@ -87,33 +88,51 @@ lua-boy-advance/
 
 | Type | Convention | Example |
 |------|------------|---------|
-| Modules/Classes | PascalCase | `Soul`, `Player`, `StateMachine`, `Realm` |
-| Global variables | PascalCase | `Camera`, `GStateMachine`, `KeyPress` |
+| Classes | PascalCase | `Soul`, `Player`, `StateMachine`, `Realm` |
+| Utility modules | camelCase | `collision`, `physics`, `input`, `signal` |
+| Global variables | PascalCase | `Camera`, `GStateMachine`, `Input` |
 | Global asset tables | G-prefix PascalCase | `GFonts`, `GArt` |
 | Constants | SCREAMING_SNAKE_CASE | `VIRTUAL_WIDTH`, `KEY_UP`, `FADE_RATE` |
 | Local variables | camelCase | `moveUp`, `isMoving`, `centerX` |
 | Instance methods | PascalCase colon-syntax | `self:MovePlayer()`, `self:AnimatePlayer()` |
-| Static/utility functions | camelCase dot-syntax | `Collision.newRectangle()`, `Physics.isColliding()` |
+| Static/utility functions | camelCase dot-syntax | `collision.newRectangle()`, `physics.isColliding()` |
 
 ### Module/Class Definition Pattern
 
-Use raw metatables for all classes. **Do not use `lib/class.lua`** — it is present but intentionally unused.
+**Classes** use raw metatables. **Do not use `lib/class.lua`** — it is present but intentionally unused.
 
 ```lua
-local MyModule = {}
-MyModule.__index = MyModule
+-- Class pattern (PascalCase)
+local MyClass = {}
+MyClass.__index = MyClass
 
-function MyModule.new(def)
-    local self = setmetatable({}, MyModule)
+function MyClass.new(def)
+    local self = setmetatable({}, MyClass)
     -- initialize from def table
     return self
 end
 
-function MyModule:instanceMethod()
+function MyClass:instanceMethod()
     -- use self
 end
 
-return MyModule
+return MyClass
+```
+
+**Utility modules** are simple function containers with no instances:
+
+```lua
+-- Module pattern (camelCase)
+---@module mymodule
+local mymodule = {}
+
+---@param x number
+---@return number
+function mymodule.utilityFunction(x)
+    return x * 2
+end
+
+return mymodule
 ```
 
 ### Inheritance Patterns
@@ -172,13 +191,20 @@ end
 
 ### Type Annotations
 
-Use LuaLS (`---@`) annotations on all public APIs and class definitions:
+Use LuaLS (`---@`) annotations on all public APIs and definitions:
 
+**Classes** use `---@class` with field annotations:
 ```lua
----@class Collision
----@field body love.Body
----@field shape love.Shape
----@field fixture love.Fixture
+---@class PlayerIdleState : BaseState
+---@field soul Player
+local PlayerIdleState = {}
+PlayerIdleState.__index = PlayerIdleState
+```
+
+**Utility modules** use `---@module`:
+```lua
+---@module collision
+local collision = {}
 
 ---Create a rectangle collider.
 ---@param world love.World
@@ -187,12 +213,8 @@ Use LuaLS (`---@`) annotations on all public APIs and class definitions:
 ---@param w number Width in pixels
 ---@param h number Height in pixels
 ---@param bodyType? love.BodyType Body type (default "static")
----@return Collision
-function Collision.newRectangle(world, x, y, w, h, bodyType)
-
----@class PlayerIdleState : BaseState
----@field entity Player
-local PlayerIdleState = {}
+---@return CollisionData
+function collision.newRectangle(world, x, y, w, h, bodyType)
 ```
 
 ### Error Handling
@@ -234,9 +256,10 @@ self.player = Player.new({
 All major systems are globals defined in `src/deps.lua`. This is intentional — avoids passing references everywhere.
 
 - **Libraries**: `Anim8`, `HumpCamera`, `Push`, `Tiled`, `Timer`
-- **Instances**: `Camera`, `GStateMachine`, `KeyPress`
+- **Instances**: `Camera`, `GStateMachine`
 - **Assets**: `GFonts`, `GArt`
-- **Classes/modules**: `Soul`, `Player`, `Realm`, `Collision`, `Physics`, `SoulSpawner`, `WallSpawner`, `WarpSpawner`
+- **Classes**: `Soul`, `Player`, `Realm`, `SoulSpawner`, `WallSpawner`, `WarpSpawner`
+- **Utility modules**: `Collision`, `Physics`, `Input`, `Signal`
 - **State classes**: `StateMachine`, `BaseState`, `StartState`, `PlayState`, `SoulIdleState`, `SoulWalkState`, `PlayerIdleState`, `PlayerWalkState`
 
 ### State Machine Pattern
@@ -255,7 +278,7 @@ Two-tier state machine:
 
 - `love.keyboard.wasPressed(key)` — single-frame press check (extension added in `main.lua`)
 - `love.keyboard.isDown(key)` — continuous hold check
-- `KeyPress.order` — stack of active directional keys (most-recent first) for 8-dir priority
+- `Input.getDirection()` — returns `dirX`, `dirY`, `isMoving` from directional key state
 
 ### Physics and Collision
 

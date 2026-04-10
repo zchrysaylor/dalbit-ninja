@@ -12,7 +12,7 @@ HumpCamera = require("lib.camera")
 
 -- tween library
 -- https://github.com/rxi/flux
-Flux = require("lib.flux")
+Flux = require("lib.flux.flux")
 
 -- resolution handling library
 -- https://github.com/Ulydev/push
@@ -27,8 +27,9 @@ Tiled = require("lib.sti")
 Timer = require("lib.timer")
 
 require("src.constants")
-Physics = require("src.engine.physics")
 Collision = require("src.engine.collision")
+Input = require("src.engine.input")
+Physics = require("src.engine.physics")
 Signal = require("src.engine.signal")
 
 Vessel = require("src.vessel.Vessel")
