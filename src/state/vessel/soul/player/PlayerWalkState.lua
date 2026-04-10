@@ -56,6 +56,13 @@ function PlayerWalkState:movePlayer()
 		return
 	end
 
+	-- normalize diagonal movement so the player doesn't move faster on diagonals
+	if vx ~= 0 and vy ~= 0 then
+		local diagonalFactor = 1 / math.sqrt(2)
+		vx = vx * diagonalFactor
+		vy = vy * diagonalFactor
+	end
+
 	-- move the body with physics and animations
 	self.soul:setLinearVelocity(vx, vy)
 	self:animatePlayer(moveUp, moveDown, moveLeft, moveRight)
