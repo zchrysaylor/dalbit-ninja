@@ -52,6 +52,8 @@ function Realm:loadMap(mapName, destX, destY)
 			table.insert(self.souls, soul)
 		end
 	end
+
+	Lens.follow(self.player, self.map)
 end
 
 ---Destroy all map-scoped entities (walls, warps, souls) and reset the map table.
@@ -73,9 +75,8 @@ end
 ---update all entities, check warp triggers, and handle debug toggle.
 ---@param dt number Delta time in seconds
 function Realm:update(dt)
-	-- TODO: might need to still draw in PlayState outside fading
-	-- Maybe this should be a separate util b/c doesn't fit in PlayState or here (because must be called outside fades)
-	-- self:CameraLookAtPlayer()
+	Lens.follow(self.player, self.map)
+
 	self.world:update(dt)
 	self.player.x, self.player.y = self.player:getPosition()
 	self.player:update(dt)
@@ -92,9 +93,9 @@ function Realm:update(dt)
 end
 
 ---Render the current map layers, all soul entities, the player, and optionally collision shapes.
----Wrapped inside Camera:attach/detach to clip to the virtual 240x160 viewport.
+---Wrapped inside Camera:attach/detach to clip to the virtual viewport.
 function Realm:draw()
-	Camera:attach(0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT, true)
+	Lens.attach(0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT, true)
 
 	-- draw map layers conditionally (not all maps have all layers)
 	if self.map.layers["base"] then
@@ -118,35 +119,7 @@ function Realm:draw()
 		Collision.drawAll(self.world, 0.7)
 	end
 
-	Camera:detach()
-end
-
----Point the camera at the player and clamp so it never shows area outside the map bounds.
----Must be called every frame (even during fades) so the viewport stays correct.
-function Realm:CameraLookAtPlayer()
-	local windowWidth = VIRTUAL_WIDTH
-	local windowHeight = VIRTUAL_HEIGHT
-	local mapWidth = self.map.width * self.map.tilewidth
-	local mapHeight = self.map.height * self.map.tileheight
-	local zoom = Camera.scale
-
-	Camera:lookAt(self.player.x, self.player.y)
-
-	local halfViewW = windowWidth / (2 * zoom)
-	local halfViewH = windowHeight / (2 * zoom)
-
-	if Camera.x < halfViewW then
-		Camera.x = halfViewW
-	end
-	if Camera.y < halfViewH then
-		Camera.y = halfViewH
-	end
-	if Camera.x > mapWidth - halfViewW then
-		Camera.x = mapWidth - halfViewW
-	end
-	if Camera.y > mapHeight - halfViewH then
-		Camera.y = mapHeight - halfViewH
-	end
+	Lens.detach()
 end
 
 ---Check all warp colliders; if the player is touching one, load its destination map.

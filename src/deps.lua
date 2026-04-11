@@ -8,7 +8,7 @@ Anim8 = require("lib.anim8")
 
 -- camera library
 -- https://github.com/vrld/hump
-HumpCamera = require("lib.camera")
+-- required in lens.lua only
 
 -- tween library
 -- https://github.com/rxi/flux
@@ -27,6 +27,7 @@ require("src.constants")
 -- engine-related requires
 Collision = require("src.engine.collision")
 Input = require("src.engine.input")
+Lens = require("src.engine.lens")
 Physics = require("src.engine.physics")
 Signal = require("src.engine.signal")
 

@@ -48,6 +48,7 @@ lua-boy-advance/
 │   ├── engine/
 │   │   ├── collision.lua # Box2D collision factory + debug rendering
 │   │   ├── input.lua     # Directional input reading (getDirection)
+│   │   ├── lens.lua      # Camera module: owns HUMP instance, attach/detach/follow/setZoom
 │   │   ├── physics.lua   # isColliding() utility
 │   │   └── signal.lua    # Pub/sub event bus
 │   ├── realm/
@@ -255,11 +256,11 @@ self.player = Player.new({
 
 All major systems are globals defined in `src/deps.lua`. This is intentional — avoids passing references everywhere.
 
-- **Libraries**: `Anim8`, `HumpCamera`, `Push`, `Tiled`, `Flux`
-- **Instances**: `Camera`, `GStateMachine`
+- **Libraries**: `Anim8`, `Push`, `Tiled`, `Flux`
+- **Instances**: `GStateMachine`
 - **Assets**: `GFonts`, `GArt`
 - **Classes**: `Soul`, `Player`, `Realm`, `SoulSpawner`, `WallSpawner`, `WarpSpawner`
-- **Utility modules**: `Collision`, `Physics`, `Input`, `Signal`
+- **Utility modules**: `Collision`, `Lens`, `Physics`, `Input`, `Signal`
 - **State classes**: `StateMachine`, `BaseState`, `StartState`, `PlayState`, `SoulIdleState`, `SoulWalkState`, `PlayerIdleState`, `PlayerWalkState`
 
 ### State Machine Pattern
@@ -296,16 +297,22 @@ love.draw()
   GStateMachine:draw()
     PlayState:draw()
       Realm:draw()
-        Camera:attach()          -- clips to virtual 240x160
+        Lens.attach()            -- clips to virtual 240x160
           Map layer draws        -- "base", "ground", "building"
           NPC entity:draw()
           player:draw()
           Collision.drawAll()    -- debug only
-        Camera:detach()
+        Lens.detach()
       Fade overlay rectangle     -- during map transitions
       Pause text overlay
   Push:finish()
 ```
+
+### Camera
+
+- `Lens` (`src/engine/lens.lua`) owns the HUMP camera instance — do not instantiate HUMP directly elsewhere
+- `Lens.follow(player, map)` must be called every frame including during fades; it is called inside `Realm:update(dt)` for normal frames and once in `Realm:loadMap()` to snap the camera before any fade begins — if only called in `Realm:update`, the camera will be off-map until the fade completes
+- `Lens.setZoom(n)` sets `cam.scale`; `Lens.follow` accounts for zoom in its map boundary clamping via `VIRTUAL_WIDTH / (2 * cam.scale)`
 
 ### Map / Warp System
 
@@ -320,7 +327,6 @@ love.draw()
 | Library | Global | Purpose |
 |---------|--------|---------|
 | anim8 | `Anim8` | Sprite sheet animation |
-| camera (HUMP) | `HumpCamera` | 2D camera with attach/detach |
 | push | `Push` | Virtual resolution scaling |
 | sti | `Tiled` | Tiled map loading |
 | flux | `Flux` | Tweens |

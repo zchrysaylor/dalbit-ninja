@@ -2,6 +2,8 @@
 ---@module input
 local input = {}
 
+-- TODO: move love keypressed logic in here
+
 ---Return the current directional input as a normalized direction vector.
 ---@return number dirX  -1, 0, or 1
 ---@return number dirY  -1, 0, or 1

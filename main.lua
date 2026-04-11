@@ -5,8 +5,6 @@ require("src.deps")
 function love.load()
 	love.window.setTitle("LBA: Lua Boy Advance")
 
-	Camera = HumpCamera()
-
 	Push:setupScreen(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT, {
 		vsync = true,
 		fullscreen = false,

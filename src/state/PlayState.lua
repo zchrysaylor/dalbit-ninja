@@ -34,8 +34,6 @@ end
 ---Update camera, handle pause toggling, and delegate to realm update (skipped while fading or paused).
 ---@param dt number Delta time in seconds
 function PlayState:update(dt)
-	self.realm:CameraLookAtPlayer()
-
 	if self.isFading then
 		return
 	end
