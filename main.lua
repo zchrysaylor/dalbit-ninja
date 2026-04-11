@@ -44,7 +44,7 @@ function love.keypressed(key)
 end
 
 function love.update(dt)
-	Timer.update(dt)
+	Flux.update(dt)
 	GStateMachine:update(dt)
 	love.keyboard.keysPressed = {}
 end

@@ -19,8 +19,7 @@ function PlayState:enterState(args)
 	if args and args.previousState and args.previousState == "start" then
 		self.fadeAlpha = 1
 		self.isFading = true
-
-		Timer.tween(FADE_RATE, { [self] = { fadeAlpha = 0 } }):finish(function()
+		Flux.to(self, FADE_RATE, { fadeAlpha = 0 }):oncomplete(function()
 			self.isFading = false
 		end)
 	end

@@ -255,7 +255,7 @@ self.player = Player.new({
 
 All major systems are globals defined in `src/deps.lua`. This is intentional — avoids passing references everywhere.
 
-- **Libraries**: `Anim8`, `HumpCamera`, `Push`, `Tiled`, `Timer`
+- **Libraries**: `Anim8`, `HumpCamera`, `Push`, `Tiled`, `Flux`
 - **Instances**: `Camera`, `GStateMachine`
 - **Assets**: `GFonts`, `GArt`
 - **Classes**: `Soul`, `Player`, `Realm`, `SoulSpawner`, `WallSpawner`, `WarpSpawner`
@@ -323,7 +323,6 @@ love.draw()
 | camera (HUMP) | `HumpCamera` | 2D camera with attach/detach |
 | push | `Push` | Virtual resolution scaling |
 | sti | `Tiled` | Tiled map loading |
-| knife/timer | `Timer` | Tweens and delays |
-| knife/test | — | Test runner (unused — no tests yet) |
+| flux | `Flux` | Tweens |
 
 **Do not modify files in `lib/`** — these are external dependencies.

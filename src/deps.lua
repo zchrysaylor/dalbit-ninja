@@ -22,25 +22,26 @@ Push = require("lib.push")
 -- https://github.com/karai17/Simple-Tiled-Implementation
 Tiled = require("lib.sti")
 
--- timer management library
--- https://github.com/airstruck/knife
-Timer = require("lib.timer")
-
 require("src.constants")
+
+-- engine-related requires
 Collision = require("src.engine.collision")
 Input = require("src.engine.input")
 Physics = require("src.engine.physics")
 Signal = require("src.engine.signal")
 
+-- vessel-related requires
 Vessel = require("src.vessel.Vessel")
 Soul = require("src.vessel.soul.Soul")
 Player = require("src.vessel.soul.Player")
 
+-- realm-related requires
 Realm = require("src.realm.Realm")
 WallSpawner = require("src.realm.WallSpawner")
 WarpSpawner = require("src.realm.WarpSpawner")
 SoulSpawner = require("src.realm.SoulSpawner")
 
+-- state machine-related requires
 StateMachine = require("src.state.StateMachine")
 StartState = require("src.state.StartState")
 PlayState = require("src.state.PlayState")

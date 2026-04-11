@@ -18,14 +18,14 @@ function StartState:update(dt)
 	-- Only start fade if not already fading
 	if not self.isFading and (love.keyboard.wasPressed("enter") or love.keyboard.wasPressed("return")) then
 		self.isFading = true
-		Timer.tween(FADE_RATE, { [self] = { alpha = 0 } }):finish(function()
+		Flux.to(self, FADE_RATE, { alpha = 0 }):ease("quadin"):oncomplete(function()
 			GStateMachine:changeState("play", { previousState = "start" })
 		end)
 	end
 end
 
 ---Render the title screen.
----Uses self.alpha for the fade-in/out effect driven by the Timer tween.
+---Uses self.alpha for the fade-in/out effect driven by the Flux tween.
 function StartState:draw()
 	-- since we are using push, we need to manually clear the canvas for the background color to take effect
 	love.graphics.clear(love.math.colorFromBytes(15, 56, 15))
