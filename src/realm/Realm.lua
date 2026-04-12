@@ -85,7 +85,7 @@ function Realm:update(dt)
 end
 
 ---Render the current map layers, all soul entities, the player, and optionally collision shapes.
----Wrapped inside Camera:attach/detach to clip to the virtual viewport.
+---Wrapped inside Lens:attach/detach to clip to the virtual viewport.
 function Realm:draw()
 	Lens.attach(0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT, true)
 
