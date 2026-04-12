@@ -20,8 +20,6 @@ function love.load()
 		end,
 	})
 	GStateMachine:changeState("start")
-
-	love.keyboard.keysPressed = {}
 end
 
 -- resize the game window using Push's pixel-perfect scaling
@@ -29,22 +27,14 @@ function love.resize(w, h)
 	Push:resize(w, h)
 end
 
-function love.keyboard.wasPressed(key)
-	return love.keyboard.keysPressed[key]
-end
-
 function love.keypressed(key)
-	love.keyboard.keysPressed[key] = true
-
-	if key == "escape" then
-		love.event.quit()
-	end
+	Input:keyPressed(key)
 end
 
 function love.update(dt)
 	Flux.update(dt)
 	GStateMachine:update(dt)
-	love.keyboard.keysPressed = {}
+	Input:update(dt)
 end
 
 function love.draw()

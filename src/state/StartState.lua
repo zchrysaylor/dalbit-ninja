@@ -11,12 +11,8 @@ setmetatable(StartState, { __index = BaseState })
 ---Handle input: Escape quits, Enter/Return begins a fade-out tween into PlayState.
 ---@param dt number Delta time in seconds
 function StartState:update(dt)
-	if love.keyboard.wasPressed("escape") then
-		love.event.quit()
-	end
-
 	-- Only start fade if not already fading
-	if not self.isFading and (love.keyboard.wasPressed("enter") or love.keyboard.wasPressed("return")) then
+	if not self.isFading and (Input:wasPressed("enter") or Input:wasPressed("return")) then
 		self.isFading = true
 		Flux.to(self, FADE_RATE, { alpha = 0 }):ease("quadin"):oncomplete(function()
 			GStateMachine:changeState("play", { previousState = "start" })

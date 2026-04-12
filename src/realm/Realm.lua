@@ -8,9 +8,6 @@
 local Realm = {}
 Realm.__index = Realm
 
--- Module-level debug toggle; flipped by KEY_DEBUG each frame
-local debug = false
-
 ---Load a Tiled map by name, destroying all existing map entities first.
 ---Spawns walls, warps, and soul entities from the map's object layers.
 ---If destination coordinates are provided, teleports the player's physics body to that position.
@@ -57,7 +54,6 @@ function Realm:loadMap(mapName, destX, destY)
 end
 
 ---Destroy all map-scoped entities (walls, warps, souls) and reset the map table.
----Called automatically at the start of loadMap(); also called from PlayState:exitState().
 function Realm:destroyAll()
 	WallSpawner.destroyAll(self.walls)
 	self.walls = {}
@@ -72,7 +68,7 @@ function Realm:destroyAll()
 end
 
 ---Step the physics world, sync entity positions from their collision bodies,
----update all entities, check warp triggers, and handle debug toggle.
+---update all entities, check warp triggers
 ---@param dt number Delta time in seconds
 function Realm:update(dt)
 	Lens.follow(self.player, self.map)
@@ -85,10 +81,6 @@ function Realm:update(dt)
 	for _, soul in pairs(self.souls) do
 		soul.x, soul.y = soul:getPosition()
 		soul:update(dt)
-	end
-
-	if love.keyboard.wasPressed(KEY_DEBUG) then
-		debug = not debug
 	end
 end
 
@@ -115,7 +107,7 @@ function Realm:draw()
 	self.player:draw()
 
 	-- draw collision borders for debugging
-	if debug then
+	if DEBUG then
 		Collision.drawAll(self.world, 0.7)
 	end
 

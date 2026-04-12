@@ -20,3 +20,7 @@ KEY_DEBUG = "."
 
 -- rate in seconds of the start screen fade duration
 FADE_RATE = 0.6
+
+-- global booleans
+DEBUG = false
+PAUSE_GAME = false

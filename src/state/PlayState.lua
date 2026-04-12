@@ -9,9 +9,6 @@ local PlayState = {}
 PlayState.__index = PlayState
 setmetatable(PlayState, { __index = BaseState })
 
--- Module-level pause flag shared across all PlayState instances
-local pauseGame = false
-
 ---Called when this state becomes active.
 ---If transitioning from "start", starts a black-overlay fade-in tween.
 ---@param args? table Optional arguments
@@ -27,7 +24,6 @@ end
 
 ---Destroy all current realm entities when leaving this state.
 function PlayState:exitState()
-	-- TODO: should be done in realm class after loading new map or need more global destroyAll here
 	self.realm:destroyAll()
 end
 
@@ -38,11 +34,7 @@ function PlayState:update(dt)
 		return
 	end
 
-	if love.keyboard.wasPressed(KEY_PAUSE) then
-		pauseGame = not pauseGame
-	end
-
-	if not pauseGame then
+	if not PAUSE_GAME then
 		self.realm:update(dt)
 	end
 end
@@ -56,7 +48,7 @@ function PlayState:draw()
 		love.graphics.rectangle("fill", 0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT)
 	end
 
-	if pauseGame then
+	if PAUSE_GAME then
 		local r, g, b, a = love.graphics.getColor()
 		love.graphics.setColor(love.math.colorFromBytes(64, 39, 81))
 		love.graphics.setFont(GFonts["antiquity"])
