@@ -34,6 +34,7 @@ function Soul:createStateMachine()
 	})
 end
 
+-- TODO: refactor all args to "opts"
 ---Transition this Soul to a new state.
 ---@param state string State key (e.g. "idle", "walk")
 ---@param args? table Optional arguments forwarded to the state's enterState()
@@ -63,7 +64,7 @@ function Soul:draw()
 	)
 end
 
----Create a new Soul.
+---Create a new Soul
 ---@generic T : Soul
 ---@param def table {x, y, width, height, scale, speed, spriteSheet, world}
 ---@param subclass? T Metatable for subclass (defaults to Soul)

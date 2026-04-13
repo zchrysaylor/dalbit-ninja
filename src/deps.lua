@@ -26,6 +26,7 @@ require("src.constants")
 
 -- engine-related requires
 Collision = require("src.engine.collision")
+Events = require("src.engine.events")
 Input = require("src.engine.input")
 Lens = require("src.engine.lens")
 Physics = require("src.engine.physics")

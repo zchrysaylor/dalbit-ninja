@@ -16,7 +16,7 @@ function input:keyPressed(key)
 
 	-- toggle pause mode
 	if key == KEY_PAUSE then
-		PAUSE_GAME = not PAUSE_GAME
+		Signal.emit(Events.GAME_PAUSE_TOGGLED)
 	end
 
 	-- toggle debug mode

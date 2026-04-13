@@ -23,4 +23,3 @@ FADE_RATE = 0.6
 
 -- global booleans
 DEBUG = false
-PAUSE_GAME = false

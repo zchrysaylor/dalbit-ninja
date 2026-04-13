@@ -45,7 +45,7 @@ function Player:createStateMachine()
 	})
 end
 
----Create a new Player.
+---Create a new Player
 ---@param def table {x, y, width, height, scale, speed, spriteSheet, world, dirX, dirY}
 ---@return Player
 function Player.new(def)

@@ -5,13 +5,16 @@ local BaseState = require("src.state.BaseState")
 ---@field realm Realm The active world/level controller
 ---@field fadeAlpha number Black overlay opacity during transition (0 = transparent, 1 = opaque)
 ---@field isFading boolean True while the entry fade-in tween is running
+---@field isPaused boolean True while the game is paused
+---@field unsubPauseToggled Unsubscribe Unsubscribe handle for the pause toggled Signal subscription
 local PlayState = {}
 PlayState.__index = PlayState
 setmetatable(PlayState, { __index = BaseState })
 
 ---Called when this state becomes active.
 ---If transitioning from "start", starts a black-overlay fade-in tween.
----@param args? table Optional arguments
+---Subscribes to Events.GAME_PAUSE_TOGGLED to toggle self.isPaused.
+---@param args? table Optional arguments. `args.previousState` may be `"start"` to trigger a fade-in.
 function PlayState:enterState(args)
 	if args and args.previousState and args.previousState == "start" then
 		self.fadeAlpha = 1
@@ -20,10 +23,17 @@ function PlayState:enterState(args)
 			self.isFading = false
 		end)
 	end
+
+	self.unsubPauseToggled = Signal.connect(Events.GAME_PAUSE_TOGGLED, function()
+		self.isPaused = not self.isPaused
+	end)
 end
 
----Destroy all current realm entities when leaving this state.
+---Called when this state is deactivated. Unsubscribes from Signal events and destroys all realm entities.
 function PlayState:exitState()
+	if self.unsubPauseToggled then
+		self.unsubPauseToggled()
+	end
 	self.realm:destroyAll()
 end
 
@@ -34,7 +44,7 @@ function PlayState:update(dt)
 		return
 	end
 
-	if not PAUSE_GAME then
+	if not self.isPaused then
 		self.realm:update(dt)
 	end
 end
@@ -48,7 +58,7 @@ function PlayState:draw()
 		love.graphics.rectangle("fill", 0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT)
 	end
 
-	if PAUSE_GAME then
+	if self.isPaused then
 		local r, g, b, a = love.graphics.getColor()
 		love.graphics.setColor(love.math.colorFromBytes(64, 39, 81))
 		love.graphics.setFont(GFonts["antiquity"])
@@ -73,6 +83,7 @@ function PlayState.new()
 
 	self.fadeAlpha = 1
 	self.isFading = false
+	self.isPaused = false
 
 	return self
 end

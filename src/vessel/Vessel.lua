@@ -75,7 +75,7 @@ function Vessel:draw()
 	)
 end
 
----Create a new Vessel.
+---Create a new Vessel
 ---@generic T : Vessel
 ---@param def table {x, y, width, height, scale, spriteSheet, world}
 ---@param subclass? T Metatable for subclass (defaults to Vessel)

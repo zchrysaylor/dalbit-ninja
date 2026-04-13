@@ -14,7 +14,7 @@ function SoulWalkState:enterState(args)
 	self.soul.animations.current:resume()
 end
 
----Halt the soul's physics velocity when leaving walk.
+---Called when this state is deactivated. Halt the soul's physics velocity when leaving walk.
 function SoulWalkState:exitState()
 	self.soul:setLinearVelocity(0, 0)
 end

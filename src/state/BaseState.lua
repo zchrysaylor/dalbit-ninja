@@ -8,7 +8,7 @@ BaseState.__index = BaseState
 ---@param args? table Optional arguments
 function BaseState:enterState(args) end
 
----Called when this state is about to be replaced. Override to perform teardown.
+---Called when this state is deactivated. Override to perform teardown.
 function BaseState:exitState() end
 
 ---Called every frame while this state is active.
