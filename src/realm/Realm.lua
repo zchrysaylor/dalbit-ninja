@@ -5,6 +5,7 @@
 ---@field warps CollisionData[] Warp-trigger colliders for the current map
 ---@field souls Soul[] NPC entities spawned from the current map's entity layer
 ---@field player Player The player entity (persists across map loads)
+---@field isDebug boolean True while the game is in debug mode
 local Realm = {}
 Realm.__index = Realm
 
@@ -106,8 +107,9 @@ function Realm:draw()
 
 	self.player:draw()
 
+	-- TODO: refactor debug functions to engine/debug
 	-- draw collision borders for debugging
-	if DEBUG then
+	if self.isDebug then
 		Collision.drawAll(self.world, 0.7)
 	end
 
@@ -145,6 +147,11 @@ function Realm.new()
 		spriteSheet = GArt["sprite-player"],
 		world = self.world,
 	})
+
+	self.isDebug = false
+	self.unsubDebugToggled = Signal.connect(Events.GAME_DEBUG_TOGGLED, function()
+		self.isDebug = not self.isDebug
+	end)
 
 	return self
 end

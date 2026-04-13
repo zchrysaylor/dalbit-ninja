@@ -21,7 +21,7 @@ function input:keyPressed(key)
 
 	-- toggle debug mode
 	if key == KEY_DEBUG then
-		DEBUG = not DEBUG
+		Signal.emit(Events.GAME_DEBUG_TOGGLED)
 	end
 end
 
