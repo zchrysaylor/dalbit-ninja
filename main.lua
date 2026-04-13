@@ -41,4 +41,8 @@ function love.draw()
 	Push:start()
 	GStateMachine:draw()
 	Push:finish()
+
+	if Debug.isActive then
+		Debug.drawFPS()
+	end
 end

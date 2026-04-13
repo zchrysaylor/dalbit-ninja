@@ -1,4 +1,4 @@
--- Utility module for creating and debugging Box2D collision bodies.
+-- Utility module for creating Box2D collision bodies.
 -- Returns plain tables {body, shape, fixture}; instance methods live on Vessel.
 
 ---@alias CollisionData {body: love.Body, shape: love.Shape, fixture: love.Fixture}

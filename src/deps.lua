@@ -31,6 +31,7 @@ Input = require("src.engine.input")
 Lens = require("src.engine.lens")
 Physics = require("src.engine.physics")
 Signal = require("src.engine.signal")
+Debug = require("src.engine.dbg") -- depends on Signal & Events; must be loaded after
 
 -- vessel-related requires
 Vessel = require("src.vessel.Vessel")
@@ -54,10 +55,12 @@ PlayerWalkState = require("src.state.vessel.soul.player.PlayerWalkState")
 
 ---@type table<string, love.Font> Named global font table.
 GFonts = {
+	-- TODO: add dedicated pixel font for in-game menu
+	["antiquity"] = love.graphics.newFont("fonts/antiquity-print.ttf", 12),
+	["debug"] = love.graphics.newFont("fonts/sproutlands.ttf", 24),
 	["sproutlandsSmall"] = love.graphics.newFont("fonts/sproutlands.ttf", 12),
 	["sproutlandsMedium"] = love.graphics.newFont("fonts/sproutlands.ttf", 20),
 	["sproutlandsLarge"] = love.graphics.newFont("fonts/sproutlands.ttf", 36),
-	["antiquity"] = love.graphics.newFont("fonts/antiquity-print.ttf", 12),
 }
 
 ---@type table<string, love.Image> Named global image table.
