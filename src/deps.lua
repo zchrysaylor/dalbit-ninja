@@ -23,6 +23,7 @@ Push = require("lib.push")
 Tiled = require("lib.sti")
 
 require("src.constants")
+Util = require("src.util")
 
 -- engine-related requires
 Collision = require("src.engine.collision")

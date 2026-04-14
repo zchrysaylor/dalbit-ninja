@@ -54,22 +54,24 @@ function PlayState:draw()
 	self.realm:draw()
 
 	if self.isFading then
-		love.graphics.setColor(0, 0, 0, self.fadeAlpha)
-		love.graphics.rectangle("fill", 0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT)
+		Util.safeDraw(function()
+			love.graphics.setColor(0, 0, 0, self.fadeAlpha)
+			love.graphics.rectangle("fill", 0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT)
+		end)
 	end
 
 	if self.isPaused then
-		local r, g, b, a = love.graphics.getColor()
-		love.graphics.setColor(love.math.colorFromBytes(64, 39, 81))
-		love.graphics.setFont(GFonts["antiquity"])
-		love.graphics.printf(
-			"Game Paused. Press 'p' to resume.",
-			0,
-			(Push:getHeight() / 2) - 0,
-			Push:getWidth(),
-			"center"
-		)
-		love.graphics.setColor(r, g, b, a)
+		Util.safeDraw(function()
+			love.graphics.setColor(love.math.colorFromBytes(64, 39, 81))
+			love.graphics.setFont(GFonts["antiquity"])
+			love.graphics.printf(
+				"Game Paused. Press 'p' to resume.",
+				0,
+				(Push:getHeight() / 2) - 0,
+				Push:getWidth(),
+				"center"
+			)
+		end)
 	end
 end
 

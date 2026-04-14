@@ -1,14 +1,24 @@
+---Debug overlay module. Toggled via the GAME_DEBUG_TOGGLED event.
+---@module dbg
 local dbg = {}
+
+---True while the debug overlay is visible.
+---@type boolean
 dbg.isActive = false
 
 Signal.connect(Events.GAME_DEBUG_TOGGLED, function()
 	dbg.isActive = not dbg.isActive
 end)
 
+---Draw collision fixture outlines for all bodies in the given world.
+---@param world love.World The Box2D world to draw fixtures for
+---@param alpha? number Opacity of the outlines (default 1)
 function dbg.drawCollisions(world, alpha)
 	Collision.drawAll(world, alpha)
 end
 
+-- TODO: fix FPS to 60 FPS somehow
+---Draw the current FPS counter in the top-left corner of the virtual screen.
 function dbg.drawFPS()
 	local font = GFonts["debug"]
 	local text = "FPS: " .. love.timer.getFPS()
@@ -22,12 +32,14 @@ function dbg.drawFPS()
 	local x = 16
 	local y = 16
 
-	love.graphics.setColor(0, 0, 0, 0.7)
-	love.graphics.rectangle("fill", x, y, textW + padding * 2, textH + padding * 2)
+	Util.safeDraw(function()
+		love.graphics.setColor(0, 0, 0, 0.7)
+		love.graphics.rectangle("fill", x, y, textW + padding * 2, textH + padding * 2)
 
-	love.graphics.setColor(1, 1, 1, 1)
-	love.graphics.setFont(font)
-	love.graphics.print(text, x + padding, y + padding)
+		love.graphics.setColor(1, 1, 1, 1)
+		love.graphics.setFont(font)
+		love.graphics.print(text, x + padding, y + padding)
+	end)
 end
 
 return dbg

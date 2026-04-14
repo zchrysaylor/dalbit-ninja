@@ -1,9 +1,9 @@
 -- Utility module for creating Box2D collision bodies.
 -- Returns plain tables {body, shape, fixture}; instance methods live on Vessel.
+---@module collision
+local collision = {}
 
 ---@alias CollisionData {body: love.Body, shape: love.Shape, fixture: love.Fixture}
-
-local collision = {}
 
 ---Create a static rectangle collider.
 ---@param world love.World
@@ -64,19 +64,18 @@ end
 ---@param world love.World
 ---@param alpha? number Outline opacity from 0 to 1 (default 1)
 function collision.drawAll(world, alpha)
-	-- save current color to restore after, since love.graphics.setColor() is global state
-	local r, g, b, a = love.graphics.getColor()
-	alpha = alpha or 1
-	love.graphics.setColor(love.math.colorFromBytes(64, 39, 81, alpha * 255))
-	local bodies = world:getBodies()
-	for _, body in ipairs(bodies) do
-		for _, fixture in ipairs(body:getFixtures()) do
-			if fixture:getShape():type() == "PolygonShape" then
-				love.graphics.polygon("line", body:getWorldPoints(fixture:getShape():getPoints()))
+	Util.safeDraw(function()
+		alpha = alpha or 1
+		love.graphics.setColor(love.math.colorFromBytes(64, 39, 81, alpha * 255))
+		local bodies = world:getBodies()
+		for _, body in ipairs(bodies) do
+			for _, fixture in ipairs(body:getFixtures()) do
+				if fixture:getShape():type() == "PolygonShape" then
+					love.graphics.polygon("line", body:getWorldPoints(fixture:getShape():getPoints()))
+				end
 			end
 		end
-	end
-	love.graphics.setColor(r, g, b, a)
+	end)
 end
 
 return collision
