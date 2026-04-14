@@ -42,7 +42,6 @@ function Soul:changeState(state, args)
 	self.stateMachine:changeState(state, args)
 end
 
----Update the current animation frame and delegate to the active state.
 ---@param dt number Delta time in seconds
 function Soul:update(dt)
 	self.animations.current:update(dt)

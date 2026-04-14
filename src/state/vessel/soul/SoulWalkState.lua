@@ -8,19 +8,17 @@ local SoulWalkState = {}
 SoulWalkState.__index = SoulWalkState
 setmetatable(SoulWalkState, { __index = BaseState })
 
----Resume the current animation when entering walk.
+---Called when this state becomes active.
 ---@param args? table Optional arguments
 function SoulWalkState:enterState(args)
 	self.soul.animations.current:resume()
 end
 
----Called when this state is deactivated. Halt the soul's physics velocity when leaving walk.
+---Called when this state is deactivated.
 function SoulWalkState:exitState()
 	self.soul:setLinearVelocity(0, 0)
 end
 
----Apply velocity in the soul's current direction each frame.
----Used by NPC souls whose direction is set externally (e.g. by AI or scripted movement).
 ---@param dt number Delta time in seconds
 function SoulWalkState:update(dt)
 	local speed = self.soul.speed * 100

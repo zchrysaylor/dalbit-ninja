@@ -32,9 +32,7 @@ function input:wasPressed(key)
 	return self.keysPressed[key] or false
 end
 
----Clear all single-frame key-press state. Must be called at the end of `love.update`,
----after all game state updates have had a chance to consume input.
----@param dt number Delta time in seconds (unused, reserved for future per-frame input logic)
+---@param dt number Delta time in seconds
 function input:update(dt)
 	self.keysPressed = {}
 end

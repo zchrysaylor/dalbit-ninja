@@ -1,46 +1,42 @@
 local BaseState = require("src.state.BaseState")
 
----Main gameplay state. Owns a Realm and handles pause, fade-in from StartState, and rendering.
+---Main gameplay state.
 ---@class PlayState : BaseState
 ---@field realm Realm The active world/level controller
----@field fadeAlpha number Black overlay opacity during transition (0 = transparent, 1 = opaque)
----@field isFading boolean True while the entry fade-in tween is running
 ---@field isPaused boolean True while the game is paused
 ---@field unsubPauseToggled Unsubscribe Unsubscribe handle for the pause toggled Signal subscription
+---@field unsubWarpTriggered Unsubscribe
 local PlayState = {}
 PlayState.__index = PlayState
 setmetatable(PlayState, { __index = BaseState })
 
 ---Called when this state becomes active.
----If transitioning from "start", starts a black-overlay fade-in tween.
----Subscribes to Events.GAME_PAUSE_TOGGLED to toggle self.isPaused.
----@param args? table Optional arguments. `args.previousState` may be `"start"` to trigger a fade-in.
+---@param args? table Optional arguments.
 function PlayState:enterState(args)
-	if args and args.previousState and args.previousState == "start" then
-		self.fadeAlpha = 1
-		self.isFading = true
-		Flux.to(self, FADE_RATE, { fadeAlpha = 0 }):oncomplete(function()
-			self.isFading = false
-		end)
-	end
-
 	self.unsubPauseToggled = Signal.connect(Events.GAME_PAUSE_TOGGLED, function()
 		self.isPaused = not self.isPaused
 	end)
+	self.unsubWarpTriggered = Signal.connect(Events.REALM_WARP_TRIGGERED, function(warp)
+		Transition.fade(FADE_RATE, function()
+			self.realm:loadMap(warp.mapName, warp.destX, warp.destY)
+		end)
+	end)
 end
 
----Called when this state is deactivated. Unsubscribes from Signal events and destroys all realm entities.
+---Called when this state is deactivated.
 function PlayState:exitState()
 	if self.unsubPauseToggled then
 		self.unsubPauseToggled()
 	end
+	if self.unsubWarpTriggered then
+		self.unsubWarpTriggered()
+	end
 	self.realm:destroyAll()
 end
 
----Update camera, handle pause toggling, and delegate to realm update (skipped while fading or paused).
 ---@param dt number Delta time in seconds
 function PlayState:update(dt)
-	if self.isFading then
+	if Transition.isActive then
 		return
 	end
 
@@ -49,16 +45,9 @@ function PlayState:update(dt)
 	end
 end
 
----Render the realm, the fade overlay (if fading), and the pause text (if paused).
 function PlayState:draw()
 	self.realm:draw()
-
-	if self.isFading then
-		Util.safeDraw(function()
-			love.graphics.setColor(0, 0, 0, self.fadeAlpha)
-			love.graphics.rectangle("fill", 0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT)
-		end)
-	end
+	Transition.draw() -- must be drawn after realm's draw to take effect
 
 	if self.isPaused then
 		Util.safeDraw(function()
@@ -83,8 +72,6 @@ function PlayState.new()
 	self.realm = Realm.new()
 	self.realm:loadMap("map-hometown", self.realm.player.x, self.realm.player.y)
 
-	self.fadeAlpha = 1
-	self.isFading = false
 	self.isPaused = false
 
 	return self

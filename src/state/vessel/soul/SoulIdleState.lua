@@ -6,7 +6,7 @@ local SoulIdleState = {}
 SoulIdleState.__index = SoulIdleState
 setmetatable(SoulIdleState, { __index = BaseState })
 
----Pause the current animation at its first frame when entering idle.
+---Called when this state becomes active.
 ---@param args? table Optional arguments
 function SoulIdleState:enterState(args)
 	self.soul.animations.current:pauseAtStart()

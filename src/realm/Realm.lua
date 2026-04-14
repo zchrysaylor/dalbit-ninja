@@ -17,10 +17,12 @@ Realm.__index = Realm
 function Realm:loadMap(mapName, destX, destY)
 	self:destroyAll()
 
+	-- spawn the player in idle state with zero velocity
 	if destX and destY then
-		-- player x and y are updated based on the collision in update(dt)
-		-- Thus, we only need to update the collision here
 		self.player:setPosition(destX, destY)
+		self.player.x, self.player.y = self.player:getPosition()
+		self.player:setLinearVelocity(0, 0)
+		self.player:changeState("idle")
 	end
 
 	-- TODO: capture loaded map for save state
@@ -53,8 +55,6 @@ function Realm:loadMap(mapName, destX, destY)
 	Lens.follow(self.player, self.map)
 end
 
----Step the physics world, sync entity positions from their collision bodies,
----update all entities, check warp triggers
 ---@param dt number Delta time in seconds
 function Realm:update(dt)
 	Lens.follow(self.player, self.map)
@@ -104,7 +104,7 @@ end
 function Realm:checkWarps()
 	local triggeredWarp = WarpSpawner.check(self.player.collision.body, self.warps)
 	if triggeredWarp then
-		self:loadMap(triggeredWarp.mapName, triggeredWarp.destX, triggeredWarp.destY)
+		Signal.emit(Events.REALM_WARP_TRIGGERED, triggeredWarp)
 	end
 end
 

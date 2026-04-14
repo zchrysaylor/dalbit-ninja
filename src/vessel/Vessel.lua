@@ -54,8 +54,7 @@ function Vessel:destroy()
 	self.collision.body:destroy()
 end
 
----Per-frame update. No-op by default; subclasses override with their own logic.
----@param dt number Delta time
+---@param dt number Delta time in seconds
 function Vessel:update(dt) end
 
 ---Draw the Vessel's sprite at its position.

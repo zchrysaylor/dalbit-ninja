@@ -6,6 +6,7 @@ local PlayerWalkState = {}
 PlayerWalkState.__index = PlayerWalkState
 setmetatable(PlayerWalkState, { __index = SoulWalkState })
 
+---Called when this state becomes active.
 ---@param args? table Optional arguments
 function PlayerWalkState:enterState(args)
 	-- resume paused animation
@@ -32,7 +33,6 @@ end
 --     self:MovePlayer()  -- player-specific physics movement
 -- end
 
----Delegate per-frame movement to movePlayer().
 ---@param dt number Delta time in seconds
 function PlayerWalkState:update(dt)
 	self:movePlayer()
