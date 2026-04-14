@@ -48,8 +48,8 @@ SoulSpawner = require("src.realm.SoulSpawner")
 
 -- state machine-related requires
 StateMachine = require("src.state.StateMachine")
-StartState = require("src.state.StartState")
-PlayState = require("src.state.PlayState")
+StartState = require("src.state.game.StartState")
+PlayState = require("src.state.game.PlayState")
 SoulIdleState = require("src.state.vessel.soul.SoulIdleState")
 SoulWalkState = require("src.state.vessel.soul.SoulWalkState")
 PlayerIdleState = require("src.state.vessel.soul.player.PlayerIdleState")
