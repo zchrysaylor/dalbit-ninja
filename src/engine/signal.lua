@@ -1,5 +1,5 @@
 ---Lightweight pub/sub event bus.
----@module signal
+---@class signal
 local signal = {}
 
 ---@alias EventCallback fun(...: any): boolean|nil
@@ -99,8 +99,13 @@ function signal.compact(list, listLength)
 	end
 end
 
+---@class SignalGroup
+---@field connect fun(name: string, callback: EventCallback)
+---@field disconnectAll fun()
+
 ---Create a group to which to assign connections and disconnect all simultaneously.
 ---Useful when one file has many connections.
+---@return SignalGroup
 function signal.group()
 	local connections = {}
 	return {
@@ -117,7 +122,6 @@ function signal.group()
 	}
 end
 
--- TODO: implement for map transitions and state exits
 ---Remove handlers for a single event, or clear the entire event bus.
 ---@param name? string Event name to clear. If `nil`, all events are cleared.
 function signal.clear(name)

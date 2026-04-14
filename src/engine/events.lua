@@ -1,5 +1,5 @@
 ---Central registry of all pub/sub event name constants.
----@module events
+---@class events
 local events = {}
 
 events.GAME_PAUSE_TOGGLED = "game:pause_toggled"

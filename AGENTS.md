@@ -124,7 +124,7 @@ return MyClass
 
 ```lua
 -- Module pattern (camelCase)
----@module mymodule
+---@class mymodule
 local mymodule = {}
 
 ---@param x number
@@ -202,9 +202,9 @@ local PlayerIdleState = {}
 PlayerIdleState.__index = PlayerIdleState
 ```
 
-**Utility modules** use `---@module`:
+**Utility modules** use `---@class`:
 ```lua
----@module collision
+---@class collision
 local collision = {}
 
 ---Create a rectangle collider.

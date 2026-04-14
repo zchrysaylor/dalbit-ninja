@@ -1,5 +1,5 @@
 --- Factory module that creates warp-trigger colliders and resolves map transitions.
----@module WarpSpawner
+---@class WarpSpawner
 local WarpSpawner = {}
 
 ---@alias WarpDestination {mapName: string, destX: number, destY: number}

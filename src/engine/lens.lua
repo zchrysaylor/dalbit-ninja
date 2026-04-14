@@ -1,6 +1,6 @@
 ---Camera control module. Owns the HUMP camera instance and exposes
 ---attach/detach for viewport clipping and follow logic for player tracking.
----@module lens
+---@class lens
 local lens = {}
 
 -- camera library

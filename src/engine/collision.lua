@@ -1,6 +1,6 @@
 -- Utility module for creating Box2D collision bodies.
 -- Returns plain tables {body, shape, fixture}; instance methods live on Vessel.
----@module collision
+---@class collision
 local collision = {}
 
 ---@alias CollisionData {body: love.Body, shape: love.Shape, fixture: love.Fixture}

@@ -1,5 +1,5 @@
 ---Debug overlay module. Toggled via the GAME_DEBUG_TOGGLED event.
----@module dbg
+---@class dbg
 local dbg = {}
 
 ---True while the debug overlay is visible.

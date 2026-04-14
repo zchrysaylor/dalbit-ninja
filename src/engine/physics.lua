@@ -1,5 +1,5 @@
 --- Utility module for common love.physics queries.
----@module physics
+---@class physics
 local physics = {}
 
 ---Check whether two Box2D bodies are currently touching.

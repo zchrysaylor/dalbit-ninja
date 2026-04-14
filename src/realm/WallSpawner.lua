@@ -1,5 +1,5 @@
 --- Factory module that creates static wall colliders from Tiled object-layer definitions.
----@module WallSpawner
+---@class WallSpawner
 local WallSpawner = {}
 
 ---Create a static rectangle collider centered on the Tiled object's bounding box.

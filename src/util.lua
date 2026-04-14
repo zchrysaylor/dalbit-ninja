@@ -1,5 +1,5 @@
 ---A grab bag of utility functions.
----@module util
+---@class util
 local util = {}
 
 ---Executes a drawing callback with a fully isolated graphics state.

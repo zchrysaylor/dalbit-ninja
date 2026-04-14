@@ -1,5 +1,5 @@
 --- Factory module that creates Soul NPC entities from Tiled object-layer definitions.
----@module SoulSpawner
+---@class SoulSpawner
 local SoulSpawner = {}
 
 ---Spawn an NPC Soul from a Tiled map object.
