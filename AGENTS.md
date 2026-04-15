@@ -328,7 +328,7 @@ love.draw()
 ### Map / Warp System
 
 - Maps are Tiled `.lua` exports loaded by STI (`Tiled("maps/name.lua")`)
-- Object layers used: `"wall"`, `"warp"`, `"entity"` (spawning) + `"base"`, `"ground"`, `"building"` (rendering)
+- Object layers used: `"wall"`, `"warp"`, `"soul"` (spawning) + `"base"`, `"ground"`, `"building"` (rendering)
 - `WarpSpawner` holds a `MAP_TRANSITIONS` lookup table (warp name → destination map + spawn coords)
 - Warp collision checked each frame via `Collision.isColliding()`; triggers `Realm:loadMap()`
 - `Realm:loadMap()` destroys all existing colliders before loading the new map

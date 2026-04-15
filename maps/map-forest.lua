@@ -410,7 +410,7 @@ return {
       type = "objectgroup",
       draworder = "topdown",
       id = 5,
-      name = "entity",
+      name = "soul",
       class = "",
       visible = true,
       opacity = 1,

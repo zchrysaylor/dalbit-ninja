@@ -37,9 +37,8 @@ function Realm:loadMap(mapName, destX, destY)
 		end
 	end
 
-	-- TODO: refactor map layer to be "soul"
-	if self.map.layers["entity"] then
-		for _, obj in pairs(self.map.layers["entity"].objects) do
+	if self.map.layers["soul"] then
+		for _, obj in pairs(self.map.layers["soul"].objects) do
 			local soul = SoulSpawner.spawn(self.physics, obj)
 			table.insert(self.souls, soul)
 		end
