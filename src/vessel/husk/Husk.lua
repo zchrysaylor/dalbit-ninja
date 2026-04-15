@@ -6,20 +6,16 @@
 ---@field width number
 ---@field height number
 ---@field spriteSheet love.Image
----@field animations? table
+---@field animations table
 ---@field stateMachine StateMachine
 ---@field grid any
 local Husk = {}
 Husk.__index = Husk
 
-function Husk:createAnimations(animations)
-	self.grid = Anim8.newGrid(self.width, self.height, self.spriteSheet:getWidth(), self.spriteSheet:getHeight())
-	self.animations = nil
-	-- TODO: not implemented yet
-	if animations then
-		self.animations = animations.animations
-		self.animations.current = animations.current
-	end
+function Husk:createAnimations(anims)
+	self.grid = anims.grid
+	self.animations = anims.animations
+	self.animations.current = anims.animations.current
 end
 
 function Husk:createStateMachine()
@@ -86,12 +82,15 @@ function Husk.new(def)
 		width = def.width,
 		height = def.height,
 		physics = def.physics,
+		shape = "rectangle",
+		bodyType = "static",
 		tags = def.tags or { "husk" },
 	}
 	self.vessel = Vessel.new(vesselOpts)
 	self.collider = self.vessel.collider
 
-	self:createAnimations(def.animations)
+	self.animations = {}
+	self:createAnimations(def.anims)
 	self:createStateMachine()
 	self:changeState("idle")
 

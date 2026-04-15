@@ -46,6 +46,7 @@ Realm = require("src.realm.Realm")
 WallSpawner = require("src.realm.WallSpawner")
 WarpSpawner = require("src.realm.WarpSpawner")
 SoulSpawner = require("src.realm.SoulSpawner")
+HuskSpawner = require("src.realm.HuskSpawner")
 
 -- state machine-related requires
 StateMachine = require("src.state.StateMachine")
@@ -57,7 +58,7 @@ HuskIdleState = require("src.state.vessel.husk.HuskIdleState")
 PlayerIdleState = require("src.state.vessel.soul.player.PlayerIdleState")
 PlayerWalkState = require("src.state.vessel.soul.player.PlayerWalkState")
 
----@type table<string, love.Font> Named global font table.
+---@type table<string, love.Font> Global font table.
 GFonts = {
 	-- TODO: add dedicated pixel font for in-game menu
 	["antiquity"] = love.graphics.newFont("fonts/antiquity-print.ttf", 12),
@@ -67,8 +68,9 @@ GFonts = {
 	["sproutlandsLarge"] = love.graphics.newFont("fonts/sproutlands.ttf", 36),
 }
 
----@type table<string, love.Image> Named global image table.
+---@type table<string, love.Image> Global image table.
 GArt = {
 	["sprite-player"] = love.graphics.newImage("art/sprite-player.png"),
 	["sprite-enemy-fire"] = love.graphics.newImage("art/sprite-enemy-fire.png"),
+	["chest"] = love.graphics.newImage("art/chest.png"),
 }

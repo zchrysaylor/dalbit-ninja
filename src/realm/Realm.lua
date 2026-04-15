@@ -44,6 +44,13 @@ function Realm:loadMap(mapName, destX, destY)
 		end
 	end
 
+	if self.map.layers["husk"] then
+		for _, obj in pairs(self.map.layers["husk"].objects) do
+			local husk = HuskSpawner.spawn(self.physics, obj)
+			table.insert(self.husks, husk)
+		end
+	end
+
 	-- spawn the player in idle state with zero velocity
 	if destX and destY then
 		self.player.vessel:setPosition(destX, destY)
@@ -90,6 +97,10 @@ function Realm:draw()
 		soul:draw()
 	end
 
+	for _, husk in pairs(self.husks) do
+		husk:draw()
+	end
+
 	self.player:draw()
 
 	-- draw collision borders for debugging
@@ -119,6 +130,9 @@ function Realm:destroyAll()
 	SoulSpawner.destroyAll(self.souls)
 	self.souls = {}
 
+	HuskSpawner.destroyAll(self.husks)
+	self.husks = {}
+
 	self.map = {}
 end
 
@@ -135,6 +149,7 @@ function Realm.new()
 	self.walls = {}
 	self.warps = {}
 	self.souls = {}
+	self.husks = {}
 
 	self.player = Player.new({
 		x = 160,
