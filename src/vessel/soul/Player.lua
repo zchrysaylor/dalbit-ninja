@@ -24,14 +24,6 @@ function Player:createAnimations()
 	self.animations.current = self.animations.down
 end
 
----Create the physics body and disable linear damping so velocity is fully player-controlled.
----Overrides Soul:createCollision() to disable linear damping on the resulting body.
----@param world love.World
-function Player:createCollision(world)
-	Soul.createCollision(self, world)
-	self.collision.body:setLinearDamping(0) -- no friction slowdown since you control velocity directly
-end
-
 ---Build the state machine.
 ---Overrides Soul:createStateMachine() to wire player-specific states.
 function Player:createStateMachine()
@@ -45,11 +37,13 @@ function Player:createStateMachine()
 	})
 end
 
----Create a new Player
----@param def table {x, y, width, height, scale, speed, spriteSheet, world, dirX, dirY}
+---Create a new Player.
+---Delegates to Soul.new then disables linear damping so velocity is fully player-controlled.
+---@param def {x: number, y: number, width: number, height: number, scale: number, speed: number, spriteSheet: love.Image, physics: physics, dirX?: number, dirY?: number}
 ---@return Player
 function Player.new(def)
 	local self = Soul.new(def, Player)
+	self.collider:setLinearDamping(0) -- no friction; player controls velocity directly
 	self.dirX = def.dirX or 0
 	self.dirY = def.dirY or 1
 	return self

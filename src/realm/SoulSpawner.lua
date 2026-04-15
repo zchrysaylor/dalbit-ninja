@@ -4,10 +4,10 @@ local SoulSpawner = {}
 
 ---Spawn an NPC Soul from a Tiled map object.
 ---Returns nil for unrecognized object names.
----@param world love.World Box2D world the entity's collision body is added to
+---@param physics physics Physics instance
 ---@param obj table Tiled map object with at minimum `name`, `x`, and `y` fields
 ---@return Soul|nil soul The spawned Soul, or nil if the object type is unrecognized
-function SoulSpawner.spawn(world, obj)
+function SoulSpawner.spawn(physics, obj)
 	if obj.name == "pointFireEnemy" then
 		local fireEnemy = Soul.new({
 			x = obj.x,
@@ -17,7 +17,7 @@ function SoulSpawner.spawn(world, obj)
 			speed = 0.8,
 			scale = 1,
 			spriteSheet = GArt["sprite-enemy-fire"],
-			world = world,
+			physics = physics,
 		})
 		return fireEnemy
 	end

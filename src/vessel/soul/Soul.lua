@@ -1,17 +1,23 @@
 local Vessel = require("src.vessel.Vessel")
 
----@class Soul : Vessel
----@field speed number Movement speed multiplier
----@field animations table Directional animation set (keys: "down", "left", "right", "up", "current")
----@field stateMachine StateMachine Per-entity state machine managing idle/walk transitions
----@field grid any Animation grid produced by Anim8.newGrid()
----@field direction? string Cardinal direction for NPC movement ("up", "down", "left", "right")
+---@class Soul
+---@field vessel Vessel
+---@field collider collider
+---@field x number
+---@field y number
+---@field width number
+---@field height number
+---@field scale number
+---@field spriteSheet love.Image
+---@field speed number
+---@field animations table
+---@field stateMachine StateMachine
+---@field grid any
+---@field direction? string
 local Soul = {}
 Soul.__index = Soul
-setmetatable(Soul, { __index = Vessel })
 
----Build the animation grid and directional animations from the sprite sheet.
----Populates self.animations with "down", "left", "right", "up", and "current".
+---Build animation grid and directional animations from the sprite sheet.
 function Soul:createAnimations()
 	self.grid = Anim8.newGrid(self.width, self.height, self.spriteSheet:getWidth(), self.spriteSheet:getHeight())
 	self.animations.down = Anim8.newAnimation(self.grid("1-4", 1), 0.1)
@@ -42,6 +48,17 @@ function Soul:changeState(state, args)
 	self.stateMachine:changeState(state, args)
 end
 
+---Sync self.x/self.y from the vessel's physics body position.
+---Must be called each frame after the physics world steps.
+function Soul:syncPosition()
+	self.x, self.y = self.vessel:getPosition()
+end
+
+---Destroy the underlying Vessel (and its physics body).
+function Soul:destroy()
+	self.vessel:destroy()
+end
+
 ---@param dt number Delta time in seconds
 function Soul:update(dt)
 	self.animations.current:update(dt)
@@ -49,7 +66,6 @@ function Soul:update(dt)
 end
 
 ---Draw the current animation frame centered at (x, y).
----Overrides Vessel:draw() to use animation-based rendering.
 function Soul:draw()
 	self.animations.current:draw(
 		self.spriteSheet,
@@ -63,18 +79,42 @@ function Soul:draw()
 	)
 end
 
----Create a new Soul
+---Create a new Soul.
+---Builds an internal Vessel (physics body) and wires up animations and the state machine.
 ---@generic T : Soul
----@param def table {x, y, width, height, scale, speed, spriteSheet, world}
+---@param def {x: number, y: number, width: number, height: number, scale: number, speed: number, spriteSheet: love.Image, physics: physics, direction?: string, tags?: string[]}
 ---@param subclass? T Metatable for subclass (defaults to Soul)
 ---@return T
 function Soul.new(def, subclass)
-	local self = Vessel.new(def, subclass or Soul)
+	assert(def.spriteSheet, "Soul must have a spriteSheet")
+	local self = setmetatable({}, subclass or Soul)
+	self.x = def.x
+	self.y = def.y
+	self.width = def.width
+	self.height = def.height
+	self.scale = def.scale
 	self.speed = def.speed
+	self.direction = def.direction
+	self.spriteSheet = def.spriteSheet
+
+	local vesselOpts = {
+		x = def.x,
+		y = def.y,
+		width = def.width,
+		height = def.height,
+		scale = def.scale,
+		speed = def.speed,
+		physics = def.physics,
+		tags = def.tags or { "soul" },
+	}
+	self.vessel = Vessel.new(vesselOpts)
+	self.collider = self.vessel.collider
+
 	self.animations = {}
 	self:createStateMachine()
 	self:createAnimations()
 	self:changeState("idle")
+
 	return self
 end
 

@@ -10,7 +10,7 @@ setmetatable(PlayerIdleState, { __index = SoulIdleState })
 ---@param args? table Optional arguments
 function PlayerIdleState:enterState(args)
 	SoulIdleState.enterState(self, args)
-	self.soul:setLinearVelocity(0, 0)
+	self.soul.vessel:setLinearVelocity(0, 0)
 end
 
 ---@param dt number Delta time in seconds

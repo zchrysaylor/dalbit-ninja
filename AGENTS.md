@@ -46,10 +46,10 @@ lua-boy-advance/
 │   ├── deps.lua          # Centralized global dependency loading
 │   ├── constants.lua     # Global constants (resolution, key bindings, rates)
 │   ├── engine/
-│   │   ├── collision.lua # Box2D collision factory + debug rendering
+│   │   ├── collision.lua # Collision queries (isColliding) + debug rendering
 │   │   ├── input.lua     # Directional input reading (getDirection)
 │   │   ├── lens.lua      # Camera module: owns HUMP instance, attach/detach/follow/setZoom
-│   │   ├── physics.lua   # isColliding() utility
+│   │   ├── physics.lua   # Physics class (collider factory, tag system)
 │   │   └── signal.lua    # Pub/sub event bus
 │   ├── realm/
 │   │   ├── Realm.lua         # World/level controller (map, camera, entities)
@@ -67,9 +67,11 @@ lua-boy-advance/
 │   │       └── player/
 │   │           ├── PlayerIdleState.lua  # Player idle: detect input to walk
 │   │           └── PlayerWalkState.lua  # Player walk: physics velocity + 8-dir anim
-│   └── vessel/soul/
-│       ├── Soul.lua      # Base entity class (animations, collision, state machine)
-│       └── Player.lua    # Player extends Soul (8-dir movement, physics-based)
+│   └── vessel/
+│       ├── Vessel.lua    # Physics body composition layer (owns a collider)
+│       └── soul/
+│           ├── Soul.lua      # Entity class (has-a Vessel, animations, state machine)
+│           └── Player.lua    # Player extends Soul (8-dir movement, physics-based)
 ├── lib/                  # Third-party libraries — do not modify
 ├── art/                  # Sprite sheets and tilesets (.png)
 ├── fonts/                # Pixel fonts (.ttf)
@@ -96,7 +98,7 @@ lua-boy-advance/
 | Constants | SCREAMING_SNAKE_CASE | `VIRTUAL_WIDTH`, `KEY_UP`, `FADE_RATE` |
 | Local variables | camelCase | `moveUp`, `isMoving`, `centerX` |
 | Instance methods | PascalCase colon-syntax | `self:MovePlayer()`, `self:AnimatePlayer()` |
-| Static/utility functions | camelCase dot-syntax | `collision.newRectangle()`, `physics.isColliding()` |
+| Static/utility functions | camelCase dot-syntax | `collision.isColliding()`, `physics.new()` |
 
 ### Module/Class Definition Pattern
 
@@ -136,11 +138,20 @@ end
 return mymodule
 ```
 
-### Inheritance Patterns
+### Inheritance & Composition Patterns
 
-Three patterns are used — choose the one that matches the existing hierarchy:
+**Composition — Soul has-a Vessel**:
 
-**Pattern 1 — Delegating constructor** (Soul → Player):
+Soul owns a Vessel (physics body wrapper) rather than inheriting from it. Vessel is created
+internally and exposed via `soul.vessel` and `soul.collider` (convenience ref).
+
+```lua
+-- Soul.new builds a Vessel internally:
+self.vessel = Vessel.new({ physics = def.physics, ... })
+self.collider = self.vessel.collider
+```
+
+**Delegating constructor** (Soul → Player):
 ```lua
 local Soul = require("src.vessel.soul.Soul")
 local Player = {}
@@ -148,16 +159,13 @@ Player.__index = Player
 setmetatable(Player, { __index = Soul })
 
 function Player.new(def)
-    return Soul.new(def, Player)  -- Soul.new does setmetatable({}, subclass or Soul)
-end
-
-function Player:createCollision(world)
-    Soul.createCollision(self, world)  -- explicit super call
-    -- Player-specific additions
+    local self = Soul.new(def, Player)  -- Soul.new does setmetatable({}, subclass or Soul)
+    self.collider:setLinearDamping(0)   -- post-creation customization
+    return self
 end
 ```
 
-**Pattern 2 — BaseState constructor** (state classes):
+**BaseState constructor** (state classes):
 ```lua
 local BaseState = require("src.state.BaseState")
 local PlayState = {}
@@ -170,7 +178,7 @@ function PlayState.new()
 end
 ```
 
-**Pattern 3 — Re-setmetatable** (deeper state inheritance, e.g. PlayerIdleState):
+**Re-setmetatable** (deeper state inheritance, e.g. PlayerIdleState):
 ```lua
 function PlayerIdleState.new(player)
     local self = SoulIdleState.new(player)  -- create with parent metatable
@@ -214,7 +222,7 @@ local collision = {}
 ---@param w number Width in pixels
 ---@param h number Height in pixels
 ---@param bodyType? love.BodyType Body type (default "static")
----@return CollisionData
+---@return collider
 function collision.newRectangle(world, x, y, w, h, bodyType)
 ```
 
@@ -246,7 +254,7 @@ self.player = Player.new({
     height = 16,
     speed = 0.8,
     spriteSheet = GArt["sprite-player"],
-    world = self.world,
+    physics = self.physics,
 })
 ```
 
@@ -259,7 +267,7 @@ All major systems are globals defined in `src/deps.lua`. This is intentional —
 - **Libraries**: `Anim8`, `Push`, `Tiled`, `Flux`
 - **Instances**: `GStateMachine`
 - **Assets**: `GFonts`, `GArt`
-- **Classes**: `Soul`, `Player`, `Realm`, `SoulSpawner`, `WallSpawner`, `WarpSpawner`
+- **Classes**: `Vessel`, `Soul`, `Player`, `Realm`, `SoulSpawner`, `WallSpawner`, `WarpSpawner`
 - **Utility modules**: `Collision`, `Lens`, `Physics`, `Input`, `Signal`
 - **State classes**: `StateMachine`, `BaseState`, `StartState`, `PlayState`, `SoulIdleState`, `SoulWalkState`, `PlayerIdleState`, `PlayerWalkState`
 
@@ -284,10 +292,13 @@ Two-tier state machine:
 ### Physics and Collision
 
 - Box2D world with zero gravity: `love.physics.newWorld(0, 0)`
-- Use `Collision` factory methods: `Collision.newRectangle()`, `Collision.newOctagon()`
-- Player uses **physics velocity** (`body:setLinearVelocity()`); NPCs use **direct position mutation**
+- `Physics` is instantiated per-world: `Physics.new(world)` — the instance owns the Box2D world
+- Create colliders via `physics:collider(x, y, opts)` — single factory for all shapes (rectangle, octagon)
+- Colliders (`collider` class) wrap Box2D body/shape/fixture and support a tag system (`addTags`, `hasTag`)
+- `Collision.isColliding(c1, c2)` checks whether two colliders are touching
+- Player uses **physics velocity** (`collider:setLinearVelocity()`); NPCs use **direct position mutation**
 - Debug collision rendering: `Collision.drawAll(World, alpha)` — toggled with `KEY_DEBUG` (`.`)
-- Box2D `setUserData()` stores metadata (e.g. warp destination) on fixtures for collision callbacks
+- `collider:setUserData()` stores metadata (e.g. warp destination) for collision callbacks
 
 ### Rendering Pipeline
 
@@ -319,7 +330,7 @@ love.draw()
 - Maps are Tiled `.lua` exports loaded by STI (`Tiled("maps/name.lua")`)
 - Object layers used: `"wall"`, `"warp"`, `"entity"` (spawning) + `"base"`, `"ground"`, `"building"` (rendering)
 - `WarpSpawner` holds a `MAP_TRANSITIONS` lookup table (warp name → destination map + spawn coords)
-- Warp collision checked each frame via `Physics.isColliding()`; triggers `Realm:loadMap()`
+- Warp collision checked each frame via `Collision.isColliding()`; triggers `Realm:loadMap()`
 - `Realm:loadMap()` destroys all existing colliders before loading the new map
 
 ## Third-Party Libraries (lib/)

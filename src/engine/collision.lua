@@ -1,61 +1,30 @@
--- Utility module for creating Box2D collision bodies.
--- Returns plain tables {body, shape, fixture}; instance methods live on Vessel.
+-- Collision queries and debug rendering for Box2D colliders.
 ---@class collision
 local collision = {}
 
----@alias CollisionData {body: love.Body, shape: love.Shape, fixture: love.Fixture}
+---Check whether two colliders are currently touching.
+---Returns false immediately if either collider has been destroyed.
+---Iterates active contacts on c1's body and looks for a touching contact with c2's body.
+---@param c1 collider First collider
+---@param c2 collider Second collider
+---@return boolean `true` if the two colliders have an active touching contact
+function collision.isColliding(c1, c2)
+	if c1:isDestroyed() or c2:isDestroyed() then
+		return false
+	end
 
----Create a static rectangle collider.
----@param world love.World
----@param x number Center X position
----@param y number Center Y position
----@param w number Width in pixels
----@param h number Height in pixels
----@param bodyType? love.BodyType Body type (default "static")
----@return CollisionData
-function collision.newRectangle(world, x, y, w, h, bodyType)
-	bodyType = bodyType or "static"
-	local body = love.physics.newBody(world, x, y, bodyType)
-	local shape = love.physics.newRectangleShape(w, h)
-	local fixture = love.physics.newFixture(body, shape, 1)
-	body:setFixedRotation(true)
-	return { body = body, shape = shape, fixture = fixture }
-end
-
----Create an octagon (beveled/corner-cut rectangle) collider.
----@param world love.World
----@param x number Center X position
----@param y number Center Y position
----@param w number Width in pixels
----@param h number Height in pixels
----@param s? number Corner cut size in pixels (default 4)
----@param bodyType? love.BodyType Body type (default "dynamic")
----@return CollisionData
-function collision.newOctagon(world, x, y, w, h, s, bodyType)
-	s = s or 4
-	bodyType = bodyType or "dynamic"
-	local body = love.physics.newBody(world, x, y, bodyType)
-	local shape = love.physics.newPolygonShape(
-		-w / 2,
-		-h / 2 + s,
-		-w / 2 + s,
-		-h / 2,
-		w / 2 - s,
-		-h / 2,
-		w / 2,
-		-h / 2 + s,
-		w / 2,
-		h / 2 - s,
-		w / 2 - s,
-		h / 2,
-		-w / 2 + s,
-		h / 2,
-		-w / 2,
-		h / 2 - s
-	)
-	local fixture = love.physics.newFixture(body, shape, 1)
-	body:setFixedRotation(true)
-	return { body = body, shape = shape, fixture = fixture }
+	local b1 = c1.body
+	local b2 = c2.body
+	for _, contact in ipairs(b1:getContacts()) do
+		if contact:isTouching() then
+			local f1, f2 = contact:getFixtures()
+			local fb1, fb2 = f1:getBody(), f2:getBody()
+			if (fb1 == b1 and fb2 == b2) or (fb1 == b2 and fb2 == b1) then
+				return true
+			end
+		end
+	end
+	return false
 end
 
 -- TODO: add a queryCircleArea for interactions (https://www.youtube.com/watch?v=2EPBHHE-ZU0&list=PLqPLyUreLV8D3Ckd_9UFNvEpg4xCvbL1a&index=4)

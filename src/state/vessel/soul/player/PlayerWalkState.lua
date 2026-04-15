@@ -64,7 +64,7 @@ function PlayerWalkState:movePlayer()
 	end
 
 	-- move the body with physics and animations
-	self.soul:setLinearVelocity(vx, vy)
+	self.soul.vessel:setLinearVelocity(vx, vy)
 	self:animateFromDirection()
 end
 

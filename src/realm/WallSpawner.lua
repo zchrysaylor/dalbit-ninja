@@ -3,21 +3,25 @@
 local WallSpawner = {}
 
 ---Create a static rectangle collider centered on the Tiled object's bounding box.
----@param world love.World Box2D world the collider is added to
+---@param physics physics Physics instance
 ---@param obj table Tiled map object with `x`, `y`, `width`, and `height` fields
----@return CollisionData wall The resulting static collision body
-function WallSpawner.spawn(world, obj)
+---@return collider wall The resulting static collider
+function WallSpawner.spawn(physics, obj)
 	local centerX = obj.x + obj.width / 2
 	local centerY = obj.y + obj.height / 2
-	local wall = Collision.newRectangle(world, centerX, centerY, obj.width, obj.height)
+	local wall = physics:collider(centerX, centerY, {
+		width = obj.width,
+		height = obj.height,
+		bodyType = "static",
+	})
 	return wall
 end
 
 ---Destroy all wall physics bodies in the provided array.
----@param walls CollisionData[] Array of wall collision data to destroy
+---@param walls collider[] Array of wall colliders to destroy
 function WallSpawner.destroyAll(walls)
 	for _, wall in ipairs(walls) do
-		wall.body:destroy()
+		wall:destroy()
 	end
 end
 

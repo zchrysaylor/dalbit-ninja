@@ -1,8 +1,9 @@
 ---@class Realm
 ---@field world love.World Box2D physics world (zero gravity, top-down)
+---@field physics physics Physics instance wrapping self.world
 ---@field map table STI map instance (or empty table before first load)
----@field walls CollisionData[] Static wall colliders for the current map
----@field warps CollisionData[] Warp-trigger colliders for the current map
+---@field walls collider[] Static wall colliders for the current map
+---@field warps collider[] Warp-trigger colliders for the current map
 ---@field souls Soul[] NPC entities spawned from the current map's entity layer
 ---@field player Player The player entity (persists across map loads)
 local Realm = {}
@@ -17,14 +18,6 @@ Realm.__index = Realm
 function Realm:loadMap(mapName, destX, destY)
 	self:destroyAll()
 
-	-- spawn the player in idle state with zero velocity
-	if destX and destY then
-		self.player:setPosition(destX, destY)
-		self.player.x, self.player.y = self.player:getPosition()
-		self.player:setLinearVelocity(0, 0)
-		self.player:changeState("idle")
-	end
-
 	-- TODO: capture loaded map for save state
 	-- loadedMap = mapName
 
@@ -32,14 +25,14 @@ function Realm:loadMap(mapName, destX, destY)
 
 	if self.map.layers["wall"] then
 		for _, obj in pairs(self.map.layers["wall"].objects) do
-			local wall = WallSpawner.spawn(self.world, obj)
+			local wall = WallSpawner.spawn(self.physics, obj)
 			table.insert(self.walls, wall)
 		end
 	end
 
 	if self.map.layers["warp"] then
 		for _, obj in pairs(self.map.layers["warp"].objects) do
-			local warp = WarpSpawner.spawn(self.world, obj)
+			local warp = WarpSpawner.spawn(self.physics, obj)
 			table.insert(self.warps, warp)
 		end
 	end
@@ -47,9 +40,17 @@ function Realm:loadMap(mapName, destX, destY)
 	-- TODO: refactor map layer to be "soul"
 	if self.map.layers["entity"] then
 		for _, obj in pairs(self.map.layers["entity"].objects) do
-			local soul = SoulSpawner.spawn(self.world, obj)
+			local soul = SoulSpawner.spawn(self.physics, obj)
 			table.insert(self.souls, soul)
 		end
+	end
+
+	-- spawn the player in idle state with zero velocity
+	if destX and destY then
+		self.player.vessel:setPosition(destX, destY)
+		self.player:syncPosition()
+		self.player.vessel:setLinearVelocity(0, 0)
+		self.player:changeState("idle")
 	end
 
 	Lens.follow(self.player, self.map)
@@ -60,12 +61,12 @@ function Realm:update(dt)
 	Lens.follow(self.player, self.map)
 
 	self.world:update(dt)
-	self.player.x, self.player.y = self.player:getPosition()
+	self.player:syncPosition()
 	self.player:update(dt)
 	self:checkWarps()
 
 	for _, soul in pairs(self.souls) do
-		soul.x, soul.y = soul:getPosition()
+		soul:syncPosition()
 		soul:update(dt)
 	end
 end
@@ -102,7 +103,7 @@ end
 
 ---Check all warp colliders; if the player is touching one, load its destination map.
 function Realm:checkWarps()
-	local triggeredWarp = WarpSpawner.check(self.player.collision.body, self.warps)
+	local triggeredWarp = WarpSpawner.check(self.player.collider, self.warps)
 	if triggeredWarp then
 		Signal.emit(Events.REALM_WARP_TRIGGERED, triggeredWarp)
 	end
@@ -127,8 +128,9 @@ end
 function Realm.new()
 	local self = setmetatable({}, Realm)
 
-	-- create a new physics world
+	-- create a new physics world and physics instance
 	self.world = love.physics.newWorld(0, 0)
+	self.physics = Physics.new(self.world)
 
 	self.map = {}
 	self.walls = {}
@@ -143,7 +145,7 @@ function Realm.new()
 		speed = 0.8,
 		scale = 1, -- can remove if keep 16x16
 		spriteSheet = GArt["sprite-player"],
-		world = self.world,
+		physics = self.physics,
 	})
 
 	return self

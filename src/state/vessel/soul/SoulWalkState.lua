@@ -16,7 +16,7 @@ end
 
 ---Called when this state is deactivated.
 function SoulWalkState:exitState()
-	self.soul:setLinearVelocity(0, 0)
+	self.soul.vessel:setLinearVelocity(0, 0)
 end
 
 ---@param dt number Delta time in seconds
@@ -32,7 +32,7 @@ function SoulWalkState:update(dt)
 	elseif self.soul.direction == "right" then
 		vx = speed
 	end
-	self.soul:setLinearVelocity(vx, vy)
+	self.soul.vessel:setLinearVelocity(vx, vy)
 end
 
 ---Stub for future NPC AI movement logic.
