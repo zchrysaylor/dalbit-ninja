@@ -2,6 +2,167 @@
 ---@class collision
 local collision = {}
 
+---Return true when a point lies inside or on a circle.
+---@param px number
+---@param py number
+---@param cx number
+---@param cy number
+---@param radius number
+---@return boolean
+local function pointInCircle(px, py, cx, cy, radius)
+	local dx = px - cx
+	local dy = py - cy
+	return dx * dx + dy * dy <= radius * radius
+end
+
+---Return the squared distance from a point to a line segment.
+---Used for circle-vs-edge checks without taking square roots.
+---@param px number
+---@param py number
+---@param ax number
+---@param ay number
+---@param bx number
+---@param by number
+---@return number
+local function distanceSquaredToSegment(px, py, ax, ay, bx, by)
+	local abx = bx - ax
+	local aby = by - ay
+	local apx = px - ax
+	local apy = py - ay
+	local abLenSq = abx * abx + aby * aby
+	if abLenSq == 0 then
+		local dx = px - ax
+		local dy = py - ay
+		return dx * dx + dy * dy
+	end
+	local t = (apx * abx + apy * aby) / abLenSq
+	t = math.max(0, math.min(1, t))
+	local closestX = ax + abx * t
+	local closestY = ay + aby * t
+	local dx = px - closestX
+	local dy = py - closestY
+	return dx * dx + dy * dy
+end
+
+---Return true when a point lies inside a polygon using ray casting.
+---@param px number
+---@param py number
+---@param vertices number[] World-space polygon vertices as `{x1, y1, ...}`
+---@return boolean
+local function pointInPolygon(px, py, vertices)
+	local inside = false
+	local count = #vertices
+	for i = 1, count, 2 do
+		local j = i + 2
+		if j > count then
+			j = 1
+		end
+		local xi = vertices[i]
+		local yi = vertices[i + 1]
+		local xj = vertices[j]
+		local yj = vertices[j + 1]
+		local intersects = ((yi > py) ~= (yj > py)) and (px < (xj - xi) * (py - yi) / (yj - yi) + xi)
+		if intersects then
+			inside = not inside
+		end
+	end
+	return inside
+end
+
+---Return true when a circle overlaps a polygon.
+---Checks center containment, vertex inclusion, and edge distance.
+---@param cx number
+---@param cy number
+---@param radius number
+---@param vertices number[] World-space polygon vertices as `{x1, y1, ...}`
+---@return boolean
+local function circleIntersectsPolygon(cx, cy, radius, vertices)
+	local radiusSq = radius * radius
+	-- If the circle center is inside the polygon, they overlap.
+	if pointInPolygon(cx, cy, vertices) then
+		return true
+	end
+	-- If any polygon vertex is inside the circle, they overlap.
+	for i = 1, #vertices, 2 do
+		if pointInCircle(vertices[i], vertices[i + 1], cx, cy, radius) then
+			return true
+		end
+	end
+	-- If the circle reaches any polygon edge, they overlap.
+	for i = 1, #vertices, 2 do
+		local j = i + 2
+		if j > #vertices then
+			j = 1
+		end
+		local ax = vertices[i]
+		local ay = vertices[i + 1]
+		local bx = vertices[j]
+		local by = vertices[j + 1]
+		if distanceSquaredToSegment(cx, cy, ax, ay, bx, by) <= radiusSq then
+			return true
+		end
+	end
+	return false
+end
+
+---Return true when a fixture's shape overlaps the given query circle.
+---Only PolygonShape and CircleShape are supported by this helper.
+---@param fixture love.Fixture
+---@param cx number
+---@param cy number
+---@param radius number
+---@return boolean
+local function fixtureIntersectsCircle(fixture, cx, cy, radius)
+	local shape = fixture:getShape()
+	local shapeType = shape:type()
+	local body = fixture:getBody()
+	if shapeType == "PolygonShape" then
+		local vertices = { body:getWorldPoints(shape:getPoints()) }
+		return circleIntersectsPolygon(cx, cy, radius, vertices)
+	end
+	if shapeType == "CircleShape" then
+		local bodyX, bodyY = body:getPosition()
+		local offsetX, offsetY = shape:getPoint()
+		local fx = bodyX + offsetX
+		local fy = bodyY + offsetY
+		local totalRadius = radius + shape:getRadius()
+		local dx = cx - fx
+		local dy = cy - fy
+		return dx * dx + dy * dy <= totalRadius * totalRadius
+	end
+	return false
+end
+
+---Query all colliders overlapping a circle in world space.
+---Uses Box2D's AABB query as a broad phase, then performs a precise shape
+---intersection test before returning wrapper colliders.
+---@param world love.World
+---@param x number Circle center X in pixels
+---@param y number Circle center Y in pixels
+---@param radius number Circle radius in pixels
+---@param filter? fun(collider: collider, fixture: love.Fixture): boolean
+---Optional predicate to reject colliders before the narrow-phase test.
+---@return collider[]
+function collision.queryCircleArea(world, x, y, radius, filter)
+	local results = {}
+	local seen = {}
+	world:queryBoundingBox(x - radius, y - radius, x + radius, y + radius, function(fixture)
+		local collider = fixture:getUserData()
+		if not collider or seen[collider] then
+			return true
+		end
+		if filter and not filter(collider, fixture) then
+			return true
+		end
+		if fixtureIntersectsCircle(fixture, x, y, radius) then
+			seen[collider] = true
+			table.insert(results, collider)
+		end
+		return true
+	end)
+	return results
+end
+
 ---Check whether two colliders are currently touching.
 ---Returns false immediately if either collider has been destroyed.
 ---Iterates active contacts on c1's body and looks for a touching contact with c2's body.
@@ -27,8 +188,6 @@ function collision.isColliding(c1, c2)
 	return false
 end
 
--- TODO: add a queryCircleArea for interactions (https://www.youtube.com/watch?v=2EPBHHE-ZU0&list=PLqPLyUreLV8D3Ckd_9UFNvEpg4xCvbL1a&index=4)
-
 ---Draw collision outlines for all bodies in the world. Debug use only.
 ---@param world love.World
 ---@param alpha? number Outline opacity from 0 to 1 (default 1)
@@ -41,6 +200,10 @@ function collision.drawAll(world, alpha)
 			for _, fixture in ipairs(body:getFixtures()) do
 				if fixture:getShape():type() == "PolygonShape" then
 					love.graphics.polygon("line", body:getWorldPoints(fixture:getShape():getPoints()))
+				elseif fixture:getShape():type() == "CircleShape" then
+					local bodyX, bodyY = body:getPosition()
+					local offsetX, offsetY = fixture:getShape():getPoint()
+					love.graphics.circle("line", bodyX + offsetX, bodyY + offsetY, fixture:getShape():getRadius())
 				end
 			end
 		end

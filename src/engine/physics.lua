@@ -159,6 +159,10 @@ function physics:collider(x, y, opts)
 		tags = {},
 	}, collider)
 
+	-- Registers the returned collider as the fixture's user data so spatial
+	-- queries can recover this wrapper from raw Box2D fixtures.
+	fixture:setUserData(coll)
+
 	return coll
 end
 
