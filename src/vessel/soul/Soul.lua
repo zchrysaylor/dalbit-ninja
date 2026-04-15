@@ -1,5 +1,3 @@
-local Vessel = require("src.vessel.Vessel")
-
 ---@class Soul
 ---@field vessel Vessel
 ---@field collider collider
@@ -80,12 +78,12 @@ function Soul:draw()
 end
 
 ---Create a new Soul.
----Builds an internal Vessel (physics body) and wires up animations and the state machine.
 ---@generic T : Soul
 ---@param def {x: number, y: number, width: number, height: number, scale: number, speed: number, spriteSheet: love.Image, physics: physics, direction?: string, tags?: string[]}
 ---@param subclass? T Metatable for subclass (defaults to Soul)
 ---@return T
 function Soul.new(def, subclass)
+	assert(def.physics, "Soul must have a physics instance")
 	assert(def.spriteSheet, "Soul must have a spriteSheet")
 	local self = setmetatable({}, subclass or Soul)
 	self.x = def.x

@@ -38,6 +38,7 @@ Transition = require("src.engine.transition") -- depends on Signal & Events; mus
 -- vessel-related requires
 Vessel = require("src.vessel.Vessel")
 Soul = require("src.vessel.soul.Soul")
+Husk = require("src.vessel.husk.Husk")
 Player = require("src.vessel.soul.Player")
 
 -- realm-related requires
@@ -52,6 +53,7 @@ StartState = require("src.state.game.StartState")
 PlayState = require("src.state.game.PlayState")
 SoulIdleState = require("src.state.vessel.soul.SoulIdleState")
 SoulWalkState = require("src.state.vessel.soul.SoulWalkState")
+HuskIdleState = require("src.state.vessel.husk.HuskIdleState")
 PlayerIdleState = require("src.state.vessel.soul.player.PlayerIdleState")
 PlayerWalkState = require("src.state.vessel.soul.player.PlayerWalkState")
 
