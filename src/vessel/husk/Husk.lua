@@ -6,18 +6,27 @@
 ---@field width number
 ---@field height number
 ---@field spriteSheet love.Image
----@field animations table
+---@field animOpts? {frames: string, row: integer, interval: number, paused?: boolean}
+---@field animations? {current: any}
+---@field grid? any Only set when animOpts is provided
 ---@field stateMachine StateMachine
----@field grid any
 local Husk = {}
 Husk.__index = Husk
 
-function Husk:createAnimations(anims)
-	self.grid = anims.grid
-	self.animations = anims.animations
-	self.animations.current = anims.animations.current
+---Build the Anim8 grid and animation from self.animOpts.
+---No-op if animOpts is nil (static sprite mode).
+function Husk:createAnimations()
+	if not self.animOpts then
+		return
+	end
+
+	self.grid = Anim8.newGrid(self.width, self.height, self.spriteSheet:getWidth(), self.spriteSheet:getHeight())
+	local animation = Anim8.newAnimation(self.grid(self.animOpts.frames, self.animOpts.row), self.animOpts.interval)
+	self.animations = { current = animation }
 end
 
+---Build the state machine with an "idle" state.
+---Subclasses override this to register additional state factories.
 function Husk:createStateMachine()
 	self.stateMachine = StateMachine.new({
 		["idle"] = function()
@@ -59,17 +68,20 @@ function Husk:draw()
 			self.width / 2, -- originX: centered (half of sprite width)
 			self.height / 2 -- originY: centered (half of sprite height)
 		)
+	else
+		love.graphics.draw(self.spriteSheet, self.x, self.y, nil, 1, nil, self.width / 2, self.height / 2)
 	end
 end
 
 ---Create a new Husk.
 ---@generic T : Husk
----@param def {x: number, y: number, width: number, height: number, spriteSheet: love.Image, physics: physics, animations?: table, tags?: string[]}
+---@param def {x: number, y: number, width: number, height: number, spriteSheet: love.Image, physics: physics, animOpts?: {frames: string, row: integer, interval: number, paused?: boolean}, tags?: string[]}
+---@param subclass? T Metatable for subclass (defaults to Husk)
 ---@return T
-function Husk.new(def)
+function Husk.new(def, subclass)
 	assert(def.physics, "Husk must have a physics instance")
 	assert(def.spriteSheet, "Husk must have a spriteSheet")
-	local self = setmetatable({}, Husk)
+	local self = setmetatable({}, subclass or Husk)
 	self.x = def.x
 	self.y = def.y
 	self.width = def.width
@@ -89,8 +101,8 @@ function Husk.new(def)
 	self.vessel = Vessel.new(vesselOpts)
 	self.collider = self.vessel.collider
 
-	self.animations = {}
-	self:createAnimations(def.anims)
+	self.animOpts = def.animOpts
+	self:createAnimations()
 	self:createStateMachine()
 	self:changeState("idle")
 

@@ -10,7 +10,9 @@ setmetatable(HuskIdleState, { __index = BaseState })
 ---@param opts? table Optional arguments
 function HuskIdleState:enterState(opts)
 	if self.husk.animations and self.husk.animations.current then
-		self.husk.animations.current:pauseAtStart()
+		if self.husk.animOpts and self.husk.animOpts.paused ~= false then
+			self.husk.animations.current:pauseAtStart()
+		end
 	end
 end
 

@@ -75,6 +75,10 @@ function Realm:update(dt)
 		soul:syncPosition()
 		soul:update(dt)
 	end
+
+	for _, husk in pairs(self.husks) do
+		husk:update(dt)
+	end
 end
 
 ---Render the current map layers, all soul entities, the player, and optionally collision shapes.
