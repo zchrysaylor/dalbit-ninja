@@ -156,8 +156,8 @@ function Realm.new()
 	self.husks = {}
 
 	self.player = Player.new({
-		x = 160,
-		y = 200,
+		x = 152,
+		y = 136,
 		width = 16,
 		height = 16,
 		speed = 0.8,

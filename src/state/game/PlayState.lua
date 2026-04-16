@@ -73,7 +73,7 @@ function PlayState.new()
 	local self = BaseState.new(PlayState)
 
 	self.realm = Realm.new()
-	self.realm:loadMap("map-hometown", self.realm.player.x, self.realm.player.y)
+	self.realm:loadMap("map-start", self.realm.player.x, self.realm.player.y)
 
 	self.isPaused = false
 
