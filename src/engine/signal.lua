@@ -12,6 +12,16 @@ local signal = {}
 ---  copy of the original callback. Returns `true` if the callback was found
 ---  and removed, or `nil` if it was not present.
 
+---@alias GroupedUnsubscribe fun(): boolean|nil
+
+---@class SignalConnection
+---@field disconnect GroupedUnsubscribe
+
+---@class SignalGroup
+---@field connect fun(self: SignalGroup, name: string, callback: EventCallback): SignalConnection
+---@field disconnect fun(self: SignalGroup, connection: SignalConnection): boolean|nil
+---@field disconnectAll fun(self: SignalGroup)
+
 local handlers = {}
 local emitting = {}
 
@@ -99,23 +109,49 @@ function signal.compact(list, listLength)
 	end
 end
 
----@class SignalGroup
----@field connect fun(name: string, callback: EventCallback)
----@field disconnectAll fun()
-
 ---Create a group to which to assign connections and disconnect all simultaneously.
 ---Useful when one file has many connections.
 ---@return SignalGroup
 function signal.group()
 	local connections = {}
+	local nextIndex = 0
+
+	local function disconnectConnection(connection)
+		if not connection or not connection.disconnect then
+			return
+		end
+
+		return connection.disconnect()
+	end
+
 	return {
-		connect = function(name, callback)
+		connect = function(self, name, callback)
+			local isActive = true
+			nextIndex = nextIndex + 1
+			local index = nextIndex
 			local unsub = signal.connect(name, callback)
-			table.insert(connections, unsub)
+			local connection = {}
+
+			connection.disconnect = function()
+				if not isActive then
+					return
+				end
+
+				isActive = false
+				connections[index] = nil
+				return unsub()
+			end
+
+			connections[index] = connection
+			return connection
 		end,
-		disconnectAll = function()
-			for _, unsub in ipairs(connections) do
-				unsub()
+		disconnect = function(self, connection)
+			return disconnectConnection(connection)
+		end,
+		disconnectAll = function(self)
+			for index, connection in pairs(connections) do
+				disconnectConnection(connection)
+				connections[index] = nil
 			end
 			connections = {}
 		end,
@@ -129,6 +165,7 @@ function signal.clear(name)
 		handlers[name] = nil
 	else
 		handlers = {}
+		emitting = {}
 	end
 end
 

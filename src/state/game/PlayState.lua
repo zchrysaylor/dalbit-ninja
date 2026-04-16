@@ -4,8 +4,7 @@ local BaseState = require("src.state.BaseState")
 ---@class PlayState : BaseState
 ---@field realm Realm The active world/level controller
 ---@field isPaused boolean True while the game is paused
----@field unsubPauseToggled Unsubscribe Unsubscribe handle for the pause toggled Signal subscription
----@field unsubWarpTriggered Unsubscribe
+---@field signalGroup SignalGroup?
 local PlayState = {}
 PlayState.__index = PlayState
 setmetatable(PlayState, { __index = BaseState })
@@ -13,33 +12,27 @@ setmetatable(PlayState, { __index = BaseState })
 ---Called when this state becomes active.
 ---@param args? table Optional arguments.
 function PlayState:enterState(args)
-	self.unsubPauseToggled = Signal.connect(Events.GAME_PAUSE_TOGGLED, function()
+	self.signalGroup = Signal.group()
+	self.signalGroup:connect(Events.GAME_PAUSE_TOGGLED, function()
 		self.isPaused = not self.isPaused
 	end)
-	self.unsubWarpTriggered = Signal.connect(Events.REALM_WARP_TRIGGERED, function(warp)
+	self.signalGroup:connect(Events.REALM_WARP_TRIGGERED, function(warp)
 		Transition.fade(FADE_RATE, function()
 			self.realm:loadMap(warp.mapName, warp.destX, warp.destY)
 		end)
 	end)
-	self.unsubPlayerInteract = Signal.connect(Events.PLAYER_INTERACT, function()
+	self.signalGroup:connect(Events.PLAYER_INTERACT, function()
 		self.realm.player:interact()
 	end)
 end
 
 ---Called when this state is deactivated.
 function PlayState:exitState()
-	if self.unsubPauseToggled then
-		self.unsubPauseToggled()
-		self.unsubPauseToggled = nil
+	if self.signalGroup then
+		self.signalGroup:disconnectAll()
+		self.signalGroup = nil
 	end
-	if self.unsubWarpTriggered then
-		self.unsubWarpTriggered()
-		self.unsubWarpTriggered = nil
-	end
-	if self.unsubPlayerInteract then
-		self.unsubPlayerInteract()
-		self.unsubPlayerInteract = nil
-	end
+
 	self.realm:destroyAll()
 	self.realm.player:destroy()
 end
