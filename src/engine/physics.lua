@@ -9,6 +9,7 @@ physics.__index = physics
 ---@field body love.Body
 ---@field shape love.Shape
 ---@field fixture love.Fixture
+---@field owner table The object that owns this collider
 ---@field tags table<string, boolean>
 local collider = {}
 collider.__index = collider

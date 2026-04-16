@@ -23,6 +23,10 @@ function input:keyPressed(key)
 	if key == KEY_DEBUG then
 		Signal.emit(Events.GAME_DEBUG_TOGGLED)
 	end
+
+	if key == KEY_INTERACT then
+		Signal.emit(Events.PLAYER_INTERACT)
+	end
 end
 
 ---Return whether the given key was pressed this frame.

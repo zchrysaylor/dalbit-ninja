@@ -8,8 +8,8 @@ Player.__index = Player
 setmetatable(Player, { __index = Soul })
 
 local ANIMATION_SPEED = 0.1
-local INTERACT_RADIUS = 12
-local INTERACT_OFFSET = 12
+local INTERACT_RADIUS = 8
+local INTERACT_OFFSET = 6
 
 ---Build the 8-directional animation set from the player sprite sheet.
 ---Overrides Soul:createAnimations() to add diagonal directions.
@@ -66,14 +66,16 @@ function Player:interact()
 end
 
 ---Create a new Player.
----Delegates to Soul.new then disables linear damping so velocity is fully player-controlled.
 ---@param def {x: number, y: number, width: number, height: number, scale: number, speed: number, spriteSheet: love.Image, physics: physics, dirX?: number, dirY?: number}
 ---@return Player
 function Player.new(def)
 	local self = Soul.new(def, Player)
 	self.collider:setLinearDamping(0) -- no friction; player controls velocity directly
+	self.collider.owner = self
+
 	self.dirX = def.dirX or 0
 	self.dirY = def.dirY or 1
+
 	return self
 end
 

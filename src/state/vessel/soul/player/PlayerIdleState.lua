@@ -22,10 +22,6 @@ function PlayerIdleState:update(dt)
 		self.soul.dirY = dirY
 		self.soul:changeState("walk")
 	end
-
-	if Input:wasPressed(KEY_INTERACT) then
-		self.soul:interact()
-	end
 end
 
 ---Create a new PlayerIdleState

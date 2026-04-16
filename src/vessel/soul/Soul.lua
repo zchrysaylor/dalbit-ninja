@@ -107,6 +107,7 @@ function Soul.new(def, subclass)
 	}
 	self.vessel = Vessel.new(vesselOpts)
 	self.collider = self.vessel.collider
+	self.collider.owner = self
 
 	self.animations = {}
 	self:createStateMachine()

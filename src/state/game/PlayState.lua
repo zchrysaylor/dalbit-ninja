@@ -21,17 +21,27 @@ function PlayState:enterState(args)
 			self.realm:loadMap(warp.mapName, warp.destX, warp.destY)
 		end)
 	end)
+	self.unsubPlayerInteract = Signal.connect(Events.PLAYER_INTERACT, function()
+		self.realm.player:interact()
+	end)
 end
 
 ---Called when this state is deactivated.
 function PlayState:exitState()
 	if self.unsubPauseToggled then
 		self.unsubPauseToggled()
+		self.unsubPauseToggled = nil
 	end
 	if self.unsubWarpTriggered then
 		self.unsubWarpTriggered()
+		self.unsubWarpTriggered = nil
+	end
+	if self.unsubPlayerInteract then
+		self.unsubPlayerInteract()
+		self.unsubPlayerInteract = nil
 	end
 	self.realm:destroyAll()
+	self.realm.player:destroy()
 end
 
 ---@param dt number Delta time in seconds

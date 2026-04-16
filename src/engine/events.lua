@@ -7,4 +7,6 @@ events.GAME_PAUSE_TOGGLED = "game:pause_toggled"
 
 events.REALM_WARP_TRIGGERED = "realm:warp_triggered"
 
+events.PLAYER_INTERACT = "player:interact"
+
 return events
