@@ -17,7 +17,17 @@ function HuskSpawner.spawn(physics, obj)
 			spriteSheet = GArt["chest"],
 			animOpts = { frames = "1-2", row = 1, interval = 0.1, paused = true },
 			physics = physics,
+			tags = { "husk", "interactable" },
 		})
+		chest.opened = false
+		function chest:interact()
+			self.opened = not self.opened
+			if self.opened then
+				self.animations.current:gotoFrame(2)
+			else
+				self.animations.current:gotoFrame(1)
+			end
+		end
 		return chest
 	end
 end

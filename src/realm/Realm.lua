@@ -109,7 +109,7 @@ function Realm:draw()
 
 	-- draw collision borders for debugging
 	if Debug.isActive then
-		Debug.drawCollisions(self.world, 0.7)
+		Debug.drawAll(self.world, 0.7)
 	end
 
 	Lens.detach()

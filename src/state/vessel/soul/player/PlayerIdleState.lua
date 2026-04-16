@@ -23,10 +23,9 @@ function PlayerIdleState:update(dt)
 		self.soul:changeState("walk")
 	end
 
-	-- TODO: implement spacebar action (used Signal)
-	-- if love.keyboard.wasPressed("space") then
-	-- 	self.soul:changeState("")
-	-- end
+	if Input:wasPressed(KEY_INTERACT) then
+		self.soul:interact()
+	end
 end
 
 ---Create a new PlayerIdleState

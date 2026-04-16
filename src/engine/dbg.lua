@@ -10,11 +10,12 @@ Signal.connect(Events.GAME_DEBUG_TOGGLED, function()
 	dbg.isActive = not dbg.isActive
 end)
 
----Draw collision fixture outlines for all bodies in the given world.
+---Draw outlines for all bodies in the given world.
 ---@param world love.World The Box2D world to draw fixtures for
 ---@param alpha? number Opacity of the outlines (default 1)
-function dbg.drawCollisions(world, alpha)
-	Collision.drawAll(world, alpha)
+function dbg.drawAll(world, alpha)
+	Collision.drawColliders(world, alpha)
+	Collision.drawQueries(alpha)
 end
 
 -- TODO: fix FPS to 60 FPS somehow

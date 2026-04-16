@@ -8,6 +8,8 @@ Player.__index = Player
 setmetatable(Player, { __index = Soul })
 
 local ANIMATION_SPEED = 0.1
+local INTERACT_RADIUS = 12
+local INTERACT_OFFSET = 12
 
 ---Build the 8-directional animation set from the player sprite sheet.
 ---Overrides Soul:createAnimations() to add diagonal directions.
@@ -35,6 +37,32 @@ function Player:createStateMachine()
 			return PlayerWalkState.new(self)
 		end,
 	})
+end
+
+function Player:interact()
+	local world = self.collider.body:getWorld()
+	local px, py = self.collider:getPosition()
+
+	-- offset the query circle in the direction the player faces
+	local offX = self.dirX * INTERACT_OFFSET
+	local offY = self.dirY * INTERACT_OFFSET
+	if offX ~= 0 and offY ~= 0 then
+		local diag = 1 / math.sqrt(2)
+		offX = offX * diag
+		offY = offY * diag
+	end
+
+	local x = px + offX
+	local y = py + offY
+	local interactables = Collision.queryCircleArea(world, x, y, INTERACT_RADIUS, function(c)
+		return c:hasTag("interactable")
+	end)
+
+	for _, c in ipairs(interactables) do
+		if c.owner and c.owner.interact then
+			c.owner:interact()
+		end
+	end
 end
 
 ---Create a new Player.

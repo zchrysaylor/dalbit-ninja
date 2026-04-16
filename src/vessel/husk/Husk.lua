@@ -42,6 +42,9 @@ function Husk:changeState(state, opts)
 	self.stateMachine:changeState(state, opts)
 end
 
+---No-op for non-interactable husks.
+function Husk:interact() end
+
 ---Destroy the underlying Vessel (and its physics body).
 function Husk:destroy()
 	self.vessel:destroy()
@@ -100,6 +103,7 @@ function Husk.new(def, subclass)
 	}
 	self.vessel = Vessel.new(vesselOpts)
 	self.collider = self.vessel.collider
+	self.collider.owner = self
 
 	self.animOpts = def.animOpts
 	self:createAnimations()

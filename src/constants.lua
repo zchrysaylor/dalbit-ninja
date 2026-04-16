@@ -15,6 +15,7 @@ KEY_UP = "w"
 KEY_DOWN = "s"
 KEY_LEFT = "a"
 KEY_RIGHT = "d"
+KEY_INTERACT = "e"
 KEY_PAUSE = "p"
 KEY_DEBUG = "."
 

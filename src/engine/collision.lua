@@ -2,6 +2,9 @@
 ---@class collision
 local collision = {}
 
+collision.queryDebugDraw = {}
+collision.queryDebugFrames = 10 -- how many frames each shape persists
+
 ---Return true when a point lies inside or on a circle.
 ---@param px number
 ---@param py number
@@ -146,6 +149,18 @@ end
 function collision.queryCircleArea(world, x, y, radius, filter)
 	local results = {}
 	local seen = {}
+
+	if Debug.isActive then
+		-- Keep debug query lifetimes bounded even when queries are called repeatedly.
+		table.insert(collision.queryDebugDraw, {
+			type = "circle",
+			x = x,
+			y = y,
+			r = radius,
+			frames = collision.queryDebugFrames,
+		})
+	end
+
 	world:queryBoundingBox(x - radius, y - radius, x + radius, y + radius, function(fixture)
 		local collider = fixture:getUserData()
 		if not collider or seen[collider] then
@@ -191,7 +206,7 @@ end
 ---Draw collision outlines for all bodies in the world. Debug use only.
 ---@param world love.World
 ---@param alpha? number Outline opacity from 0 to 1 (default 1)
-function collision.drawAll(world, alpha)
+function collision.drawColliders(world, alpha)
 	Util.safeDraw(function()
 		alpha = alpha or 1
 		love.graphics.setColor(love.math.colorFromBytes(64, 39, 81, alpha * 255))
@@ -208,6 +223,31 @@ function collision.drawAll(world, alpha)
 			end
 		end
 	end)
+end
+
+---Draw outlines for all recorded queries. Debug use only.
+---@param alpha? number Outline opacity from 0 to 1 (default 1)
+function collision.drawQueries(alpha)
+	for _, q in ipairs(collision.queryDebugDraw) do
+		q.frames = q.frames - 1
+	end
+
+	Util.safeDraw(function()
+		alpha = alpha or 1
+		love.graphics.setColor(0, 0.8, 0.8, alpha) -- teal, distinct from purple colliders
+		for _, q in ipairs(collision.queryDebugDraw) do
+			if q.type == "circle" then
+				love.graphics.circle("line", q.x, q.y, q.r)
+			end
+		end
+	end)
+
+	-- sweep expired entries in reverse to avoid index-shift bugs
+	for i = #collision.queryDebugDraw, 1, -1 do
+		if collision.queryDebugDraw[i].frames <= 0 then
+			table.remove(collision.queryDebugDraw, i)
+		end
+	end
 end
 
 return collision
