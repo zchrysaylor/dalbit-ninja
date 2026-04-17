@@ -12,9 +12,9 @@ function HuskSpawner.spawn(physics, obj)
 		local chest = Husk.new({
 			x = obj.x,
 			y = obj.y,
-			width = 32,
-			height = 49,
-			spriteSheet = GArt["chest"],
+			width = 16,
+			height = 16,
+			spriteSheet = GArt["chest-little-blue"],
 			animOpts = { frames = "1-2", row = 1, interval = 0.1, paused = true },
 			physics = physics,
 			tags = { "husk", "interactable" },

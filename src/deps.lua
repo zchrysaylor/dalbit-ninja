@@ -72,5 +72,6 @@ GFonts = {
 GArt = {
 	["sprite-player"] = love.graphics.newImage("art/sprite-player.png"),
 	["sprite-enemy-fire"] = love.graphics.newImage("art/sprite-enemy-fire.png"),
-	["chest"] = love.graphics.newImage("art/chest.png"),
+	["sprite-camo-red"] = love.graphics.newImage("art/sprite-camo-red.png"),
+	["chest-little-blue"] = love.graphics.newImage("art/husk-chest-little-blue.png"),
 }

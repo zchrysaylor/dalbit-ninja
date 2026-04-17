@@ -21,6 +21,19 @@ function SoulSpawner.spawn(physics, obj)
 		})
 		return fireEnemy
 	end
+	if obj.name == "pointCamoRed" then
+		local camoRedEnemy = Soul.new({
+			x = obj.x,
+			y = obj.y,
+			width = 16,
+			height = 16,
+			speed = 0.8,
+			scale = 1,
+			spriteSheet = GArt["sprite-camo-red"],
+			physics = physics,
+		})
+		return camoRedEnemy
+	end
 end
 
 ---Destroy the physics bodies of all provided Soul entities.

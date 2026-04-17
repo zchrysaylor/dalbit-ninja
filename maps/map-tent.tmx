@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="19" height="19" tilewidth="16" tileheight="16" infinite="0" nextlayerid="6" nextobjectid="18">
+ <editorsettings>
+  <export target="map-tent.lua" format="lua"/>
+ </editorsettings>
  <tileset firstgid="1" name="ninja-camp" tilewidth="16" tileheight="16" tilecount="207" columns="23">
   <image source="../art/ninja-camp.png" width="368" height="144"/>
  </tileset>
@@ -66,7 +69,7 @@
  <objectgroup id="5" name="warp">
   <object id="17" name="warpToMapStart" x="128" y="224" width="32" height="8"/>
  </objectgroup>
- <objectgroup id="3" name="point">
+ <objectgroup id="3" name="husk">
   <object id="1" name="pointChest" x="95" y="145">
    <point/>
   </object>

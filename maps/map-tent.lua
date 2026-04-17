@@ -327,7 +327,7 @@ return {
       type = "objectgroup",
       draworder = "topdown",
       id = 3,
-      name = "point",
+      name = "husk",
       class = "",
       visible = true,
       opacity = 1,
