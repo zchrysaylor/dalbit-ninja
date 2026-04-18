@@ -7,9 +7,9 @@ PlayerIdleState.__index = PlayerIdleState
 setmetatable(PlayerIdleState, { __index = SoulIdleState })
 
 ---Called when this state becomes active.
----@param args? table Optional arguments
-function PlayerIdleState:enterState(args)
-	SoulIdleState.enterState(self, args)
+---@param opts? table Optional options
+function PlayerIdleState:enterState(opts)
+	SoulIdleState.enterState(self, opts)
 	self.soul.vessel:setLinearVelocity(0, 0)
 end
 

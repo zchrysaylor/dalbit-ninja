@@ -38,12 +38,11 @@ function Soul:createStateMachine()
 	})
 end
 
--- TODO: refactor all args to "opts"
 ---Transition this Soul to a new state.
 ---@param state string State key (e.g. "idle", "walk")
----@param args? table Optional arguments forwarded to the state's enterState()
-function Soul:changeState(state, args)
-	self.stateMachine:changeState(state, args)
+---@param opts? table Optional options forwarded to the state's enterState()
+function Soul:changeState(state, opts)
+	self.stateMachine:changeState(state, opts)
 end
 
 ---Sync self.x/self.y from the vessel's physics body position.

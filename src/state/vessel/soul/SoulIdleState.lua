@@ -7,8 +7,8 @@ SoulIdleState.__index = SoulIdleState
 setmetatable(SoulIdleState, { __index = BaseState })
 
 ---Called when this state becomes active.
----@param args? table Optional arguments
-function SoulIdleState:enterState(args)
+---@param opts? table Optional options
+function SoulIdleState:enterState(opts)
 	self.soul.animations.current:pauseAtStart()
 end
 

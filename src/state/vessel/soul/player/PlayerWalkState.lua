@@ -7,10 +7,10 @@ PlayerWalkState.__index = PlayerWalkState
 setmetatable(PlayerWalkState, { __index = SoulWalkState })
 
 ---Called when this state becomes active.
----@param args? table Optional arguments
-function PlayerWalkState:enterState(args)
+---@param opts? table Optional options
+function PlayerWalkState:enterState(opts)
 	-- resume paused animation
-	SoulWalkState.enterState(self, args)
+	SoulWalkState.enterState(self, opts)
 
 	self:animateFromDirection()
 

@@ -9,8 +9,8 @@ SoulWalkState.__index = SoulWalkState
 setmetatable(SoulWalkState, { __index = BaseState })
 
 ---Called when this state becomes active.
----@param args? table Optional arguments
-function SoulWalkState:enterState(args)
+---@param opts? table Optional options
+function SoulWalkState:enterState(opts)
 	self.soul.animations.current:resume()
 end
 

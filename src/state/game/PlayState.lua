@@ -10,8 +10,8 @@ PlayState.__index = PlayState
 setmetatable(PlayState, { __index = BaseState })
 
 ---Called when this state becomes active.
----@param args? table Optional arguments.
-function PlayState:enterState(args)
+---@param opts? table Optional options.
+function PlayState:enterState(opts)
 	self.signalGroup = Signal.group()
 	self.signalGroup:connect(Events.GAME_PAUSE_TOGGLED, function()
 		self.isPaused = not self.isPaused

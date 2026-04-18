@@ -5,8 +5,8 @@ local BaseState = {}
 BaseState.__index = BaseState
 
 ---Called when this state becomes active. Override to perform setup.
----@param args? table Optional arguments
-function BaseState:enterState(args) end
+---@param opts? table Optional options
+function BaseState:enterState(opts) end
 
 ---Called when this state is deactivated. Override to perform teardown.
 function BaseState:exitState() end

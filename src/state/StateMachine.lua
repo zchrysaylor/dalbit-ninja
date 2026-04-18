@@ -9,12 +9,12 @@ StateMachine.__index = StateMachine
 
 ---Transition to a new state by key.
 ---@param state string Key of the target state (must exist in self.states)
----@param args? table Optional arguments forwarded to the new state's enterState()
-function StateMachine:changeState(state, args)
+---@param opts? table Optional options forwarded to the new state's enterState()
+function StateMachine:changeState(state, opts)
 	assert(self.states[state])
 	self.currentState:exitState()
 	self.currentState = self.states[state]()
-	self.currentState:enterState(args)
+	self.currentState:enterState(opts)
 end
 
 ---Delegate update to the active state.
