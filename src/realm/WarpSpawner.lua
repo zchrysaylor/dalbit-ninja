@@ -12,7 +12,7 @@ local MAP_TRANSITIONS = {
 	["warpToHometown"] = { mapName = "map-hometown", destX = 176, destY = 20 },
 	["warpToInterior1"] = { mapName = "map-interior-1", destX = 116, destY = 310 },
 	["warpToExterior1"] = { mapName = "map-hometown", destX = 72, destY = 192 },
-	["warpToTent"] = { mapName = "map-tent", destX = 144, destY = 208 },
+	["warpToTent"] = { mapName = "map-tent", destX = 128, destY = 192 },
 	["warpToMapStart"] = { mapName = "map-start", destX = 88, destY = 82 },
 }
 
