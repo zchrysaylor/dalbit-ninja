@@ -1,4 +1,5 @@
 ---@class Realm
+---@field bgColor number[] the background color of all empty tiles
 ---@field world love.World Box2D physics world (zero gravity, top-down)
 ---@field physics physics Physics instance wrapping self.world
 ---@field map table STI map instance (or empty table before first load)
@@ -84,6 +85,7 @@ end
 ---Render the current map layers, all soul entities, the player, and optionally collision shapes.
 ---Wrapped inside Lens:attach/detach to clip to the virtual viewport.
 function Realm:draw()
+	love.graphics.clear(self.bgColor)
 	Lens.attach(0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT, true)
 
 	-- draw map layers conditionally (not all maps have all layers)
@@ -144,6 +146,8 @@ end
 ---@return Realm
 function Realm.new()
 	local self = setmetatable({}, Realm)
+
+	self.bgColor = { 0, 0, 0, 1 }
 
 	-- create a new physics world and physics instance
 	self.world = love.physics.newWorld(0, 0)

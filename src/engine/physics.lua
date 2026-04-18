@@ -167,8 +167,6 @@ function physics:collider(x, y, opts)
 	return coll
 end
 
--- TODO: add vector normalization function to account for diagonal speed
-
 ---Create a new Physics instance wrapping the given Box2D world.
 ---@param world love.World
 ---@return physics

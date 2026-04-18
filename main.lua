@@ -11,15 +11,8 @@ function love.load()
 		resizable = true,
 	})
 
-	GStateMachine = StateMachine.new({
-		["start"] = function()
-			return StartState.new()
-		end,
-		["play"] = function()
-			return PlayState.new()
-		end,
-	})
-	GStateMachine:changeState("start")
+	GStateStack = StateStack.new()
+	GStateStack:push(StartState.new())
 end
 
 -- resize the game window using Push's pixel-perfect scaling
@@ -33,13 +26,13 @@ end
 
 function love.update(dt)
 	Flux.update(dt)
-	GStateMachine:update(dt)
+	GStateStack:update(dt)
 	Input:update(dt)
 end
 
 function love.draw()
 	Push:start()
-	GStateMachine:draw()
+	GStateStack:draw()
 	Push:finish()
 
 	if Debug.isActive then

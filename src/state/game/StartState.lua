@@ -11,8 +11,8 @@ function StartState:update(dt)
 	if Input:wasPressed("enter") or Input:wasPressed("return") then
 		if not Transition.isActive then
 			Transition.fade(FADE_RATE, function()
-				-- TODO: actually make use of passed previousState or remove, currently does nothing
-				GStateMachine:changeState("play", { previousState = "start" })
+				GStateStack:pop()
+				GStateStack:push(PlayState.new())
 			end)
 		end
 	end

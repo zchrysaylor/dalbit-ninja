@@ -49,6 +49,7 @@ SoulSpawner = require("src.realm.SoulSpawner")
 HuskSpawner = require("src.realm.HuskSpawner")
 
 -- state machine-related requires
+StateStack = require("src.state.StateStack")
 StateMachine = require("src.state.StateMachine")
 StartState = require("src.state.game.StartState")
 PlayState = require("src.state.game.PlayState")
