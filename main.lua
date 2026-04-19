@@ -1,4 +1,4 @@
-love.graphics.setDefaultFilter("nearest", "nearest")
+love.graphics.setDefaultFilter("nearest", "nearest", 1)
 
 require("src.deps")
 
@@ -15,7 +15,6 @@ function love.load()
 	GStateStack:push(StartState.new())
 end
 
--- resize the game window using Push's pixel-perfect scaling
 function love.resize(w, h)
 	Push:resize(w, h)
 end

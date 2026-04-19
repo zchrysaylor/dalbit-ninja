@@ -47,6 +47,70 @@ One should prefer to instantiate a new Soul or Husk through composition, not inh
 
 Heavily inspired by GD50 (see References), most of the game logic is controlled via a state machine. The game has a global state machine controlling the overall state of gameplay, whereas Souls and Husks can have their own state machine for controlling the various states they might be in.
 
+### Conventions
+
+#### OOP-style inheritence
+
+When making classes that should inherit from another class, follow this structure:
+
+Parent classes:
+
+```lua
+local ParentClass = {}
+ParentClass.__index = ParentClass
+
+function ParentClass.new(def, subclass)
+	local self = setmetatable({}, subclass or ParentClass)
+	self.exampleParentProperty = def.exampleParentProperty
+	return self
+end
+
+return ParentClass
+```
+
+Child classes:
+
+```lua
+local ParentClass = require("path.to.parent.class")
+
+local ChildClass = {}
+ChildClass.__index = ChildClass
+setmetatable(ChildClass, { __index = ParentClass })
+
+-- The rest of the functions go here...
+
+function ChildClass.new(def) -- of course, subclass should also be added if needed
+	local self = ParentClass.new(def, ChildClass)
+	self.exampleChildProperty = def.exampleChildProperty
+	return self
+end
+
+return ChildClass
+```
+
+Aim to use inheritence sparingly; it is only warranted when the child class truly adds or encapsulates a lot of unique logic. You should not, for example, create a new subclass for every single type of entity or object in the game when they could have been instantiated by passing their properties to the parent class.
+
+#### Class function ordering
+
+In general, I prefer to order class functions like so for consistency:
+
+1. Unique functions belonging to the class.
+2. `update(dt)`; keep update and draw always at the bottom right above the constructor
+3. `draw()`
+4. `new()`; the "constructor" always goes at the bottom of the class
+
+#### Events
+
+#### Drawing
+
+Any time you wish to draw something and you need to change the color (e.g. for drawing colored text or shapes/outlines), wrap the draw logic in the `safeDraw` utility, which takes care of resetting the global color state, since `love.graphics.setColor()` affects the global state.
+
+```lua
+Util.safeDraw(function()
+	love.graphics.setColor(0, 0, 0, 0.7)
+end)
+```
+
 ## Resources
 
 - [Challacade](https://www.youtube.com/@Challacade)

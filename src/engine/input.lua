@@ -9,14 +9,10 @@ input.keysPressed = {}
 function input:keyPressed(key)
 	self.keysPressed[key] = true
 
+	-- TODO: refactor so that esc can be used for different cases, like closing a menu
 	-- exit the game
 	if key == "escape" then
 		love.event.quit()
-	end
-
-	-- toggle pause mode
-	if key == KEY_PAUSE then
-		Signal.emit(Events.GAME_PAUSE_TOGGLED)
 	end
 
 	-- toggle debug mode
@@ -24,6 +20,17 @@ function input:keyPressed(key)
 		Signal.emit(Events.GAME_DEBUG_TOGGLED)
 	end
 
+	-- toggle pause mode
+	if key == KEY_PAUSE then
+		Signal.emit(Events.GAME_PAUSE_TOGGLED)
+	end
+
+	if key == KEY_MENU then
+		Signal.emit(Events.GAME_MENU_TOGGLED)
+	end
+
+	-- TODO: refactor such that certain events, like interact, only get passed to the top-state of the state stack
+	-- This would prevent the current bug, where a player can still interact with an object while pause or menu is opened
 	if key == KEY_INTERACT then
 		Signal.emit(Events.PLAYER_INTERACT)
 	end

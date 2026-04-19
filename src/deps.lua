@@ -53,6 +53,7 @@ StateStack = require("src.state.StateStack")
 StateMachine = require("src.state.StateMachine")
 StartState = require("src.state.game.StartState")
 PlayState = require("src.state.game.PlayState")
+MenuState = require("src.state.game.MenuState")
 SoulIdleState = require("src.state.vessel.soul.SoulIdleState")
 SoulWalkState = require("src.state.vessel.soul.SoulWalkState")
 HuskIdleState = require("src.state.vessel.husk.HuskIdleState")
@@ -64,15 +65,17 @@ GFonts = {
 	-- TODO: add dedicated pixel font for in-game menu
 	["antiquity"] = love.graphics.newFont("fonts/antiquity-print.ttf", 12),
 	["debug"] = love.graphics.newFont("fonts/sproutlands.ttf", 24),
-	["sproutlandsSmall"] = love.graphics.newFont("fonts/sproutlands.ttf", 12),
-	["sproutlandsMedium"] = love.graphics.newFont("fonts/sproutlands.ttf", 20),
+	["ninjaMedium"] = love.graphics.newFont("fonts/ninja-font.ttf", 16),
+	["ninjaSmall"] = love.graphics.newFont("fonts/ninja-font.ttf", 8),
 	["sproutlandsLarge"] = love.graphics.newFont("fonts/sproutlands.ttf", 36),
+	["sproutlandsMedium"] = love.graphics.newFont("fonts/sproutlands.ttf", 20),
+	["sproutlandsSmall"] = love.graphics.newFont("fonts/sproutlands.ttf", 12),
 }
 
 ---@type table<string, love.Image> Global image table.
 GArt = {
-	["sprite-player"] = love.graphics.newImage("art/sprite-player.png"),
-	["sprite-enemy-fire"] = love.graphics.newImage("art/sprite-enemy-fire.png"),
-	["sprite-camo-red"] = love.graphics.newImage("art/sprite-camo-red.png"),
 	["chest-little-blue"] = love.graphics.newImage("art/husk-chest-little-blue.png"),
+	["sprite-camo-red"] = love.graphics.newImage("art/sprite-camo-red.png"),
+	["sprite-enemy-fire"] = love.graphics.newImage("art/sprite-enemy-fire.png"),
+	["sprite-player"] = love.graphics.newImage("art/sprite-player.png"),
 }

@@ -5,6 +5,8 @@
 local StateStack = {}
 StateStack.__index = StateStack
 
+-- TODO: consider implementing contains(stateName) or popUntil(stateName) methods
+
 ---Push a state onto the stack and enter it immediately.
 ---@param state BaseState State instance to activate
 ---@param opts? table Optional data forwarded to `state:enterState`
@@ -20,6 +22,14 @@ function StateStack:pop()
 	end
 	self.states[#self.states]:exitState()
 	table.remove(self.states)
+end
+
+function StateStack:isTop(stateName)
+	local topState = self.states[#self.states]
+	if topState and topState.stateName == stateName then
+		return true
+	end
+	return false
 end
 
 ---Update only the top-most active state.

@@ -24,6 +24,13 @@ function PlayState:enterState(opts)
 	self.signalGroup:connect(Events.PLAYER_INTERACT, function()
 		self.realm.player:interact()
 	end)
+	self.signalGroup:connect(Events.GAME_MENU_TOGGLED, function()
+		if GStateStack:isTop(MenuState.STATE_NAME) then
+			GStateStack:pop()
+		else
+			GStateStack:push(MenuState.new())
+		end
+	end)
 end
 
 ---Called when this state is deactivated.
