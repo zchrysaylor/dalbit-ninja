@@ -1,26 +1,26 @@
----Lightweight pub/sub event bus.
----@class signal
-local signal = {}
+---Lightweight pub/sub event bus with a Shakespearean twist.
+---@class Herald
+local Herald = {}
 
 ---@alias EventCallback fun(...: any): boolean|nil
 ---  Callback signature for event handlers. Receives whatever arguments were
----  passed to `signal.emit`. Return `false` to stop propagation to
+---  passed to `Herald.decree`. Return `false` to stop propagation to
 ---  subsequent handlers; any other return value (including `nil`) continues it.
 
----@alias Unsubscribe fun(): boolean|nil
----  Returned by `signal.connect`. Call it to remove the most-recently registered
+---@alias Unhearken fun(): boolean|nil
+---  Returned by `Herald.hearken`. Call it to remove the most-recently registered
 ---  copy of the original callback. Returns `true` if the callback was found
 ---  and removed, or `nil` if it was not present.
 
----@alias GroupedUnsubscribe fun(): boolean|nil
+---@alias MusteredUnhearken fun(): boolean|nil
 
----@class SignalConnection
----@field disconnect GroupedUnsubscribe
+---@class HeraldHearken
+---@field unhearken MusteredUnhearken
 
----@class SignalGroup
----@field connect fun(self: SignalGroup, name: string, callback: EventCallback): SignalConnection
----@field disconnect fun(self: SignalGroup, connection: SignalConnection): boolean|nil
----@field disconnectAll fun(self: SignalGroup)
+---@class HeraldMuster
+---@field hearken fun(self: HeraldMuster, name: string, callback: EventCallback): HeraldHearken
+---@field unhearken fun(self: HeraldMuster, hearken: HeraldHearken): boolean|nil
+---@field unhearkenAll fun(self: HeraldMuster)
 
 local handlers = {}
 local emitting = {}
@@ -28,8 +28,8 @@ local emitting = {}
 ---Subscribe a callback to a named event.
 ---@param name string Unique event name (e.g. "player:died", "map:loaded").
 ---@param callback EventCallback Function to call when the event is dispatched.
----@return Unsubscribe A function that, when called, removes this subscription.
-function signal.connect(name, callback)
+---@return Unhearken A function that, when called, removes this subscription.
+function Herald.hearken(name, callback)
 	local list = handlers[name]
 	-- lazy initialization; unused events incur no allocation cost
 	if not list then
@@ -57,7 +57,7 @@ end
 ---@param name string The event name to dispatch.
 ---@param ... any Optional arguments forwarded to each handler.
 ---@return true|nil `true` if propagation was halted, else `nil`.
-function signal.emit(name, ...)
+function Herald.decree(name, ...)
 	local list = handlers[name]
 	if not list then
 		return
@@ -74,7 +74,7 @@ function signal.emit(name, ...)
 		if cb and cb(...) == false then
 			if emitting[list] == "dirty" then
 				emitting[list] = nil
-				signal.compact(list, n)
+				Herald.compact(list, n)
 			else
 				emitting[list] = nil
 			end
@@ -87,7 +87,7 @@ function signal.emit(name, ...)
 	-- compact potential nils introduced from mid-flight unsubs during emission
 	-- only compacts if needed, common path (no mid-flight unsubs) can skip this step
 	if dirty then
-		signal.compact(list, n)
+		Herald.compact(list, n)
 	end
 end
 
@@ -96,7 +96,7 @@ end
 ---during emission (beyond the original boundary) are not touched.
 ---@param list table The handler list to compact.
 ---@param listLength number The number of entries to inspect (pre-emission `#list`).
-function signal.compact(list, listLength)
+function Herald.compact(list, listLength)
 	local j = 0
 	for i = 1, listLength do
 		if list[i] then
@@ -109,58 +109,58 @@ function signal.compact(list, listLength)
 	end
 end
 
----Create a group to which to assign connections and disconnect all simultaneously.
+---Create a group to which to assign hearkens and unhearken all simultaneously.
 ---Useful when one file has many connections.
----@return SignalGroup
-function signal.group()
-	local connections = {}
+---@return HeraldMuster
+function Herald.muster()
+	local hearkens = {}
 	local nextIndex = 0
 
-	local function disconnectConnection(connection)
-		if not connection or not connection.disconnect then
+	local function unhearkenHearken(hearken)
+		if not hearken or not hearken.unhearken then
 			return
 		end
 
-		return connection.disconnect()
+		return hearken.unhearken()
 	end
 
 	return {
-		connect = function(self, name, callback)
+		hearken = function(self, name, callback)
 			local isActive = true
 			nextIndex = nextIndex + 1
 			local index = nextIndex
-			local unsub = signal.connect(name, callback)
-			local connection = {}
+			local unhearken = Herald.hearken(name, callback)
+			local hearken = {}
 
-			connection.disconnect = function()
+			hearken.unhearken = function()
 				if not isActive then
 					return
 				end
 
 				isActive = false
-				connections[index] = nil
-				return unsub()
+				hearkens[index] = nil
+				return unhearken()
 			end
 
-			connections[index] = connection
-			return connection
+			hearkens[index] = hearken
+			return hearken
 		end,
-		disconnect = function(self, connection)
-			return disconnectConnection(connection)
+		unhearken = function(self, hearken)
+			return unhearkenHearken(hearken)
 		end,
-		disconnectAll = function(self)
-			for index, connection in pairs(connections) do
-				disconnectConnection(connection)
-				connections[index] = nil
+		unhearkenAll = function(self)
+			for index, hearken in pairs(hearkens) do
+				unhearkenHearken(hearken)
+				hearkens[index] = nil
 			end
-			connections = {}
+			hearkens = {}
 		end,
 	}
 end
 
 ---Remove handlers for a single event, or clear the entire event bus.
 ---@param name? string Event name to clear. If `nil`, all events are cleared.
-function signal.clear(name)
+function Herald.clear(name)
 	if name then
 		handlers[name] = nil
 	else
@@ -169,4 +169,4 @@ function signal.clear(name)
 	end
 end
 
-return signal
+return Herald

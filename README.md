@@ -101,6 +101,8 @@ In general, I prefer to order class functions like so for consistency:
 
 #### Events
 
+Event names should adhere to the following patter: `<scope>:<action>`
+
 #### Drawing
 
 Any time you wish to draw something and you need to change the color (e.g. for drawing colored text or shapes/outlines), wrap the draw logic in the `safeDraw` utility, which takes care of resetting the global color state, since `love.graphics.setColor()` affects the global state.

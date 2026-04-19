@@ -31,9 +31,9 @@ Events = require("src.engine.events")
 Input = require("src.engine.input")
 Lens = require("src.engine.lens")
 Physics = require("src.engine.physics")
-Signal = require("src.engine.signal")
-Debug = require("src.engine.dbg") -- depends on Signal & Events; must be loaded after
-Transition = require("src.engine.transition") -- depends on Signal & Events; must be loaded after
+Herald = require("src.engine.herald")
+Debug = require("src.engine.dbg") -- depends on Herald & Events; must be loaded after
+Transition = require("src.engine.transition") -- depends on Herald & Events; must be loaded after
 
 -- vessel-related requires
 Vessel = require("src.vessel.Vessel")

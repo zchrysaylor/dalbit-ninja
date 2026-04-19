@@ -121,7 +121,7 @@ end
 function Realm:checkWarps()
 	local triggeredWarp = WarpSpawner.check(self.player.collider, self.warps)
 	if triggeredWarp then
-		Signal.emit(Events.REALM_WARP_TRIGGERED, triggeredWarp)
+		Herald.decree(Events.REALM_WARP_TRIGGERED, triggeredWarp)
 	end
 end
 

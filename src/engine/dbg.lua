@@ -6,7 +6,7 @@ local dbg = {}
 ---@type boolean
 dbg.isActive = false
 
-Signal.connect(Events.GAME_DEBUG_TOGGLED, function()
+Herald.hearken(Events.GAME_DEBUG_TOGGLED, function()
 	dbg.isActive = not dbg.isActive
 end)
 
