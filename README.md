@@ -16,7 +16,7 @@ flowchart TD
 	C --> E[PlayState]
 
 	E --> F[Realm]
-	E --> G[Transition + Signal Events]
+	E --> G[Transition + Herald Events]
 
 	F --> H[Tiled Map]
 	F --> I[Physics World]
@@ -45,9 +45,17 @@ One should prefer to instantiate a new Soul or Husk through composition, not inh
 
 ### State Machine
 
-Heavily inspired by GD50 (see References), most of the game logic is controlled via a state machine. The game has a global state machine controlling the overall state of gameplay, whereas Souls and Husks can have their own state machine for controlling the various states they might be in.
+Heavily inspired by GD50 (see References), most of the game logic is controlled via a state machine, or more precisely, a state stack. The game has a global state stack defined in `main.lua` which controls the overall state of gameplay (i.e. start state, play state, menu state, etc), whereas Souls and Husks can have their own state machine for controlling the various states they might be in irrespective of the global state (i.e. walk state, idle state, attack state, etc).
+
+The benefit of using a state stack is that new states can be pushed on top of the stack while the previous state continues to render without updating (i.e. is "paused"). This allows for things like a Menu State, which when pushed to the stack pauses the play state but continues to render it underneath the menu (in the case of a floating UI) and preserves the data of the play state, such that when the menu is closed (Menu State is popped off the stack) the gameplay resumed exactly where left off (as opposed to creating a new, fresh play state).
 
 ### Conventions
+
+#### LuaLS documentation
+
+Always use LuaLS [annotations](https://github.com/LuaLS/lua-language-server/wiki/Annotations) to document functions.
+
+Try to re-use the same description for the same fields (i.e. every `update(dt)` function should re-use the exact same description for the `dt` field docstring) for cleanliness.
 
 #### OOP-style inheritence
 
@@ -101,7 +109,17 @@ In general, I prefer to order class functions like so for consistency:
 
 #### Events
 
-Event names should adhere to the following patter: `<scope>:<action>`
+Events are handled by the `Herald` module. Herald has three main functions: `hearken` (e.g. subscribe to an event), `decree` (e.g. emit an event), and `muster` (e.g. define a group of subscriptions to avoid boilerplate and be able to unsubscribe all of them at once).
+
+In general, events should not be used to orchestrate game logic, rather they should pass data between components to trigger actions or provide information.
+
+Use a `muster` if a single file needs to define three or more events.
+
+Event names, centrally registered in `events.lua`, should adhere to the following pattern: `<scope>:<action>`.
+
+#### Input
+
+All keyboard input is handle via `input.lua`. In most cases, a keypress triggers a `Herald.decree` event emission, so that several subscribers can listen to this event and decide what to do. Be mindful of how you broadcast the events; if, for example, you globally emit a decree for the player interaction event, then the associated keypress will fire regardless of the game state. Meaning, if standing within range of an interactable item and pressing the interact key, the interaction would happen even if the game was paused or the menu was open, which is not expected behavior. Avoid these scenarios by emitting global events only for actions that should truly happen at any point in time/state (e.g. toggle debug HUD), and for non-global events (like triggering player<>object interaction) rather pass the data that "this event is requested" to the responsible class to determine if the action should be executed or not.
 
 #### Drawing
 

@@ -1,3 +1,4 @@
+--- A module for defining transition-related utilites.
 ---@class transition
 local transition = {}
 

@@ -49,8 +49,10 @@ lua-boy-advance/
 │   │   ├── collision.lua # Collision queries (isColliding) + debug rendering
 │   │   ├── input.lua     # Directional input reading (getDirection)
 │   │   ├── lens.lua      # Camera module: owns HUMP instance, attach/detach/follow/setZoom
+│   │   ├── herald.lua    # Pub/sub event bus
 │   │   ├── physics.lua   # Physics class (collider factory, tag system)
-│   │   └── signal.lua    # Pub/sub event bus
+│   │   ├── dbg.lua       # Debug state + helpers, subscribes to debug events
+│   │   └── transition.lua # Screen fade/tween controller driven by events
 │   ├── realm/
 │   │   ├── Realm.lua         # World/level controller (map, camera, entities)
 │   │   ├── SoulSpawner.lua   # Spawn Soul entities from Tiled object layers
@@ -92,7 +94,7 @@ lua-boy-advance/
 | Type | Convention | Example |
 |------|------------|---------|
 | Classes | PascalCase | `Soul`, `Player`, `StateMachine`, `Realm` |
-| Utility modules | camelCase | `collision`, `physics`, `input`, `signal` |
+| Utility modules | camelCase | `collision`, `physics`, `input`, `herald` |
 | Global variables | PascalCase | `Camera`, `GStateMachine`, `Input` |
 | Global asset tables | G-prefix PascalCase | `GFonts`, `GArt` |
 | Constants | SCREAMING_SNAKE_CASE | `VIRTUAL_WIDTH`, `KEY_UP`, `FADE_RATE` |
@@ -268,7 +270,7 @@ All major systems are globals defined in `src/deps.lua`. This is intentional —
 - **Instances**: `GStateMachine`
 - **Assets**: `GFonts`, `GArt`
 - **Classes**: `Vessel`, `Soul`, `Player`, `Realm`, `SoulSpawner`, `WallSpawner`, `WarpSpawner`
-- **Utility modules**: `Collision`, `Lens`, `Physics`, `Input`, `Signal`
+- **Utility modules**: `Collision`, `Lens`, `Physics`, `Input`, `Herald`, `Debug`, `Transition`
 - **State classes**: `StateMachine`, `BaseState`, `StartState`, `PlayState`, `SoulIdleState`, `SoulWalkState`, `PlayerIdleState`, `PlayerWalkState`
 
 ### State Machine Pattern
