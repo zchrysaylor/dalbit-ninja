@@ -1,6 +1,6 @@
 ---Lightweight pub/sub event bus with a Shakespearean twist.
----@class Herald
-local Herald = {}
+---@class herald
+local herald = {}
 
 ---@alias EventCallback fun(...: any): boolean|nil
 ---  Callback signature for event handlers. Receives whatever arguments were
@@ -8,7 +8,7 @@ local Herald = {}
 ---  subsequent handlers; any other return value (including `nil`) continues it.
 
 ---@alias Unhearken fun(): boolean|nil
----  Returned by `Herald.hearken`. Call it to remove the most-recently registered
+---  Returned by `herald.hearken`. Call it to remove the most-recently registered
 ---  copy of the original callback. Returns `true` if the callback was found
 ---  and removed, or `nil` if it was not present.
 
@@ -29,7 +29,7 @@ local emitting = {}
 ---@param name string Unique event name (e.g. "player:died", "map:loaded").
 ---@param callback EventCallback Function to call when the event is dispatched.
 ---@return Unhearken A function that, when called, removes this subscription.
-function Herald.hearken(name, callback)
+function herald.hearken(name, callback)
 	local list = handlers[name]
 	-- lazy initialization; unused events incur no allocation cost
 	if not list then
@@ -57,7 +57,7 @@ end
 ---@param name string The event name to dispatch.
 ---@param ... any Optional arguments forwarded to each handler.
 ---@return true|nil `true` if propagation was halted, else `nil`.
-function Herald.decree(name, ...)
+function herald.decree(name, ...)
 	local list = handlers[name]
 	if not list then
 		return
@@ -87,7 +87,7 @@ function Herald.decree(name, ...)
 	-- compact potential nils introduced from mid-flight unsubs during emission
 	-- only compacts if needed, common path (no mid-flight unsubs) can skip this step
 	if dirty then
-		Herald.compact(list, n)
+		herald.compact(list, n)
 	end
 end
 
@@ -96,7 +96,7 @@ end
 ---during emission (beyond the original boundary) are not touched.
 ---@param list table The handler list to compact.
 ---@param listLength number The number of entries to inspect (pre-emission `#list`).
-function Herald.compact(list, listLength)
+function herald.compact(list, listLength)
 	local j = 0
 	for i = 1, listLength do
 		if list[i] then
@@ -112,7 +112,7 @@ end
 ---Create a group to which to assign hearkens and unhearken all simultaneously.
 ---Useful when one file has many connections.
 ---@return HeraldMuster
-function Herald.muster()
+function herald.muster()
 	local hearkens = {}
 	local nextIndex = 0
 
@@ -129,7 +129,7 @@ function Herald.muster()
 			local isActive = true
 			nextIndex = nextIndex + 1
 			local index = nextIndex
-			local unhearken = Herald.hearken(name, callback)
+			local unhearken = herald.hearken(name, callback)
 			local hearken = {}
 
 			hearken.unhearken = function()
@@ -160,7 +160,7 @@ end
 
 ---Remove handlers for a single event, or clear the entire event bus.
 ---@param name? string Event name to clear. If `nil`, all events are cleared.
-function Herald.clear(name)
+function herald.clear(name)
 	if name then
 		handlers[name] = nil
 	else
@@ -169,4 +169,4 @@ function Herald.clear(name)
 	end
 end
 
-return Herald
+return herald
