@@ -1,4 +1,4 @@
----@class nineSlice
+---@class NineSlice
 ---@field img love.Image
 ---@field borders { l: number, r: number, t: number, b: number }
 ---@field midW number
@@ -50,14 +50,14 @@ end
 ---@param right number Right border width in pixels
 ---@param top number Top border height in pixels
 ---@param bottom number Bottom border height in pixels
----@return nineSlice
+---@return NineSlice
 function nineSlice.new(img, left, right, top, bottom)
 	local self = setmetatable({}, nineSlice)
 
 	local iw, ih = img:getDimensions()
 	assert(left >= 0 and right >= 0 and top >= 0 and bottom >= 0)
-	assert(left + right <= iw, "nineSlice borders exceed image width")
-	assert(top + bottom <= ih, "nineSlice borders exceed image height")
+	assert(left + right <= iw, "NineSlice borders exceed image width")
+	assert(top + bottom <= ih, "NineSlice borders exceed image height")
 
 	local midW = iw - left - right
 	local midH = ih - top - bottom

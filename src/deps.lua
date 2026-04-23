@@ -84,9 +84,4 @@ GFonts = {
 	["sproutlandsSmall"] = love.graphics.newFont("fonts/sproutlands.ttf", 12),
 }
 
--- TODO: refactor into extendable graphics/theme.lua
----@type table<string, NineSlice> Global reusable nine-slice interface elements.
-GInterface = {
-	["panel-wood"] = NineSlice.new(GArt["panel-wood"], 6, 5, 6, 5),
-	["panel-wood-interior"] = NineSlice.new(GArt["panel-wood-interior"], 5, 5, 5, 5),
-}
+GTheme = require("src.graphics.theme")
