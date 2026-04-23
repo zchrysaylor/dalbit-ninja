@@ -35,6 +35,9 @@ Herald = require("src.engine.herald")
 Debug = require("src.engine.dbg") -- depends on Herald & Events; must be loaded after
 Transition = require("src.engine.transition") -- depends on Herald & Events; must be loaded after
 
+-- user interface-related requires
+NineSlice = require("src.graphics.nineSlice")
+
 -- vessel-related requires
 Vessel = require("src.vessel.Vessel")
 Soul = require("src.vessel.soul.Soul")
@@ -60,6 +63,15 @@ HuskIdleState = require("src.state.vessel.husk.HuskIdleState")
 PlayerIdleState = require("src.state.vessel.soul.player.PlayerIdleState")
 PlayerWalkState = require("src.state.vessel.soul.player.PlayerWalkState")
 
+---@type table<string, love.Image> Global image table.
+GArt = {
+	["chest-little-blue"] = love.graphics.newImage("art/husk-chest-little-blue.png"),
+	["sprite-camo-red"] = love.graphics.newImage("art/sprite-camo-red.png"),
+	["sprite-player"] = love.graphics.newImage("art/sprite-player.png"),
+	["panel-wood"] = love.graphics.newImage("art/ninja-theme-wood-panel.png"),
+	["panel-wood-interior"] = love.graphics.newImage("art/ninja-theme-wood-panel-interior.png"),
+}
+
 ---@type table<string, love.Font> Global font table.
 GFonts = {
 	-- TODO: add dedicated pixel font for in-game menu
@@ -72,10 +84,9 @@ GFonts = {
 	["sproutlandsSmall"] = love.graphics.newFont("fonts/sproutlands.ttf", 12),
 }
 
----@type table<string, love.Image> Global image table.
-GArt = {
-	["chest-little-blue"] = love.graphics.newImage("art/husk-chest-little-blue.png"),
-	["sprite-camo-red"] = love.graphics.newImage("art/sprite-camo-red.png"),
-	["sprite-enemy-fire"] = love.graphics.newImage("art/sprite-enemy-fire.png"),
-	["sprite-player"] = love.graphics.newImage("art/sprite-player.png"),
+-- TODO: refactor into extendable graphics/theme.lua
+---@type table<string, NineSlice> Global reusable nine-slice interface elements.
+GInterface = {
+	["panel-wood"] = NineSlice.new(GArt["panel-wood"], 6, 5, 6, 5),
+	["panel-wood-interior"] = NineSlice.new(GArt["panel-wood-interior"], 5, 5, 5, 5),
 }
