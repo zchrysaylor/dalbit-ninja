@@ -46,6 +46,7 @@ Player = require("src.vessel.soul.Player")
 
 -- realm-related requires
 Realm = require("src.realm.Realm")
+MapTransitions = require("src.realm.mapTransitions")
 WallSpawner = require("src.realm.WallSpawner")
 WarpSpawner = require("src.realm.WarpSpawner")
 SoulSpawner = require("src.realm.SoulSpawner")

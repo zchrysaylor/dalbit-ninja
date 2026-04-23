@@ -2,20 +2,6 @@
 ---@class WarpSpawner
 local WarpSpawner = {}
 
----@alias WarpDestination {mapName: string, destX: number, destY: number}
-
--- TODO: refactor to live in Deps or some global file
--- Map transition lookup: trigger name -> {mapName, destX, destY}
----@type table<string, WarpDestination>
-local MAP_TRANSITIONS = {
-	["warpToForest"] = { mapName = "map-forest", destX = 176, destY = 300 },
-	["warpToHometown"] = { mapName = "map-hometown", destX = 176, destY = 20 },
-	["warpToInterior1"] = { mapName = "map-interior-1", destX = 116, destY = 310 },
-	["warpToExterior1"] = { mapName = "map-hometown", destX = 72, destY = 192 },
-	["warpToTent"] = { mapName = "map-tent", destX = 128, destY = 192 },
-	["warpToMapStart"] = { mapName = "map-start", destX = 88, destY = 82 },
-}
-
 ---Create a static rectangle collider for a warp zone and tag its body with metadata.
 ---@param physics physics Physics instance
 ---@param obj table Tiled map object with `name`, `x`, `y`, `width`, and `height` fields
@@ -39,6 +25,8 @@ function WarpSpawner.spawn(physics, obj)
 	return warp
 end
 
+---@alias WarpDestination {mapName: string, destX: number, destY: number}
+
 ---Check if the player collider is touching any warp; if so, return its destination.
 ---@param playerCollider collider The player's collider
 ---@param warps collider[] Array of warps
@@ -49,7 +37,7 @@ function WarpSpawner.check(playerCollider, warps)
 		if Collision.isColliding(playerCollider, warp) then
 			local data = warp:getUserData()
 			if data and data.isWarp then
-				return MAP_TRANSITIONS[data.name]
+				return MapTransitions[data.name]
 			end
 		end
 	end

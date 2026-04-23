@@ -13,7 +13,7 @@ Realm.__index = Realm
 ---Load a Tiled map by name, destroying all existing map entities first.
 ---Spawns walls, warps, and soul entities from the map's object layers.
 ---If destination coordinates are provided, teleports the player's physics body to that position.
----@param mapName string Filename stem under maps/ (e.g. "map-hometown")
+---@param mapName string Filename stem under maps/ (e.g. "map-start")
 ---@param destX? number Player spawn X in pixels (optional)
 ---@param destY? number Player spawn Y in pixels (optional)
 function Realm:loadMap(mapName, destX, destY)

@@ -85,7 +85,7 @@ lua-boy-advance/
 ### Indentation and Formatting
 
 - **Indentation**: Tabs (not spaces) — enforced throughout all source files
-- **String quotes**: Double quotes preferred (`"idle"`, `"map-hometown"`)
+- **String quotes**: Double quotes preferred (`"idle"`, `"map-start"`)
 - **Line length**: Keep reasonable (~100 chars max)
 - **Spacing**: Space after commas and around operators; no space before function call parens
 
