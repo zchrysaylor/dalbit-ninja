@@ -1,15 +1,18 @@
 local BaseState = require("src.state.BaseState")
 
+---Menu overlay state.
+---@class MenuState : BaseState
+---@field stateName string
 local MenuState = {}
 MenuState.__index = MenuState
 setmetatable(MenuState, { __index = BaseState })
 
--- TODO: add state name to every state
 MenuState.STATE_NAME = "menu"
 
 ---@param dt number Delta time in seconds
 function MenuState:update(dt) end
 
+---Render the menu panel.
 function MenuState:draw()
 	Util.safeDraw(function()
 		GTheme.panels.wood:draw(10, 10, VIRTUAL_WIDTH - 20, VIRTUAL_HEIGHT - 20)
@@ -24,6 +27,8 @@ function MenuState:draw()
 	end)
 end
 
+---Create a new MenuState
+---@return MenuState
 function MenuState.new()
 	local self = BaseState.new(MenuState)
 	self.stateName = MenuState.STATE_NAME

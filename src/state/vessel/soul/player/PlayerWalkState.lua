@@ -1,10 +1,14 @@
 local SoulWalkState = require("src.state.vessel.soul.SoulWalkState")
 
+---Walking state for the player character.
 ---@class PlayerWalkState : SoulWalkState
+---@field stateName string
 ---@field soul Player
 local PlayerWalkState = {}
 PlayerWalkState.__index = PlayerWalkState
 setmetatable(PlayerWalkState, { __index = SoulWalkState })
+
+PlayerWalkState.STATE_NAME = "walk"
 
 ---Called when this state becomes active.
 ---@param opts? table Optional options
@@ -33,6 +37,7 @@ end
 --     self:MovePlayer()  -- player-specific physics movement
 -- end
 
+---Update player movement from the current input state.
 ---@param dt number Delta time in seconds
 function PlayerWalkState:update(dt)
 	self:movePlayer()

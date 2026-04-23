@@ -2,12 +2,15 @@ local BaseState = require("src.state.BaseState")
 
 ---Main gameplay state.
 ---@class PlayState : BaseState
+---@field stateName string
 ---@field realm Realm The active world/level controller
 ---@field isPaused boolean True while the game is paused
 ---@field heraldGroup HeraldMuster?
 local PlayState = {}
 PlayState.__index = PlayState
 setmetatable(PlayState, { __index = BaseState })
+
+PlayState.STATE_NAME = "play"
 
 ---Called when this state becomes active.
 ---@param opts? table Optional options.
@@ -46,15 +49,12 @@ end
 
 ---@param dt number Delta time in seconds
 function PlayState:update(dt)
-	if Transition.isActive then
-		return
-	end
-
-	if not self.isPaused then
+	if not Transition.isActive and not self.isPaused then
 		self.realm:update(dt)
 	end
 end
 
+---Render the active realm and pause/transition overlays.
 function PlayState:draw()
 	self.realm:draw()
 	Transition.draw() -- must be drawn after realm's draw to take effect
@@ -78,6 +78,7 @@ end
 ---@return PlayState
 function PlayState.new()
 	local self = BaseState.new(PlayState)
+	self.stateName = PlayState.STATE_NAME
 
 	self.realm = Realm.new()
 	self.realm:loadMap("map-start", self.realm.player.x, self.realm.player.y)

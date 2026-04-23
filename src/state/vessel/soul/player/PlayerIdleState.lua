@@ -1,10 +1,14 @@
 local SoulIdleState = require("src.state.vessel.soul.SoulIdleState")
 
+---Idle state for the player character.
 ---@class PlayerIdleState : SoulIdleState
+---@field stateName string
 ---@field soul Player
 local PlayerIdleState = {}
 PlayerIdleState.__index = PlayerIdleState
 setmetatable(PlayerIdleState, { __index = SoulIdleState })
+
+PlayerIdleState.STATE_NAME = "idle"
 
 ---Called when this state becomes active.
 ---@param opts? table Optional options
@@ -13,6 +17,7 @@ function PlayerIdleState:enterState(opts)
 	self.soul.vessel:setLinearVelocity(0, 0)
 end
 
+---Transition the player to walking when directional input is pressed.
 ---@param dt number Delta time in seconds
 function PlayerIdleState:update(dt)
 	local dirX, dirY, isMoving = Input.getDirection()

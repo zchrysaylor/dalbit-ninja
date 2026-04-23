@@ -1,10 +1,14 @@
 local BaseState = require("src.state.BaseState")
 
+---Idle state for husk entities.
 ---@class HuskIdleState : BaseState
+---@field stateName string
 ---@field husk Husk
 local HuskIdleState = {}
 HuskIdleState.__index = HuskIdleState
 setmetatable(HuskIdleState, { __index = BaseState })
+
+HuskIdleState.STATE_NAME = "idle"
 
 ---Called when this state becomes active.
 ---@param opts? table Optional arguments
@@ -22,6 +26,7 @@ end
 ---@return T
 function HuskIdleState.new(husk)
 	local self = BaseState.new(HuskIdleState)
+	self.stateName = HuskIdleState.STATE_NAME
 	self.husk = husk
 	return self
 end

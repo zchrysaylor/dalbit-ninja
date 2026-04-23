@@ -24,6 +24,9 @@ function StateStack:pop()
 	table.remove(self.states)
 end
 
+---Check whether the top-most state matches the given state name.
+---@param stateName string
+---@return boolean
 function StateStack:isTop(stateName)
 	local topState = self.states[#self.states]
 	if topState and topState.stateName == stateName then

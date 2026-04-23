@@ -2,9 +2,12 @@ local BaseState = require("src.state.BaseState")
 
 ---Title screen state.
 ---@class StartState : BaseState
+---@field stateName string
 local StartState = {}
 StartState.__index = StartState
 setmetatable(StartState, { __index = BaseState })
+
+StartState.STATE_NAME = "start"
 
 ---@param dt number Delta time in seconds
 function StartState:update(dt)
@@ -47,7 +50,9 @@ end
 ---Create a new StartState
 ---@return StartState
 function StartState.new()
-	return BaseState.new(StartState)
+	local self = BaseState.new(StartState)
+	self.stateName = StartState.STATE_NAME
+	return self
 end
 
 return StartState

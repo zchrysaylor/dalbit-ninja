@@ -1,7 +1,7 @@
 ---Generic state machine used for both game screens (GStateMachine) and per-entity states.
 ---States are registered as factory functions so a fresh instance is created on each transition.
 ---@class StateMachine
----@field states table<string, fun(): BaseState> Map of state key → factory function
+---@field states table<string, fun(): BaseState> Map of state key → state factory
 ---@field currentState BaseState The currently active state instance
 ---@field emptyState BaseState No-op placeholder state used before the first transition
 local StateMachine = {}
@@ -29,7 +29,7 @@ function StateMachine:draw()
 end
 
 ---Create a new StateMachine
----@param states table<string, fun(): BaseState> Map of state key → factory function
+---@param states? table<string, fun(): BaseState> Map of state key -> state factory
 ---@return StateMachine
 function StateMachine.new(states)
 	local self = setmetatable({}, StateMachine)

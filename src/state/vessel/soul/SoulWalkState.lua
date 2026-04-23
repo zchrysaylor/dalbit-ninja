@@ -1,12 +1,16 @@
 local BaseState = require("src.state.BaseState")
 
+---Walking state for soul entities.
 ---@class SoulWalkState : BaseState
+---@field stateName string
 ---@field soul Soul
 ---@field walkTimer number
 ---@field walkDuration number
 local SoulWalkState = {}
 SoulWalkState.__index = SoulWalkState
 setmetatable(SoulWalkState, { __index = BaseState })
+
+SoulWalkState.STATE_NAME = "walk"
 
 ---Called when this state becomes active.
 ---@param opts? table Optional options
@@ -19,6 +23,7 @@ function SoulWalkState:exitState()
 	self.soul.vessel:setLinearVelocity(0, 0)
 end
 
+---Advance soul movement while in the walking state.
 ---@param dt number Delta time in seconds
 function SoulWalkState:update(dt)
 	local speed = self.soul.speed * 100
@@ -47,6 +52,7 @@ end
 ---@return T
 function SoulWalkState.new(soul, subclass)
 	local self = BaseState.new(subclass or SoulWalkState)
+	self.stateName = (subclass or SoulWalkState).STATE_NAME
 	self.soul = soul
 	self.walkTimer = 0
 	self.walkDuration = 0
