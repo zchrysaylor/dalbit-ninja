@@ -16,22 +16,21 @@ PlayState.STATE_NAME = "play"
 ---@param opts? table Optional options.
 function PlayState:enterState(opts)
 	self.heraldGroup = Herald.muster()
-	self.heraldGroup:hearken(Events.GAME_PAUSE_TOGGLED, function()
-		self.isPaused = not self.isPaused
-	end)
+
 	self.heraldGroup:hearken(Events.REALM_WARP_TRIGGERED, function(warp)
 		Transition.fade(FADE_RATE, function()
 			self.realm:loadMap(warp.mapName, warp.destX, warp.destY)
 		end)
 	end)
-	self.heraldGroup:hearken(Events.PLAYER_INTERACT, function()
-		self.realm.player:interact()
-	end)
-	self.heraldGroup:hearken(Events.GAME_MENU_TOGGLED, function()
-		if GStateStack:isTop(MenuState.STATE_NAME) then
-			GStateStack:pop()
-		else
+
+	---@param action StateInputAction
+	self.heraldGroup:hearken(Events.STATE_INPUT_PREFIX .. self.STATE_NAME, function(action)
+		if action == "interact" then
+			self.realm.player:interact()
+		elseif action == "toggle_menu" then
 			GStateStack:push(MenuState.new())
+		elseif action == "toggle_pause" then
+			self.isPaused = not self.isPaused
 		end
 	end)
 end

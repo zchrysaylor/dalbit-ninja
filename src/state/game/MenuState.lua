@@ -3,11 +3,30 @@ local BaseState = require("src.state.BaseState")
 ---Menu overlay state.
 ---@class MenuState : BaseState
 ---@field stateName string
+---@field unhearken Unhearken?
 local MenuState = {}
 MenuState.__index = MenuState
 setmetatable(MenuState, { __index = BaseState })
 
 MenuState.STATE_NAME = "menu"
+
+---Called when this state becomes active.
+function MenuState:enterState()
+	---@param action StateInputAction
+	self.unhearken = Herald.hearken(Events.STATE_INPUT_PREFIX .. self.STATE_NAME, function(action)
+		if action == "toggle_menu" then
+			GStateStack:pop()
+		end
+	end)
+end
+
+---Called when this state is deactivated.
+function MenuState:exitState()
+	if self.unhearken then
+		self.unhearken()
+		self.unhearken = nil
+	end
+end
 
 ---@param dt number Delta time in seconds
 function MenuState:update(dt) end

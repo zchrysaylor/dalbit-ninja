@@ -3,11 +3,13 @@
 local events = {}
 
 events.GAME_DEBUG_TOGGLED = "game:debug_toggled"
-events.GAME_MENU_TOGGLED = "game:menu_toggled"
-events.GAME_PAUSE_TOGGLED = "game:pause_toggled"
 
 events.REALM_WARP_TRIGGERED = "realm:warp_triggered"
 
-events.PLAYER_INTERACT = "player:interact"
+---@alias StateInputAction
+---| "interact"
+---| "toggle_menu"
+---| "toggle_pause"
+events.STATE_INPUT_PREFIX = "state:input:"
 
 return events

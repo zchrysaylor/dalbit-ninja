@@ -239,7 +239,7 @@ function collision.newRectangle(world, x, y, w, h, bodyType)
 
 - `-- ` for inline and section comments
 - `---` for LuaLS documentation (directly above the item)
-- `-- TODO:` or `-- TODO::` for todos (both forms appear in the codebase)
+- `-- TODO:` for todos (both forms appear in the codebase)
 - Explain non-obvious logic — especially Box2D quirks and LOVE rendering order
 
 ### Table Formatting

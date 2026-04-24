@@ -24,6 +24,12 @@ function StateStack:pop()
 	table.remove(self.states)
 end
 
+---Peek at the top-most state without removing it.
+---@return BaseState|nil
+function StateStack:peek()
+	return self.states[#self.states]
+end
+
 ---Check whether the top-most state matches the given state name.
 ---@param stateName string
 ---@return boolean

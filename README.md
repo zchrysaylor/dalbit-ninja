@@ -117,6 +117,8 @@ Use a `muster` if a single file needs to define three or more events.
 
 Event names, centrally registered in `events.lua`, should adhere to the following pattern: `<scope>:<action>`.
 
+If you `hearken`/subscribe to an event within a State, make sure you also `unhearken` when the state exits, otherwise many subscriptions will build up every time you enter the state and won't be cleaned up.
+
 #### Input
 
 All keyboard input is handle via `input.lua`. In most cases, a keypress triggers a `Herald.decree` event emission, so that several subscribers can listen to this event and decide what to do. Be mindful of how you broadcast the events; if, for example, you globally emit a decree for the player interaction event, then the associated keypress will fire regardless of the game state. Meaning, if standing within range of an interactable item and pressing the interact key, the interaction would happen even if the game was paused or the menu was open, which is not expected behavior. Avoid these scenarios by emitting global events only for actions that should truly happen at any point in time/state (e.g. toggle debug HUD), and for non-global events (like triggering player<>object interaction) rather pass the data that "this event is requested" to the responsible class to determine if the action should be executed or not.

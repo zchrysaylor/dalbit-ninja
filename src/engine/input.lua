@@ -15,24 +15,24 @@ function input:keyPressed(key)
 		love.event.quit()
 	end
 
-	-- toggle debug mode
 	if key == KEY_DEBUG then
 		Herald.decree(Events.GAME_DEBUG_TOGGLED)
+		return
 	end
 
-	-- toggle pause mode
-	if key == KEY_PAUSE then
-		Herald.decree(Events.GAME_PAUSE_TOGGLED)
+	-- Return early if no top state, since rest of input should not be global
+	local topState = GStateStack:peek()
+	if not topState then
+		return
 	end
 
-	if key == KEY_MENU then
-		Herald.decree(Events.GAME_MENU_TOGGLED)
-	end
-
-	-- TODO: refactor such that certain events, like interact, only get passed to the top-state of the state stack
-	-- This would prevent the current bug, where a player can still interact with an object while pause or menu is opened
+	local stateInputEvent = Events.STATE_INPUT_PREFIX .. topState.stateName
 	if key == KEY_INTERACT then
-		Herald.decree(Events.PLAYER_INTERACT)
+		Herald.decree(stateInputEvent, "interact")
+	elseif key == KEY_MENU then
+		Herald.decree(stateInputEvent, "toggle_menu")
+	elseif key == KEY_PAUSE then
+		Herald.decree(stateInputEvent, "toggle_pause")
 	end
 end
 
