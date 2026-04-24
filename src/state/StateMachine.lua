@@ -1,3 +1,5 @@
+local BaseState = require("src.state.BaseState")
+
 ---Generic state machine used for both game screens (GStateMachine) and per-entity states.
 ---States are registered as factory functions so a fresh instance is created on each transition.
 ---@class StateMachine
@@ -34,13 +36,7 @@ end
 function StateMachine.new(states)
 	local self = setmetatable({}, StateMachine)
 	self.states = states or {}
-	-- TODO: can replace with BaseState.new()?
-	self.emptyState = {
-		update = function() end,
-		draw = function() end,
-		enterState = function() end,
-		exitState = function() end,
-	}
+	self.emptyState = BaseState.new()
 	self.currentState = self.emptyState
 	return self
 end
