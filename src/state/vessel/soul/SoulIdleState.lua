@@ -13,7 +13,27 @@ SoulIdleState.STATE_NAME = "idle"
 ---Called when this state becomes active.
 ---@param opts? table Optional options
 function SoulIdleState:enterState(opts)
+	self.soul:syncDirectionalAnimation()
 	self.soul.animations.current:pauseAtStart()
+	if not self.soul:isAI() then
+		return
+	end
+
+	self.idleTimer = self.soul:getRandomIdleDuration()
+end
+
+function SoulIdleState:update(dt)
+	if not self.soul:isAI() then
+		return
+	end
+
+	if self.idleTimer > 0 then
+		self.idleTimer = self.idleTimer - dt
+	else
+		local direction = self.soul:chooseAIDirection()
+		self.soul:setAIMoveDirection(direction)
+		self.soul.stateMachine:changeState("walk")
+	end
 end
 
 ---Create a new SoulIdleState

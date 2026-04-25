@@ -41,7 +41,9 @@ function Realm:loadMap(mapName, destX, destY)
 	if self.map.layers["soul"] then
 		for _, obj in pairs(self.map.layers["soul"].objects) do
 			local soul = SoulSpawner.spawn(self.physics, obj)
-			table.insert(self.souls, soul)
+			if soul then
+				table.insert(self.souls, soul)
+			end
 		end
 	end
 
@@ -67,15 +69,25 @@ end
 function Realm:update(dt)
 	Lens.follow(self.player, self.map)
 
-	self.world:update(dt)
-	self.player:syncPosition()
-	self.player:update(dt)
-	self:checkWarps()
-
+	self.player:capturePreviousPosition()
 	for _, soul in pairs(self.souls) do
-		soul:syncPosition()
+		soul:capturePreviousPosition()
+	end
+
+	self.player:update(dt)
+	for _, soul in pairs(self.souls) do
 		soul:update(dt)
 	end
+
+	self.world:update(dt)
+
+	self.player:syncPosition()
+	for _, soul in pairs(self.souls) do
+		soul:syncPosition()
+		soul:postPhysicsUpdate(dt)
+	end
+
+	self:checkWarps()
 
 	for _, husk in pairs(self.husks) do
 		husk:update(dt)
