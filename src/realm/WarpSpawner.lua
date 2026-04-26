@@ -25,8 +25,6 @@ function WarpSpawner.spawn(physics, obj)
 	return warp
 end
 
----@alias WarpDestination {mapName: string, destX: number, destY: number}
-
 ---Check if the player collider is touching any warp; if so, return its destination.
 ---@param playerCollider collider The player's collider
 ---@param warps collider[] Array of warps
