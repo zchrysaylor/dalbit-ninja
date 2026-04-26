@@ -69,7 +69,6 @@ end
 function Realm:update(dt)
 	Lens.follow(self.player, self.map)
 
-	self.player:capturePreviousPosition()
 	for _, soul in pairs(self.souls) do
 		soul:capturePreviousPosition()
 	end

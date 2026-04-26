@@ -5,13 +5,9 @@
 ---@field wanderRadius number
 ---@field idleDurationMin number
 ---@field idleDurationMax number
----@field walkDurationMin number
----@field walkDurationMax number
----@field directionPool string[]
+---@field wanderBufferDuration number
 ---@field moveDirX number
 ---@field moveDirY number
----@field lastX? number
----@field lastY? number
 
 ---@class Soul
 ---@field vessel Vessel
@@ -69,87 +65,6 @@ function Soul:isAIType(aiType)
 	return self:isAI() and self.ai.type == aiType
 end
 
----Pick a random duration from AI config bounds.
----@param minKey "idleDurationMin"|"walkDurationMin"
----@param maxKey "idleDurationMax"|"walkDurationMax"
----@return number
-function Soul:getAIRandomDuration(minKey, maxKey)
-	assert(self:isAI(), "getAIRandomDuration called for non-AI soul")
-
-	local minDuration = self.ai[minKey]
-	local maxDuration = self.ai[maxKey] or minDuration
-	if maxDuration < minDuration then
-		minDuration, maxDuration = maxDuration, minDuration
-	end
-
-	return love.math.random() * (maxDuration - minDuration) + minDuration
-end
-
----Pick a random idle duration from AI config bounds.
----@return number
-function Soul:getRandomIdleDuration()
-	return self:getAIRandomDuration("idleDurationMin", "idleDurationMax")
-end
-
----Pick a random walk duration from AI config bounds.
----@return number
-function Soul:getRandomWalkDuration()
-	return self:getAIRandomDuration("walkDurationMin", "walkDurationMax")
-end
-
----Switch the active animation to match the Soul's current facing direction.
----@param fallbackDirection? string
----@return string
-function Soul:syncDirectionalAnimation(fallbackDirection)
-	local direction = self.direction or fallbackDirection or "down"
-	if self.animations[direction] ~= nil then
-		self.direction = direction
-		self.animations.current = self.animations[direction]
-		return direction
-	end
-
-	self.direction = fallbackDirection or "down"
-	self.animations.current = self.animations[self.direction] or self.animations.down
-	return self.direction
-end
-
----Set AI movement direction and keep facing/animation in sync.
----@param direction string
-function Soul:setAIMoveDirection(direction)
-	assert(self:isAI(), "setAIMoveDirection called for non-AI soul")
-
-	self.direction = direction
-	if direction == "up" then
-		self.ai.moveDirX = 0
-		self.ai.moveDirY = -1
-	elseif direction == "down" then
-		self.ai.moveDirX = 0
-		self.ai.moveDirY = 1
-	elseif direction == "left" then
-		self.ai.moveDirX = -1
-		self.ai.moveDirY = 0
-	elseif direction == "right" then
-		self.ai.moveDirX = 1
-		self.ai.moveDirY = 0
-	else
-		self.ai.moveDirX = 0
-		self.ai.moveDirY = 0
-	end
-
-	self:syncDirectionalAnimation()
-end
-
----Return the squared distance from the Soul to its AI home point.
----@return number
-function Soul:getDistanceToAIHomeSq()
-	assert(self:isAI(), "getDistanceToAIHomeSq called for non-AI soul")
-
-	local x, y = self.vessel:getPosition()
-	local dx = x - self.ai.homeX
-	local dy = y - self.ai.homeY
-	return dx * dx + dy * dy
-end
-
 ---Return whether the given point would be outside the Soul's wander radius.
 ---@param x number
 ---@param y number
@@ -162,64 +77,82 @@ function Soul:isOutsideAIWanderRadius(x, y)
 	return dx * dx + dy * dy > self.ai.wanderRadius * self.ai.wanderRadius
 end
 
----Return whether the Soul is near the edge of its wander radius.
----@return boolean
-function Soul:isNearAIWanderEdge()
-	assert(self:isAI(), "isNearAIWanderEdge called for non-AI soul")
+---Pick a random idle duration from AI config bounds.
+---@return number
+function Soul:getRandomIdleDuration()
+	assert(self:isAI(), "getRandomIdleDuration called for non-AI soul")
 
-	local threshold = self.ai.wanderRadius * 0.8
-	return self:getDistanceToAIHomeSq() >= threshold * threshold
-end
-
----Return whether moving one full walk burst in the given direction would remain within the wander radius.
----@param direction string
----@return boolean
-function Soul:isAIWalkDirectionAllowed(direction)
-	assert(self:isAI(), "isAIWalkDirectionAllowed called for non-AI soul")
-
-	local x, y = self.vessel:getPosition()
-	local maxWalkDuration = self.ai.walkDurationMax or self.ai.walkDurationMin
-	local stepDistance = self.speed * 100 * maxWalkDuration
-	local dirX, dirY = 0, 0
-
-	if direction == "up" then
-		dirY = -1
-	elseif direction == "down" then
-		dirY = 1
-	elseif direction == "left" then
-		dirX = -1
-	elseif direction == "right" then
-		dirX = 1
-	else
-		return false
+	local minDuration = self.ai.idleDurationMin
+	local maxDuration = self.ai.idleDurationMax or minDuration
+	if maxDuration < minDuration then
+		minDuration, maxDuration = maxDuration, minDuration
 	end
 
-	return not self:isOutsideAIWanderRadius(x + dirX * stepDistance, y + dirY * stepDistance)
+	return love.math.random() * (maxDuration - minDuration) + minDuration
 end
 
----Choose an AI movement direction that keeps the Soul inside its wander radius.
----@return string
-function Soul:chooseAIDirection()
-	assert(self:isAI(), "chooseAIDirection called for non-AI soul")
+---Set AI movement vector and keep facing/animation in sync.
+---@param dirX number
+---@param dirY number
+function Soul:setAIMoveVector(dirX, dirY)
+	assert(self:isAI(), "setAIMoveVector called for non-AI soul")
 
-	local allowedDirections = {}
-	for _, direction in ipairs(self.ai.directionPool) do
-		if self:isAIWalkDirectionAllowed(direction) then
-			table.insert(allowedDirections, direction)
+	local length = math.sqrt(dirX * dirX + dirY * dirY)
+	if length == 0 then
+		self.ai.moveDirX = 0
+		self.ai.moveDirY = 0
+		self:syncDirectionalAnimation()
+		return
+	end
+
+	self.ai.moveDirX = dirX / length
+	self.ai.moveDirY = dirY / length
+
+	if math.abs(self.ai.moveDirX) > math.abs(self.ai.moveDirY) then
+		if self.ai.moveDirX < 0 then
+			self.direction = "left"
+		else
+			self.direction = "right"
+		end
+	else
+		if self.ai.moveDirY < 0 then
+			self.direction = "up"
+		else
+			self.direction = "down"
 		end
 	end
 
-	if #allowedDirections > 0 then
-		return allowedDirections[love.math.random(#allowedDirections)]
-	end
-
-	return self.ai.directionPool[love.math.random(#self.ai.directionPool)]
+	self:syncDirectionalAnimation()
 end
 
----Record the soul's current position for post-physics movement checks.
-function Soul:capturePreviousPosition()
-	self.previousX = self.x
-	self.previousY = self.y
+---Choose a new AI movement vector biased back toward the soul's home.
+function Soul:chooseAIWanderDirection()
+	assert(self:isAI(), "chooseAIWanderDirection called for non-AI soul")
+
+	local x, y = self.vessel:getPosition()
+	local dirX, dirY
+
+	if x < self.ai.homeX and y < self.ai.homeY then
+		dirX = 0
+		dirY = 1
+	elseif x > self.ai.homeX and y < self.ai.homeY then
+		dirX = -1
+		dirY = 0
+	elseif x < self.ai.homeX and y > self.ai.homeY then
+		dirX = 1
+		dirY = 0
+	else
+		dirX = 0
+		dirY = -1
+	end
+
+	local angle = (-math.pi / 2) * love.math.random()
+	local cosAngle = math.cos(angle)
+	local sinAngle = math.sin(angle)
+	local rotatedDirX = dirX * cosAngle - dirY * sinAngle
+	local rotatedDirY = dirX * sinAngle + dirY * cosAngle
+
+	self:setAIMoveVector(rotatedDirX, rotatedDirY)
 end
 
 ---Validate AI walking after physics has stepped and positions are synced.
@@ -229,7 +162,8 @@ function Soul:postPhysicsUpdate(dt)
 		return
 	end
 
-	local currentState = self.stateMachine.current
+	-- TODO: refactor to make state's postPhysics update first-class and avoid Soul having to "know" which state we are in, this is bad
+	local currentState = self.stateMachine.currentState
 	if currentState == nil or currentState.stateName ~= "walk" then
 		return
 	end
@@ -248,6 +182,18 @@ end
 ---Must be called each frame after the physics world steps.
 function Soul:syncPosition()
 	self.x, self.y = self.vessel:getPosition()
+end
+
+---Record the soul's current position for post-physics movement checks.
+function Soul:capturePreviousPosition()
+	self.previousX = self.x
+	self.previousY = self.y
+end
+
+---Switch the active animation to match the Soul's current facing direction.
+function Soul:syncDirectionalAnimation()
+	self.direction = self.direction or "down"
+	self.animations.current = self.animations[self.direction]
 end
 
 ---Destroy the underlying Vessel (and its physics body).
@@ -297,6 +243,11 @@ function Soul.new(def, subclass)
 	self.spriteSheet = def.spriteSheet
 
 	self.ai = def.ai
+	if self.ai then
+		self.ai.moveDirX = self.ai.moveDirX or 0
+		self.ai.moveDirY = self.ai.moveDirY or 0
+		self.ai.wanderBufferDuration = self.ai.wanderBufferDuration or 0.2
+	end
 
 	local vesselOpts = {
 		x = def.x,

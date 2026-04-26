@@ -4,10 +4,8 @@ local BaseState = require("src.state.BaseState")
 ---@class SoulWalkState : BaseState
 ---@field stateName string
 ---@field soul Soul
----@field walkTimer number
----@field walkDuration number
+---@field wanderBufferTimer number
 ---@field blockedFrames number
----@field pendingIdle boolean
 local SoulWalkState = {}
 SoulWalkState.__index = SoulWalkState
 setmetatable(SoulWalkState, { __index = BaseState })
@@ -24,9 +22,8 @@ function SoulWalkState:enterState(opts)
 	end
 
 	self.soul:syncDirectionalAnimation()
-	self.walkTimer = self.soul:getRandomWalkDuration()
+	self.wanderBufferTimer = self.soul.ai.wanderBufferDuration
 	self.blockedFrames = 0
-	self.pendingIdle = false
 end
 
 ---Called when this state is deactivated.
@@ -37,20 +34,7 @@ end
 ---Advance soul movement while in the walking state.
 ---@param dt number Delta time in seconds
 function SoulWalkState:update(dt)
-	-- TODO: remove, not needed
 	if not self.soul:isAI() then
-		local speed = self.soul.speed * 100
-		local vx, vy = 0, 0
-		if self.soul.direction == "up" then
-			vy = -speed
-		elseif self.soul.direction == "down" then
-			vy = speed
-		elseif self.soul.direction == "left" then
-			vx = -speed
-		elseif self.soul.direction == "right" then
-			vx = speed
-		end
-		self.soul.vessel:setLinearVelocity(vx, vy)
 		return
 	end
 
@@ -61,14 +45,11 @@ function SoulWalkState:update(dt)
 	local nextX = x + vx * dt
 	local nextY = y + vy * dt
 
-	if self.soul:isOutsideAIWanderRadius(nextX, nextY) then
+	if self.wanderBufferTimer > 0 then
+		self.wanderBufferTimer = self.wanderBufferTimer - dt
+	elseif self.soul:isOutsideAIWanderRadius(nextX, nextY) then
 		self.soul:changeState("idle")
 		return
-	end
-
-	self.walkTimer = self.walkTimer - dt
-	if self.walkTimer <= 0 then
-		self.pendingIdle = true
 	end
 
 	self.soul.vessel:setLinearVelocity(vx, vy)
@@ -78,11 +59,6 @@ end
 ---@param dt number Delta time in seconds
 function SoulWalkState:postPhysicsUpdate(dt)
 	if not self.soul:isAI() then
-		return
-	end
-
-	if self.pendingIdle then
-		self.soul:changeState("idle")
 		return
 	end
 
@@ -112,10 +88,8 @@ function SoulWalkState.new(soul, subclass)
 	local self = BaseState.new(subclass or SoulWalkState)
 	self.stateName = (subclass or SoulWalkState).STATE_NAME
 	self.soul = soul
-	self.walkTimer = 0
-	self.walkDuration = 0
+	self.wanderBufferTimer = 0
 	self.blockedFrames = 0
-	self.pendingIdle = false
 	return self
 end
 
