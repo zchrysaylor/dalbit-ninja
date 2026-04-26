@@ -15,6 +15,10 @@ function BaseState:exitState() end
 ---@param dt number Delta time in seconds
 function BaseState:update(dt) end
 
+---Called every frame after the physics world steps.
+---@param dt number Delta time in seconds
+function BaseState:postPhysicsUpdate(dt) end
+
 ---Called every frame to render this state.
 function BaseState:draw() end
 

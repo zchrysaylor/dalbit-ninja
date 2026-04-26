@@ -279,8 +279,8 @@ Two-tier state machine:
 1. **Top-level** `GStateMachine` — manages game screens (`"start"` / `"play"`)
 2. **Per-entity** `stateMachine` inside each `Soul` — manages entity states (`"idle"` / `"walk"`)
 
-`StateMachine` stores factory functions (not instances) and calls them fresh on each `changeState`. Lifecycle: `exitState()` → factory() → `enterState(args)`. States inherit from `BaseState` and implement:
-- `enterState(args)` — setup on entry
+`StateMachine` stores factory functions (not instances) and calls them fresh on each `changeState`. Lifecycle: `exitState()` → factory() → `enterState(opts)`. States inherit from `BaseState` and implement:
+- `enterState(opts)` — setup on entry
 - `exitState()` — teardown on exit
 - `update(dt)` — per-frame logic
 - `draw()` — per-frame rendering

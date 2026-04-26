@@ -25,6 +25,12 @@ function StateMachine:update(dt)
 	self.currentState:update(dt)
 end
 
+---Delegate post-physics update to the active state.
+---@param dt number Delta time in seconds
+function StateMachine:postPhysicsUpdate(dt)
+	self.currentState:postPhysicsUpdate(dt)
+end
+
 ---Delegate draw to the active state.
 function StateMachine:draw()
 	self.currentState:draw()

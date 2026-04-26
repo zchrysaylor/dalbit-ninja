@@ -158,17 +158,7 @@ end
 ---Validate AI walking after physics has stepped and positions are synced.
 ---@param dt number Delta time in seconds
 function Soul:postPhysicsUpdate(dt)
-	if not self:isAI() then
-		return
-	end
-
-	-- TODO: refactor to make state's postPhysics update first-class and avoid Soul having to "know" which state we are in, this is bad
-	local currentState = self.stateMachine.currentState
-	if currentState == nil or currentState.stateName ~= "walk" then
-		return
-	end
-
-	currentState:postPhysicsUpdate(dt)
+	self.stateMachine:postPhysicsUpdate(dt)
 end
 
 ---Transition this Soul to a new state.
