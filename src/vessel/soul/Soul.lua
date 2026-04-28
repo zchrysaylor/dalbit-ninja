@@ -57,9 +57,6 @@ function Soul:createStateMachine()
 		["chase"] = function()
 			return SoulChaseState.new(self)
 		end,
-		["walk"] = function()
-			return SoulWalkState.new(self)
-		end,
 	})
 end
 
@@ -245,7 +242,7 @@ function Soul:postPhysicsUpdate(dt)
 end
 
 ---Transition this Soul to a new state.
----@param state string State key (e.g. "idle", "walk")
+---@param state string State key (e.g. "idle", "wander")
 ---@param opts? table Optional options forwarded to the state's enterState()
 ---@return nil
 function Soul:changeState(state, opts)

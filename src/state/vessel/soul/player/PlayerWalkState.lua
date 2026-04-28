@@ -1,12 +1,12 @@
-local SoulWalkState = require("src.state.vessel.soul.SoulWalkState")
+local BaseState = require("src.state.BaseState")
 
 ---Walking state for the player character.
----@class PlayerWalkState : SoulWalkState
+---@class PlayerWalkState : BaseState
 ---@field stateName string
 ---@field soul Player
 local PlayerWalkState = {}
 PlayerWalkState.__index = PlayerWalkState
-setmetatable(PlayerWalkState, { __index = SoulWalkState })
+setmetatable(PlayerWalkState, { __index = BaseState })
 
 PlayerWalkState.STATE_NAME = "walk"
 
@@ -14,27 +14,18 @@ PlayerWalkState.STATE_NAME = "walk"
 ---@param opts? table Optional options
 ---@return nil
 function PlayerWalkState:enterState(opts)
-	-- resume paused animation
-	SoulWalkState.enterState(self, opts)
+	self.soul:setIsAnimating(true)
+	self.soul:refreshAnimation()
 
 	-- set immediately to walking frame for accurate animation on key press
 	self.soul.animations.current:gotoFrame(2)
 end
 
--- If you eventually want shared walk behavior (e.g., footstep sounds, encounter checks), the right pattern would be to extract that into a separate method on SoulWalkState that both implementations call explicitly:
--- -- SoulWalkState.lua
--- function SoulWalkState:onWalking(dt)
---     -- shared: footstep timer, encounter check, etc.
--- end
--- function SoulWalkState:update(dt)
---     self:onWalking(dt)  -- shared behavior
---     -- NPC position-based movement...
--- end
--- -- PlayerWalkState.lua
--- function PlayerWalkState:update(dt)
---     SoulWalkState.onWalking(self, dt)  -- shared behavior
---     self:MovePlayer()  -- player-specific physics movement
--- end
+---Called when this state is deactivated.
+---@return nil
+function PlayerWalkState:exitState()
+	self.soul.vessel:setLinearVelocity(0, 0)
+end
 
 ---Update player movement from the current input state.
 ---@param dt number Delta time in seconds
@@ -79,7 +70,10 @@ end
 ---@param player Player
 ---@return PlayerWalkState
 function PlayerWalkState.new(player)
-	return SoulWalkState.new(player, PlayerWalkState)
+	local self = BaseState.new(PlayerWalkState)
+	self.stateName = PlayerWalkState.STATE_NAME
+	self.soul = player
+	return self
 end
 
 return PlayerWalkState
