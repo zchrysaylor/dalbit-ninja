@@ -1,8 +1,21 @@
+---@class PlayerAnimations : table<string, any>
+---@field down any
+---@field downLeft any
+---@field left any
+---@field upLeft any
+---@field up any
+---@field upRight any
+---@field right any
+---@field downRight any
+---@field current any
+
 local Soul = require("src.vessel.soul.Soul")
 
 ---@class Player : Soul
 ---@field dirX number  -1, 0, or 1
 ---@field dirY number  -1, 0, or 1
+---@field direction? "up"|"down"|"left"|"right"|"upLeft"|"upRight"|"downLeft"|"downRight" Persisted facing used for idle animation and interaction queries
+---@field animations PlayerAnimations
 local Player = {}
 Player.__index = Player
 setmetatable(Player, { __index = Soul })
@@ -10,6 +23,12 @@ setmetatable(Player, { __index = Soul })
 local ANIMATION_SPEED = 0.1
 local INTERACT_RADIUS = 8
 local INTERACT_OFFSET = 6
+local INTERACT_FACING_OFFSETS = {
+	up = { x = 0, y = -1 },
+	down = { x = 0, y = 1 },
+	left = { x = -1, y = 0 },
+	right = { x = 1, y = 0 },
+}
 
 ---Build the 8-directional animation set from the player sprite sheet.
 ---Overrides Soul:createAnimations() to add diagonal directions.
@@ -41,7 +60,8 @@ function Player:createStateMachine()
 	})
 end
 
----Switch the active animation to match the player's current facing or move vector.
+---Switch the active animation to match the player's current move vector.
+---Falls back to persisted facing when the player is idle.
 ---@return nil
 function Player:syncDirectionalAnimation()
 	local dirX = self.dirX or 0
@@ -69,24 +89,21 @@ function Player:syncDirectionalAnimation()
 	Soul.syncDirectionalAnimation(self)
 end
 
+---Query nearby interactables in front of the player's persisted facing direction.
 ---@return nil
 function Player:interact()
 	local world = self.collider.body:getWorld()
 	local px, py = self.collider:getPosition()
 
 	-- offset the query circle in the direction the player faces
-	local offX = self.dirX * INTERACT_OFFSET
-	local offY = self.dirY * INTERACT_OFFSET
-	if offX ~= 0 and offY ~= 0 then
-		local diag = 1 / math.sqrt(2)
-		offX = offX * diag
-		offY = offY * diag
-	end
+	local facing = INTERACT_FACING_OFFSETS[self.direction or "down"] or INTERACT_FACING_OFFSETS.down
+	local offX = facing.x * INTERACT_OFFSET
+	local offY = facing.y * INTERACT_OFFSET
 
 	local x = px + offX
 	local y = py + offY
-	local interactables = Collision.queryCircleArea(world, x, y, INTERACT_RADIUS, function(c)
-		return c:hasTag("interactable")
+	local interactables = Collision.queryCircleArea(world, x, y, INTERACT_RADIUS, function(vessel)
+		return vessel:hasTag("interactable")
 	end)
 
 	for _, c in ipairs(interactables) do

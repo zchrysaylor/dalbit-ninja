@@ -11,6 +11,7 @@ setmetatable(PlayerIdleState, { __index = SoulIdleState })
 PlayerIdleState.STATE_NAME = "idle"
 
 ---Called when this state becomes active.
+---Clears transient movement input while preserving persisted facing.
 ---@param opts? table Optional options
 ---@return nil
 function PlayerIdleState:enterState(opts)

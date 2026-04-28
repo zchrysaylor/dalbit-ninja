@@ -29,6 +29,7 @@
 ---@field previousX number
 ---@field previousY number
 ---@field isAnimating boolean
+---@field interact? fun(self: Soul) Optional interaction handler invoked by nearby queries
 local Soul = {}
 Soul.__index = Soul
 
@@ -105,7 +106,7 @@ function Soul:getRandomIdleDuration()
 	return love.math.random() * (maxDuration - minDuration) + minDuration
 end
 
----Set AI movement vector and keep facing/animation in sync.
+---Update this Soul's persisted facing direction from a movement vector.
 ---@param dirX number
 ---@param dirY number
 ---@return nil
