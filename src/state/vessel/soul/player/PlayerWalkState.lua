@@ -21,12 +21,6 @@ function PlayerWalkState:enterState(opts)
 	self.soul.animations.current:gotoFrame(2)
 end
 
----Called when this state is deactivated.
----@return nil
-function PlayerWalkState:exitState()
-	self.soul.vessel:setLinearVelocity(0, 0)
-end
-
 ---Update player movement from the current input state.
 ---@param dt number Delta time in seconds
 ---@return nil

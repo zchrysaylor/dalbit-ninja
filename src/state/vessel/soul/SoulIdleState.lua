@@ -15,6 +15,7 @@ SoulIdleState.STATE_NAME = "idle"
 ---@param opts? table Optional options
 ---@return nil
 function SoulIdleState:enterState(opts)
+	self.soul.vessel:setLinearVelocity(0, 0)
 	self.soul:setIsAnimating(false)
 	self.soul:refreshAnimation()
 
@@ -52,11 +53,11 @@ end
 ---@param subclass? T Metatable to use (defaults to SoulIdleState)
 ---@return T
 function SoulIdleState.new(soul, subclass)
- local self = BaseState.new(subclass or SoulIdleState)
- self.stateName = (subclass or SoulIdleState).STATE_NAME
- self.soul = soul
- self.idleTimer = 0
- return self
+	local self = BaseState.new(subclass or SoulIdleState)
+	self.stateName = (subclass or SoulIdleState).STATE_NAME
+	self.soul = soul
+	self.idleTimer = 0
+	return self
 end
 
 return SoulIdleState

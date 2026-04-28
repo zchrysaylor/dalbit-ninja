@@ -18,14 +18,6 @@ function SoulChaseState:enterState(opts)
 	self.soul:refreshAnimation()
 end
 
----Called when this state is deactivated.
----@return nil
-function SoulChaseState:exitState()
-	-- TODO: don't necessarily need to set to zero, depends which state triggers after chase
-	-- Should probably be conditional: can be wander, or return to home most likely
-	self.soul.vessel:setLinearVelocity(0, 0)
-end
-
 ---Advance movement while this state is active.
 ---@param dt number Delta time in seconds
 ---@return nil

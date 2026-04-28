@@ -22,12 +22,6 @@ function SoulWanderState:enterState(opts)
 	self.blockedFrames = 0
 end
 
----Called when this state is deactivated.
----@return nil
-function SoulWanderState:exitState()
-	self.soul.vessel:setLinearVelocity(0, 0)
-end
-
 ---Advance movement while this state is active.
 ---@param dt number Delta time in seconds
 ---@return nil

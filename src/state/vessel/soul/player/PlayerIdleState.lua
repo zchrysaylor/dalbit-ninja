@@ -17,7 +17,6 @@ function PlayerIdleState:enterState(opts)
 	self.soul.dirX = 0
 	self.soul.dirY = 0
 	SoulIdleState.enterState(self, opts)
-	self.soul.vessel:setLinearVelocity(0, 0)
 end
 
 ---Transition the player to walking when directional input is pressed.

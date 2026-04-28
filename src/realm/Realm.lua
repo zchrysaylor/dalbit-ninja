@@ -60,7 +60,6 @@ function Realm:loadMap(mapName, destX, destY)
 	if destX and destY then
 		self.player.vessel:setPosition(destX, destY)
 		self.player:syncPosition()
-		self.player.vessel:setLinearVelocity(0, 0)
 		self.player:changeState("idle")
 	end
 
