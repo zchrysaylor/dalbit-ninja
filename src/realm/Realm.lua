@@ -174,7 +174,7 @@ function Realm.new()
 		x = 152,
 		y = 136,
 		width = 16,
-		height = 16,
+		height = 17,
 		speed = 0.8,
 		scale = 1, -- can remove if keep 16x16
 		spriteSheet = GArt["sprite-player"],
