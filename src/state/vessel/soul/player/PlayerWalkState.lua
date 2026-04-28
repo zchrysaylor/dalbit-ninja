@@ -16,8 +16,6 @@ function PlayerWalkState:enterState(opts)
 	-- resume paused animation
 	SoulWalkState.enterState(self, opts)
 
-	self:animateFromDirection()
-
 	-- set immediately to walking frame for accurate animation on key press
 	self.soul.animations.current:gotoFrame(2)
 end
@@ -55,9 +53,10 @@ function PlayerWalkState:movePlayer()
 	-- Update direction on player
 	self.soul.dirX = dirX
 	self.soul.dirY = dirY
+	self.soul:setFacingFromVector(dirX, dirY)
 
 	-- build velocity from direction
-	local speed = self.soul.speed * 100 -- velocity is pixels/sec
+	local speed = self.soul.speed * 100 -- velocity in pixels/sec
 	local vx = self.soul.dirX * speed
 	local vy = self.soul.dirY * speed
 
@@ -70,28 +69,7 @@ function PlayerWalkState:movePlayer()
 
 	-- move the body with physics and animations
 	self.soul.vessel:setLinearVelocity(vx, vy)
-	self:animateFromDirection()
-end
-
----Select the correct directional animation based on the player vector direction
----Handles 8-way animation: cardinal and diagonal directions.
-function PlayerWalkState:animateFromDirection()
-	local dirX = self.soul.dirX
-	local dirY = self.soul.dirY
-	local anims = self.soul.animations
-
-	if dirX ~= 0 and dirY ~= 0 then
-		-- diagonal
-		if dirY < 0 then
-			anims.current = dirX < 0 and anims.upLeft or anims.upRight
-		else
-			anims.current = dirX < 0 and anims.downLeft or anims.downRight
-		end
-	elseif dirY ~= 0 then
-		anims.current = dirY < 0 and anims.up or anims.down
-	elseif dirX ~= 0 then
-		anims.current = dirX < 0 and anims.left or anims.right
-	end
+	self.soul:refreshAnimation()
 end
 
 ---Create a new PlayerWalkState

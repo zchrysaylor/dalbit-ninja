@@ -13,6 +13,8 @@ PlayerIdleState.STATE_NAME = "idle"
 ---Called when this state becomes active.
 ---@param opts? table Optional options
 function PlayerIdleState:enterState(opts)
+	self.soul.dirX = 0
+	self.soul.dirY = 0
 	SoulIdleState.enterState(self, opts)
 	self.soul.vessel:setLinearVelocity(0, 0)
 end
@@ -25,6 +27,7 @@ function PlayerIdleState:update(dt)
 		-- Set direction before transitioning
 		self.soul.dirX = dirX
 		self.soul.dirY = dirY
+		self.soul:setFacingFromVector(dirX, dirY)
 		self.soul:changeState("walk")
 	end
 end

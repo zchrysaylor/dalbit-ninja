@@ -39,6 +39,34 @@ function Player:createStateMachine()
 	})
 end
 
+---Switch the active animation to match the player's current facing or move vector.
+---@return nil
+function Player:syncDirectionalAnimation()
+	local dirX = self.dirX or 0
+	local dirY = self.dirY or 0
+
+	if dirX ~= 0 and dirY ~= 0 then
+		if dirY < 0 then
+			self.animations.current = dirX < 0 and self.animations.upLeft or self.animations.upRight
+		else
+			self.animations.current = dirX < 0 and self.animations.downLeft or self.animations.downRight
+		end
+		return
+	end
+
+	if dirY ~= 0 then
+		self.animations.current = dirY < 0 and self.animations.up or self.animations.down
+		return
+	end
+
+	if dirX ~= 0 then
+		self.animations.current = dirX < 0 and self.animations.left or self.animations.right
+		return
+	end
+
+	Soul.syncDirectionalAnimation(self)
+end
+
 function Player:interact()
 	local world = self.collider.body:getWorld()
 	local px, py = self.collider:getPosition()
@@ -75,6 +103,8 @@ function Player.new(def)
 
 	self.dirX = def.dirX or 0
 	self.dirY = def.dirY or 1
+	self:setFacingFromVector(self.dirX, self.dirY)
+	self:syncDirectionalAnimation()
 
 	return self
 end

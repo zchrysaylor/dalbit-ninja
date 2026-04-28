@@ -112,6 +112,30 @@ end
 ---@param dirX number
 ---@param dirY number
 ---@return nil
+function Soul:setFacingFromVector(dirX, dirY)
+	if dirX == 0 and dirY == 0 then
+		return
+	end
+
+	if math.abs(dirX) > math.abs(dirY) then
+		if dirX < 0 then
+			self.direction = "left"
+		else
+			self.direction = "right"
+		end
+	else
+		if dirY < 0 then
+			self.direction = "up"
+		else
+			self.direction = "down"
+		end
+	end
+end
+
+---Set AI movement vector and keep facing/animation in sync.
+---@param dirX number
+---@param dirY number
+---@return nil
 function Soul:setAIMoveVector(dirX, dirY)
 	assert(self:isAI(), "setAIMoveVector called for non-AI soul")
 
@@ -125,20 +149,7 @@ function Soul:setAIMoveVector(dirX, dirY)
 
 	self.ai.moveDirX = dirX / length
 	self.ai.moveDirY = dirY / length
-
-	if math.abs(self.ai.moveDirX) > math.abs(self.ai.moveDirY) then
-		if self.ai.moveDirX < 0 then
-			self.direction = "left"
-		else
-			self.direction = "right"
-		end
-	else
-		if self.ai.moveDirY < 0 then
-			self.direction = "up"
-		else
-			self.direction = "down"
-		end
-	end
+	self:setFacingFromVector(self.ai.moveDirX, self.ai.moveDirY)
 
 	self:refreshAnimation()
 end
