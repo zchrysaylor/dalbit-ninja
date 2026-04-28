@@ -13,6 +13,7 @@ nineSlice.__index = nineSlice
 ---@param y number Top-left Y position in pixels
 ---@param w number Requested width in pixels
 ---@param h number Requested height in pixels
+---@return nil
 function nineSlice:draw(x, y, w, h)
 	local b = self.borders
 	local img = self.img

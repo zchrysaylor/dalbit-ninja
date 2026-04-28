@@ -8,6 +8,7 @@ local util = {}
 ---Use this anywhere temporary graphics state changes (setColor, setFont, etc.)
 ---must not leak into the surrounding draw pipeline.
 ---@param fn fun() Drawing callback to execute in isolation
+---@return nil
 function util.safeDraw(fn)
 	love.graphics.push("all")
 	fn()

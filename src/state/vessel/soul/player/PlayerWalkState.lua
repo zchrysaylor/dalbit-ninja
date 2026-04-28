@@ -12,6 +12,7 @@ PlayerWalkState.STATE_NAME = "walk"
 
 ---Called when this state becomes active.
 ---@param opts? table Optional options
+---@return nil
 function PlayerWalkState:enterState(opts)
 	-- resume paused animation
 	SoulWalkState.enterState(self, opts)
@@ -37,12 +38,14 @@ end
 
 ---Update player movement from the current input state.
 ---@param dt number Delta time in seconds
+---@return nil
 function PlayerWalkState:update(dt)
 	self:movePlayer()
 end
 
 ---Read directional input, compute Box2D velocity, and select the correct animation.
 ---Transitions back to "idle" if no directional key is held.
+---@return nil
 function PlayerWalkState:movePlayer()
 	local dirX, dirY, isMoving = Input.getDirection()
 	if not isMoving then

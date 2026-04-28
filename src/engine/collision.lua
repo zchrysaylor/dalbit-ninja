@@ -206,6 +206,7 @@ end
 ---Draw collision outlines for all bodies in the world. Debug use only.
 ---@param world love.World
 ---@param alpha? number Outline opacity from 0 to 1 (default 1)
+---@return nil
 function collision.drawColliders(world, alpha)
 	Util.safeDraw(function()
 		alpha = alpha or 1
@@ -227,6 +228,7 @@ end
 
 ---Draw outlines for all recorded queries. Debug use only.
 ---@param alpha? number Outline opacity from 0 to 1 (default 1)
+---@return nil
 function collision.drawQueries(alpha)
 	for _, q in ipairs(collision.queryDebugDraw) do
 		q.frames = q.frames - 1

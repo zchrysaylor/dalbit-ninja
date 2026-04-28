@@ -10,12 +10,14 @@ StateStack.__index = StateStack
 ---Push a state onto the stack and enter it immediately.
 ---@param state BaseState State instance to activate
 ---@param opts? table Optional data forwarded to `state:enterState`
+---@return nil
 function StateStack:push(state, opts)
 	table.insert(self.states, state)
 	state:enterState(opts)
 end
 
 ---Exit and remove the top state from the stack.
+---@return nil
 function StateStack:pop()
 	if #self.states == 0 then
 		return
@@ -43,6 +45,7 @@ end
 
 ---Update only the top-most active state.
 ---@param dt number Delta time in seconds
+---@return nil
 function StateStack:update(dt)
 	if #self.states == 0 then
 		return
@@ -51,6 +54,7 @@ function StateStack:update(dt)
 end
 
 ---Draw all active states from bottom to top.
+---@return nil
 function StateStack:draw()
 	for _, state in ipairs(self.states) do
 		state:draw()
@@ -58,6 +62,7 @@ function StateStack:draw()
 end
 
 ---Remove all states from the stack without calling `exitState`.
+---@return nil
 function StateStack:clear()
 	self.states = {}
 end

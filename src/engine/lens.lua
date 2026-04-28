@@ -15,11 +15,13 @@ local cam = HumpCamera()
 ---@param w number Viewport width in pixels
 ---@param h number Viewport height in pixels
 ---@param noclip? boolean If true, disables scissor clipping (default false)
+---@return nil
 function lens.attach(x, y, w, h, noclip)
 	cam:attach(x, y, w, h, noclip)
 end
 
 ---End rendering through the camera viewport.
+---@return nil
 function lens.detach()
 	cam:detach()
 end
@@ -29,6 +31,7 @@ end
 ---Should be called every frame before drawing, including during fades.
 ---@param player Soul Entity with x and y fields representing its center position
 ---@param map table STI map instance with width, height, tilewidth, and tileheight fields
+---@return nil
 function lens.follow(player, map)
 	local mapWidth = map.width * map.tilewidth
 	local mapHeight = map.height * map.tileheight
@@ -55,6 +58,7 @@ end
 ---Set the camera zoom level. Values greater than 1 zoom in; less than 1 zoom out.
 ---Zoom is accounted for in lens.follow's map boundary clamping.
 ---@param zoom number Zoom scale factor (e.g. 1 = default, 2 = 2x zoom in)
+---@return nil
 function lens.setZoom(zoom)
 	cam.scale = zoom
 end

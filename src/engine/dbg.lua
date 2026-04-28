@@ -13,6 +13,7 @@ end)
 ---Draw outlines for all bodies in the given world.
 ---@param world love.World The Box2D world to draw fixtures for
 ---@param alpha? number Opacity of the outlines (default 1)
+---@return nil
 function dbg.drawAll(world, alpha)
 	Collision.drawColliders(world, alpha)
 	Collision.drawQueries(alpha)
@@ -20,6 +21,7 @@ end
 
 -- TODO: fix FPS to 60 FPS somehow
 ---Draw the current FPS counter in the top-left corner of the virtual screen.
+---@return nil
 function dbg.drawFPS()
 	local font = GFonts["debug"]
 	local text = "FPS: " .. love.timer.getFPS()

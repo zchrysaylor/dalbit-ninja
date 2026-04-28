@@ -15,6 +15,7 @@ Husk.__index = Husk
 
 ---Build the Anim8 grid and animation from self.animOpts.
 ---No-op if animOpts is nil (static sprite mode).
+---@return nil
 function Husk:createAnimations()
 	if not self.animOpts then
 		return
@@ -27,6 +28,7 @@ end
 
 ---Build the state machine with an "idle" state.
 ---Subclasses override this to register additional state factories.
+---@return nil
 function Husk:createStateMachine()
 	self.stateMachine = StateMachine.new({
 		["idle"] = function()
@@ -38,19 +40,23 @@ end
 ---Transition this Husk to a new state.
 ---@param state string State key (e.g. "idle", "walk")
 ---@param opts? table Optional arguments forwarded to the state's enterState()
+---@return nil
 function Husk:changeState(state, opts)
 	self.stateMachine:changeState(state, opts)
 end
 
 ---No-op for non-interactable husks.
+---@return nil
 function Husk:interact() end
 
 ---Destroy the underlying Vessel (and its physics body).
+---@return nil
 function Husk:destroy()
 	self.vessel:destroy()
 end
 
 ---@param dt number Delta time in seconds
+---@return nil
 function Husk:update(dt)
 	if self.animations and self.animations.current then
 		self.animations.current:update(dt)
@@ -59,6 +65,7 @@ function Husk:update(dt)
 end
 
 ---Draw the current animation frame centered at (x, y).
+---@return nil
 function Husk:draw()
 	if self.animations and self.animations.current then
 		self.animations.current:draw(

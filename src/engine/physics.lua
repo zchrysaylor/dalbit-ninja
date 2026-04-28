@@ -17,6 +17,7 @@ collider.__index = collider
 ---Set the world position of the collider's body.
 ---@param x number
 ---@param y number
+---@return nil
 function collider:setPosition(x, y)
 	self.body:setPosition(x, y)
 end
@@ -31,6 +32,7 @@ end
 ---Set the linear velocity of the collider's body.
 ---@param vx number Horizontal velocity in pixels/sec
 ---@param vy number Vertical velocity in pixels/sec
+---@return nil
 function collider:setLinearVelocity(vx, vy)
 	self.body:setLinearVelocity(vx, vy)
 end
@@ -44,6 +46,7 @@ end
 
 ---Set the linear damping (drag) on the collider's body.
 ---@param ld number Damping coefficient (0 = no drag)
+---@return nil
 function collider:setLinearDamping(ld)
 	self.body:setLinearDamping(ld)
 end
@@ -56,6 +59,7 @@ end
 
 ---Attach arbitrary data to the collider's body (e.g. warp metadata).
 ---@param data any
+---@return nil
 function collider:setUserData(data)
 	self.body:setUserData(data)
 end
@@ -67,6 +71,7 @@ function collider:getUserData()
 end
 
 ---Destroy the underlying Box2D body, removing it from the world.
+---@return nil
 function collider:destroy()
 	self.body:destroy()
 end
@@ -79,6 +84,7 @@ end
 
 ---Add one or more string tags to this collider.
 ---@param ... string Tag names
+---@return nil
 function collider:addTags(...)
 	for _, tag in ipairs({ ... }) do
 		if tag then
@@ -89,6 +95,7 @@ end
 
 ---Remove one or more string tags from this collider.
 ---@param ... string Tag names
+---@return nil
 function collider:removeTags(...)
 	for _, tag in ipairs({ ... }) do
 		if tag then

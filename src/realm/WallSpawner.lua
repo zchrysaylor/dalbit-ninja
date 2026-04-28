@@ -19,6 +19,7 @@ end
 
 ---Destroy all wall physics bodies in the provided array.
 ---@param walls collider[] Array of wall colliders to destroy
+---@return nil
 function WallSpawner.destroyAll(walls)
 	for _, wall in ipairs(walls) do
 		wall:destroy()

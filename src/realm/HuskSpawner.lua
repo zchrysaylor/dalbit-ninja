@@ -20,6 +20,7 @@ function HuskSpawner.spawn(physics, obj)
 			tags = { "husk", "interactable" },
 		})
 		chest.opened = false
+		---@return nil
 		function chest:interact()
 			self.opened = not self.opened
 			if self.opened then
@@ -35,6 +36,7 @@ end
 ---Destroy the physics bodies of all provided Husk entities.
 ---Call before clearing the husks table on map transition.
 ---@param husks Husk[] Array of Husk entities to destroy
+---@return nil
 function HuskSpawner.destroyAll(husks)
 	for _, husk in ipairs(husks) do
 		husk:destroy()

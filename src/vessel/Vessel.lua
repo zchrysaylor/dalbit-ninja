@@ -11,6 +11,7 @@ Vessel.__index = Vessel
 ---Set the position of the vessel.
 ---@param x number
 ---@param y number
+---@return nil
 function Vessel:setPosition(x, y)
 	self.collider:setPosition(x, y)
 end
@@ -25,6 +26,7 @@ end
 ---Set the linear velocity of the vessel.
 ---@param vx number
 ---@param vy number
+---@return nil
 function Vessel:setLinearVelocity(vx, vy)
 	self.collider:setLinearVelocity(vx, vy)
 end
@@ -37,6 +39,7 @@ function Vessel:getLinearVelocity()
 end
 
 ---Destroy the vessel.
+---@return nil
 function Vessel:destroy()
 	if self.collider then
 		self.collider:destroy()

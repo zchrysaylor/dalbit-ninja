@@ -1,3 +1,5 @@
+---@param t table
+---@return nil
 function love.conf(t)
 	t.version = "11.5"
 

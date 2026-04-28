@@ -14,6 +14,7 @@ PlayState.STATE_NAME = "play"
 
 ---Called when this state becomes active.
 ---@param opts? table Optional options.
+---@return nil
 function PlayState:enterState(opts)
 	self.heraldGroup = Herald.muster()
 
@@ -36,6 +37,7 @@ function PlayState:enterState(opts)
 end
 
 ---Called when this state is deactivated.
+---@return nil
 function PlayState:exitState()
 	if self.heraldGroup then
 		self.heraldGroup:unhearkenAll()
@@ -47,6 +49,7 @@ function PlayState:exitState()
 end
 
 ---@param dt number Delta time in seconds
+---@return nil
 function PlayState:update(dt)
 	if not Transition.isActive and not self.isPaused then
 		self.realm:update(dt)
@@ -54,6 +57,7 @@ function PlayState:update(dt)
 end
 
 ---Render the active realm and pause/transition overlays.
+---@return nil
 function PlayState:draw()
 	self.realm:draw()
 	Transition.draw() -- must be drawn after realm's draw to take effect

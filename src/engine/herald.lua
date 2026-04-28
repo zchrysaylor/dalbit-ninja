@@ -96,6 +96,7 @@ end
 ---during emission (beyond the original boundary) are not touched.
 ---@param list table The handler list to compact.
 ---@param listLength number The number of entries to inspect (pre-emission `#list`).
+---@return nil
 function herald.compact(list, listLength)
 	local j = 0
 	for i = 1, listLength do
@@ -160,6 +161,7 @@ end
 
 ---Remove handlers for a single event, or clear the entire event bus.
 ---@param name? string Event name to clear. If `nil`, all events are cleared.
+---@return nil
 function herald.clear(name)
 	if name then
 		handlers[name] = nil

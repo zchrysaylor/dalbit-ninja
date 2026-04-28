@@ -11,6 +11,7 @@ setmetatable(MenuState, { __index = BaseState })
 MenuState.STATE_NAME = "menu"
 
 ---Called when this state becomes active.
+---@return nil
 function MenuState:enterState()
 	---@param action StateInputAction
 	self.unhearken = Herald.hearken(Events.STATE_INPUT_PREFIX .. self.STATE_NAME, function(action)
@@ -21,6 +22,7 @@ function MenuState:enterState()
 end
 
 ---Called when this state is deactivated.
+---@return nil
 function MenuState:exitState()
 	if self.unhearken then
 		self.unhearken()
@@ -29,9 +31,11 @@ function MenuState:exitState()
 end
 
 ---@param dt number Delta time in seconds
+---@return nil
 function MenuState:update(dt) end
 
 ---Render the menu panel.
+---@return nil
 function MenuState:draw()
 	Util.safeDraw(function()
 		GTheme.panels.wood:draw(10, 10, VIRTUAL_WIDTH - 20, VIRTUAL_HEIGHT - 20)

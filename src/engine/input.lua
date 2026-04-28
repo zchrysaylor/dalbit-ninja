@@ -6,6 +6,7 @@ input.keysPressed = {}
 
 ---Record a key press for the current frame and handle global shortcuts.
 ---@param key string LOVE key constant (e.g. "return", "escape")
+---@return nil
 function input:keyPressed(key)
 	self.keysPressed[key] = true
 
@@ -44,6 +45,7 @@ function input:wasPressed(key)
 end
 
 ---@param dt number Delta time in seconds
+---@return nil
 function input:update(dt)
 	self.keysPressed = {}
 end

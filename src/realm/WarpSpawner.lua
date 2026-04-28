@@ -44,6 +44,7 @@ end
 
 ---Destroy all warps in the provided array.
 ---@param warps collider[] Array of warps to destroy
+---@return nil
 function WarpSpawner.destroyAll(warps)
 	for _, warp in ipairs(warps) do
 		warp:destroy()

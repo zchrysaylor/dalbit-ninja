@@ -13,6 +13,7 @@ local INTERACT_OFFSET = 6
 
 ---Build the 8-directional animation set from the player sprite sheet.
 ---Overrides Soul:createAnimations() to add diagonal directions.
+---@return nil
 function Player:createAnimations()
 	self.grid = Anim8.newGrid(self.width, self.height, self.spriteSheet:getWidth(), self.spriteSheet:getHeight())
 	self.animations.down = Anim8.newAnimation(self.grid("1-4", 1), ANIMATION_SPEED)
@@ -28,6 +29,7 @@ end
 
 ---Build the state machine.
 ---Overrides Soul:createStateMachine() to wire player-specific states.
+---@return nil
 function Player:createStateMachine()
 	self.stateMachine = StateMachine.new({
 		["idle"] = function()
@@ -67,6 +69,7 @@ function Player:syncDirectionalAnimation()
 	Soul.syncDirectionalAnimation(self)
 end
 
+---@return nil
 function Player:interact()
 	local world = self.collider.body:getWorld()
 	local px, py = self.collider:getPosition()

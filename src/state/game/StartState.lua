@@ -10,6 +10,7 @@ setmetatable(StartState, { __index = BaseState })
 StartState.STATE_NAME = "start"
 
 ---@param dt number Delta time in seconds
+---@return nil
 function StartState:update(dt)
 	if Input:wasPressed("enter") or Input:wasPressed("return") then
 		if not Transition.isActive then
@@ -22,6 +23,7 @@ function StartState:update(dt)
 end
 
 ---Render the title screen.
+---@return nil
 function StartState:draw()
 	-- since we are using Push, we need to manually clear the canvas for the background color to take effect
 	love.graphics.clear(love.math.colorFromBytes(42, 42, 46))

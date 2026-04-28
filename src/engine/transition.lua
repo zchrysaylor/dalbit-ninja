@@ -9,6 +9,7 @@ transition.isActive = false
 ---@param duration number Time in seconds for each half (out and in)
 ---@param onMidpointFn fun() Called when screen is fully black
 ---@param onCompleteFn? fun() Called when fade-in finishes
+---@return nil
 function transition.fade(duration, onMidpointFn, onCompleteFn)
 	if transition.isActive then
 		return
@@ -28,6 +29,7 @@ function transition.fade(duration, onMidpointFn, onCompleteFn)
 end
 
 ---Draw the black overlay. Call every frame from the draw pipeline.
+---@return nil
 function transition.draw()
 	if transition.isActive then
 		Util.safeDraw(function()

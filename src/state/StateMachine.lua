@@ -12,6 +12,7 @@ StateMachine.__index = StateMachine
 ---Transition to a new state by key.
 ---@param state string Key of the target state (must exist in self.states)
 ---@param opts? table Optional options forwarded to the new state's enterState()
+---@return nil
 function StateMachine:changeState(state, opts)
 	assert(self.states[state])
 	self.currentState:exitState()
@@ -21,17 +22,20 @@ end
 
 ---Delegate update to the active state.
 ---@param dt number Delta time in seconds
+---@return nil
 function StateMachine:update(dt)
 	self.currentState:update(dt)
 end
 
 ---Delegate post-physics update to the active state.
 ---@param dt number Delta time in seconds
+---@return nil
 function StateMachine:postPhysicsUpdate(dt)
 	self.currentState:postPhysicsUpdate(dt)
 end
 
 ---Delegate draw to the active state.
+---@return nil
 function StateMachine:draw()
 	self.currentState:draw()
 end
