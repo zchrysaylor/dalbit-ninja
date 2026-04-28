@@ -4,10 +4,12 @@
 ---@field type string
 ---@field wanderRadius number
 ---@field idleDurationMin number
----@field idleDurationMax number
----@field wanderBufferDuration number
----@field moveDirX number
----@field moveDirY number
+---@field idleDurationMax? number
+---@field wanderBufferDuration? number
+---@field moveDirX? number
+---@field moveDirY? number
+---@field detectionRadius? number
+---@field chaseTarget? Soul
 
 ---@class Soul
 ---@field vessel Vessel
@@ -26,10 +28,12 @@
 ---@field ai? SoulAIConfig
 ---@field previousX number
 ---@field previousY number
+---@field isAnimating boolean
 local Soul = {}
 Soul.__index = Soul
 
 ---Build animation grid and directional animations from the sprite sheet.
+---@return nil
 function Soul:createAnimations()
 	self.grid = Anim8.newGrid(self.width, self.height, self.spriteSheet:getWidth(), self.spriteSheet:getHeight())
 	self.animations.down = Anim8.newAnimation(self.grid("1-4", 1), 0.1)
@@ -41,10 +45,17 @@ end
 
 ---Build the state machine.
 ---Subclasses override this to register their own state factories.
+---@return nil
 function Soul:createStateMachine()
 	self.stateMachine = StateMachine.new({
 		["idle"] = function()
 			return SoulIdleState.new(self)
+		end,
+		["wander"] = function()
+			return SoulWanderState.new(self)
+		end,
+		["chase"] = function()
+			return SoulChaseState.new(self)
 		end,
 		["walk"] = function()
 			return SoulWalkState.new(self)
@@ -63,6 +74,12 @@ end
 ---@return boolean
 function Soul:isAIType(aiType)
 	return self:isAI() and self.ai.type == aiType
+end
+
+---Return the Soul's current world position.
+---@return number, number
+function Soul:getPosition()
+	return self.vessel:getPosition()
 end
 
 ---Return whether the given point would be outside the Soul's wander radius.
@@ -94,6 +111,7 @@ end
 ---Set AI movement vector and keep facing/animation in sync.
 ---@param dirX number
 ---@param dirY number
+---@return nil
 function Soul:setAIMoveVector(dirX, dirY)
 	assert(self:isAI(), "setAIMoveVector called for non-AI soul")
 
@@ -101,7 +119,7 @@ function Soul:setAIMoveVector(dirX, dirY)
 	if length == 0 then
 		self.ai.moveDirX = 0
 		self.ai.moveDirY = 0
-		self:syncDirectionalAnimation()
+		self:refreshAnimation()
 		return
 	end
 
@@ -122,10 +140,11 @@ function Soul:setAIMoveVector(dirX, dirY)
 		end
 	end
 
-	self:syncDirectionalAnimation()
+	self:refreshAnimation()
 end
 
 ---Choose a new AI movement vector biased back toward the soul's home.
+---@return nil
 function Soul:chooseAIWanderDirection()
 	assert(self:isAI(), "chooseAIWanderDirection called for non-AI soul")
 
@@ -155,8 +174,61 @@ function Soul:chooseAIWanderDirection()
 	self:setAIMoveVector(rotatedDirX, rotatedDirY)
 end
 
+---Set the active chase target for this AI soul.
+---@param target? Soul
+---@return nil
+function Soul:setAIChaseTarget(target)
+	assert(self:isAI(), "setAIChaseTarget called for non-AI soul")
+	self.ai.chaseTarget = target
+end
+
+---Return whether this Soul can currently detect its chase target.
+---@return boolean
+function Soul:canDetectAIChaseTarget()
+	assert(self:isAI(), "canDetectAIChaseTarget called for non-AI soul")
+
+	local target = self.ai.chaseTarget
+	if not target then
+		return false
+	end
+
+	local soulX, soulY = self:getPosition()
+	local targetX, targetY = target:getPosition()
+	local dx = targetX - soulX
+	local dy = targetY - soulY
+	local detectionRadius = self.ai.detectionRadius or self.ai.wanderRadius
+
+	return dx * dx + dy * dy <= detectionRadius * detectionRadius
+end
+
+---Point this Soul toward its chase target and refresh its move vector.
+---@return boolean
+function Soul:updateAIChaseVector()
+	assert(self:isAI(), "updateAIChaseVector called for non-AI soul")
+
+	local target = self.ai.chaseTarget
+	if not target then
+		self:setAIMoveVector(0, 0)
+		return false
+	end
+
+	local soulX, soulY = self:getPosition()
+	local targetX, targetY = target:getPosition()
+	local dirX = targetX - soulX
+	local dirY = targetY - soulY
+
+	if dirX == 0 and dirY == 0 then
+		self:setAIMoveVector(0, 0)
+		return false
+	end
+
+	self:setAIMoveVector(dirX, dirY)
+	return true
+end
+
 ---Validate AI walking after physics has stepped and positions are synced.
 ---@param dt number Delta time in seconds
+---@return nil
 function Soul:postPhysicsUpdate(dt)
 	self.stateMachine:postPhysicsUpdate(dt)
 end
@@ -164,40 +236,67 @@ end
 ---Transition this Soul to a new state.
 ---@param state string State key (e.g. "idle", "walk")
 ---@param opts? table Optional options forwarded to the state's enterState()
+---@return nil
 function Soul:changeState(state, opts)
 	self.stateMachine:changeState(state, opts)
 end
 
 ---Sync self.x/self.y from the vessel's physics body position.
 ---Must be called each frame after the physics world steps.
+---@return nil
 function Soul:syncPosition()
 	self.x, self.y = self.vessel:getPosition()
 end
 
 ---Record the soul's current position for post-physics movement checks.
+---@return nil
 function Soul:capturePreviousPosition()
 	self.previousX = self.x
 	self.previousY = self.y
 end
 
+---Set whether this Soul's active animation should play or stay paused.
+---@param isAnimating boolean
+---@return nil
+function Soul:setIsAnimating(isAnimating)
+	self.isAnimating = isAnimating
+end
+
 ---Switch the active animation to match the Soul's current facing direction.
+---@return nil
 function Soul:syncDirectionalAnimation()
 	self.direction = self.direction or "down"
 	self.animations.current = self.animations[self.direction]
 end
 
+---Refresh the current directional animation and apply the active play/pause state.
+---@return nil
+function Soul:refreshAnimation()
+	self:syncDirectionalAnimation()
+
+	if self.isAnimating then
+		self.animations.current:resume()
+	else
+		self.animations.current:pauseAtStart()
+	end
+end
+
 ---Destroy the underlying Vessel (and its physics body).
+---@return nil
 function Soul:destroy()
 	self.vessel:destroy()
 end
 
+---Advance the active animation and delegated entity state.
 ---@param dt number Delta time in seconds
+---@return nil
 function Soul:update(dt)
 	self.animations.current:update(dt)
 	self.stateMachine:update(dt)
 end
 
 ---Draw the current animation frame centered at (x, y).
+---@return nil
 function Soul:draw()
 	self.animations.current:draw(
 		self.spriteSheet,
@@ -213,7 +312,7 @@ end
 
 ---Create a new Soul.
 ---@generic T : Soul
----@param def {x: number, y: number, width: number, height: number, scale: number, speed: number, spriteSheet: love.Image, physics: physics, direction?: string, ai?: table, tags?: string[]}
+---@param def {x: number, y: number, width: number, height: number, scale: number, speed: number, spriteSheet: love.Image, physics: physics, direction?: string, ai?: SoulAIConfig, tags?: string[]}
 ---@param subclass? T Metatable for subclass (defaults to Soul)
 ---@return T
 function Soul.new(def, subclass)
@@ -254,6 +353,7 @@ function Soul.new(def, subclass)
 	self.collider.owner = self
 
 	self.animations = {}
+	self.isAnimating = false
 	self:createAnimations()
 	self:syncDirectionalAnimation()
 

@@ -1,0 +1,56 @@
+local BaseState = require("src.state.BaseState")
+
+---Chase state for soul entities.
+---@class SoulChaseState : BaseState
+---@field stateName string
+---@field soul Soul
+local SoulChaseState = {}
+SoulChaseState.__index = SoulChaseState
+setmetatable(SoulChaseState, { __index = BaseState })
+
+SoulChaseState.STATE_NAME = "chase"
+
+---Called when this state becomes active.
+---@param opts? table Optional options
+---@return nil
+function SoulChaseState:enterState(opts)
+	self.soul:setIsAnimating(true)
+	self.soul:refreshAnimation()
+end
+
+---Called when this state is deactivated.
+---@return nil
+function SoulChaseState:exitState()
+	-- TODO: don't necessarily need to set to zero, depends which state triggers after chase
+	-- Should probably be conditional: can be wander, or return to home most likely
+	self.soul.vessel:setLinearVelocity(0, 0)
+end
+
+---Advance movement while this state is active.
+---@param dt number Delta time in seconds
+---@return nil
+function SoulChaseState:update(dt)
+	if self.soul:canDetectAIChaseTarget() then
+		self.soul:updateAIChaseVector()
+	else
+		self.soul:changeState("idle")
+		return
+	end
+
+	local speed = self.soul.speed * 100
+	local vx = self.soul.ai.moveDirX * speed
+	local vy = self.soul.ai.moveDirY * speed
+	self.soul.vessel:setLinearVelocity(vx, vy)
+end
+
+---Create a new SoulChaseState
+---@param soul Soul
+---@return SoulChaseState
+function SoulChaseState.new(soul)
+	local self = BaseState.new(SoulChaseState)
+	self.stateName = SoulChaseState.STATE_NAME
+	self.soul = soul
+	return self
+end
+
+return SoulChaseState

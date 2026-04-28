@@ -6,6 +6,7 @@
 ---@field walls collider[] Static wall colliders for the current map
 ---@field warps collider[] Warp-trigger colliders for the current map
 ---@field souls Soul[] NPC entities spawned from the current map's entity layer
+---@field husks Husk[] NPC entities spawned from the current map's husk layer
 ---@field player Player The player entity (persists across map loads)
 local Realm = {}
 Realm.__index = Realm
@@ -16,6 +17,7 @@ Realm.__index = Realm
 ---@param mapName string Filename stem under maps/ (e.g. "map-start")
 ---@param destX? number Player spawn X in pixels (optional)
 ---@param destY? number Player spawn Y in pixels (optional)
+---@return nil
 function Realm:loadMap(mapName, destX, destY)
 	self:destroyAll()
 
@@ -40,7 +42,7 @@ function Realm:loadMap(mapName, destX, destY)
 
 	if self.map.layers["soul"] then
 		for _, obj in pairs(self.map.layers["soul"].objects) do
-			local soul = SoulSpawner.spawn(self.physics, obj)
+			local soul = SoulSpawner.spawn(self.physics, self.player, obj)
 			if soul then
 				table.insert(self.souls, soul)
 			end
@@ -65,7 +67,9 @@ function Realm:loadMap(mapName, destX, destY)
 	Lens.follow(self.player, self.map)
 end
 
+---Advance camera follow, entities, physics, and warp handling.
 ---@param dt number Delta time in seconds
+---@return nil
 function Realm:update(dt)
 	Lens.follow(self.player, self.map)
 
@@ -95,6 +99,7 @@ end
 
 ---Render the current map layers, all soul entities, the player, and optionally collision shapes.
 ---Wrapped inside Lens:attach/detach to clip to the virtual viewport.
+---@return nil
 function Realm:draw()
 	love.graphics.clear(self.bgColor)
 	Lens.attach(0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT, true)
@@ -128,7 +133,8 @@ function Realm:draw()
 	Lens.detach()
 end
 
----Check all warp colliders; if the player is touching one, load its destination map.
+---Check all warp colliders and trigger a map transition event when needed.
+---@return nil
 function Realm:checkWarps()
 	local triggeredWarp = WarpSpawner.check(self.player.collider, self.warps)
 	if triggeredWarp then
@@ -137,6 +143,7 @@ function Realm:checkWarps()
 end
 
 ---Destroy all map-scoped entities (walls, warps, souls) and reset the map table.
+---@return nil
 function Realm:destroyAll()
 	WallSpawner.destroyAll(self.walls)
 	self.walls = {}

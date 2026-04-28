@@ -4,6 +4,7 @@ local BaseState = require("src.state.BaseState")
 ---@class SoulIdleState : BaseState
 ---@field stateName string
 ---@field soul Soul
+---@field idleTimer number
 local SoulIdleState = {}
 SoulIdleState.__index = SoulIdleState
 setmetatable(SoulIdleState, { __index = BaseState })
@@ -12,18 +13,28 @@ SoulIdleState.STATE_NAME = "idle"
 
 ---Called when this state becomes active.
 ---@param opts? table Optional options
+---@return nil
 function SoulIdleState:enterState(opts)
-	self.soul.animations.current:pauseAtStart()
+	self.soul:setIsAnimating(false)
+	self.soul:refreshAnimation()
+
 	if not self.soul:isAI() then
 		return
 	end
 
-	self.soul:syncDirectionalAnimation()
 	self.idleTimer = self.soul:getRandomIdleDuration()
 end
 
+---Advance idle timing and transition AI souls into chase or wander.
+---@param dt number Delta time in seconds
+---@return nil
 function SoulIdleState:update(dt)
 	if not self.soul:isAI() then
+		return
+	end
+
+	if self.soul:isAIType("chase") and self.soul:canDetectAIChaseTarget() then
+		self.soul:changeState("chase")
 		return
 	end
 
@@ -31,7 +42,7 @@ function SoulIdleState:update(dt)
 		self.idleTimer = self.idleTimer - dt
 	else
 		self.soul:chooseAIWanderDirection()
-		self.soul.stateMachine:changeState("walk")
+		self.soul.stateMachine:changeState("wander")
 	end
 end
 
@@ -41,10 +52,11 @@ end
 ---@param subclass? T Metatable to use (defaults to SoulIdleState)
 ---@return T
 function SoulIdleState.new(soul, subclass)
-	local self = BaseState.new(subclass or SoulIdleState)
-	self.stateName = (subclass or SoulIdleState).STATE_NAME
-	self.soul = soul
-	return self
+ local self = BaseState.new(subclass or SoulIdleState)
+ self.stateName = (subclass or SoulIdleState).STATE_NAME
+ self.soul = soul
+ self.idleTimer = 0
+ return self
 end
 
 return SoulIdleState
