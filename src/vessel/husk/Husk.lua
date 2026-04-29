@@ -86,7 +86,7 @@ end
 ---Create a new Husk.
 ---@generic T : Husk
 ---@param def {x: number, y: number, width: number, height: number, spriteSheet: love.Image, physics: physics, animOpts?: {frames: string, row: integer, interval: number, paused?: boolean}, tags?: string[]}
----@param subclass? T Metatable for subclass (defaults to Husk)
+---@param subclass? T Metatable to use (defaults to Husk)
 ---@return T
 function Husk.new(def, subclass)
 	assert(def.physics, "Husk must have a physics instance")

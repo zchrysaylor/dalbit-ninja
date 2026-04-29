@@ -22,9 +22,8 @@ function HuskIdleState:enterState(opts)
 end
 
 ---Create a new HuskIdleState
----@generic T : HuskIdleState
 ---@param husk Husk
----@return T
+---@return HuskIdleState
 function HuskIdleState.new(husk)
 	local self = BaseState.new(HuskIdleState)
 	self.stateName = HuskIdleState.STATE_NAME

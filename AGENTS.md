@@ -217,6 +217,8 @@ local MenuState = {}
 ---| "toggle_pause"
 ```
 
+If a constructor accepts a `subclass` metatable and returns that subtype, annotate it with a constrained generic such as `---@generic T : BaseState`, `---@param subclass? T`, and `---@return T`. If a constructor does not accept `subclass`, return the concrete class instead.
+
 ### Error Handling
 
 - Use `assert()` for invariants and programmer errors

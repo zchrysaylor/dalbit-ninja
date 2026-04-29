@@ -74,6 +74,9 @@ Parent classes:
 local ParentClass = {}
 ParentClass.__index = ParentClass
 
+---@generic T : ParentClass
+---@param subclass? T
+---@return T
 function ParentClass.new(def, subclass)
 	local self = setmetatable({}, subclass or ParentClass)
 	self.exampleParentProperty = def.exampleParentProperty
@@ -104,6 +107,8 @@ return ChildClass
 ```
 
 Aim to use inheritance sparingly; it is only warranted when the child class truly adds or encapsulates a lot of unique logic. You should not, for example, create a new subclass for every single type of entity or object in the game when it could be instantiated by passing properties and behavior into the parent type.
+
+When a constructor accepts a `subclass` metatable and returns that subtype, document it with a constrained LuaLS generic such as `---@generic T : ParentClass`, `---@param subclass? T`, and `---@return T`. Constructors that do not accept `subclass` should return their concrete class directly.
 
 #### Class function ordering
 
