@@ -4,12 +4,15 @@ Guidelines for AI coding agents working on this LOVE 2D game project.
 
 ## Project Overview
 
-- **Type**: LOVE 2D (Lua) game engine project
+- **Type**: LOVE 2D (Lua) game project
 - **LOVE Version**: 11.5
-- **Style**: Game Boy Advance aesthetic (240x160 virtual resolution scaled to 1080x720)
-- **Physics**: Box2D via love.physics (zero gravity top-down world)
+- **Style**: GBA-inspired top-down game with a low-resolution virtual screen scaled up via `push`
+- **Virtual Resolution**: `192x128`
+- **Window Resolution**: `1080x720`
+- **Physics**: Box2D via `love.physics`
+- **Architecture**: Global dependency loader in `src/deps.lua`, stack-based game states, per-entity state machines, event-driven cross-system communication via `Herald`
 
-## Build/Run/Test Commands
+## Build / Run / Test Commands
 
 ```bash
 # Run from project root
@@ -24,136 +27,141 @@ zip -r game.love . -x "*.git*" "*.DS_Store" "AGENTS.md"
 
 ### Testing
 
-No test framework is currently set up. The knife test library is available at `lib/knife/test.lua`:
-
-```bash
-# Run a single test file (when tests are added):
-lua lib/knife/test.lua tests/test_player.lua
-
-# Run all tests (when implemented):
-lua lib/knife/test.lua tests/
-```
-
-There is no `tests/` directory yet. New tests should go there and follow the knife test API.
+There are currently no tests or `tests/` directory in the repo. Do not attempt to write tests unless asked.
 
 ## Project Structure
 
 ```
 lua-boy-advance/
-├── main.lua              # Entry point: love.load/update/draw + input callbacks
-├── conf.lua              # LOVE configuration (window, version)
+├── main.lua                     # LOVE entry point; bootstraps globals and state stack
+├── conf.lua                     # LOVE configuration (version, disabled modules, highdpi)
 ├── src/
-│   ├── deps.lua          # Centralized global dependency loading
-│   ├── constants.lua     # Global constants (resolution, key bindings, rates)
+│   ├── deps.lua                 # Centralized global dependency loading + asset/theme setup
+│   ├── constants.lua            # Global resolution, input, and timing constants
+│   ├── util.lua                 # Small shared helpers like safeDraw
 │   ├── engine/
-│   │   ├── collision.lua # Collision queries (isColliding) + debug rendering
-│   │   ├── input.lua     # Directional input reading (getDirection)
-│   │   ├── lens.lua      # Camera module: owns HUMP instance, attach/detach/follow/setZoom
-│   │   ├── herald.lua    # Pub/sub event bus
-│   │   ├── physics.lua   # Physics class (collider factory, tag system)
-│   │   ├── dbg.lua       # Debug state + helpers, subscribes to debug events
-│   │   └── transition.lua # Screen fade/tween controller driven by events
+│   │   ├── collision.lua        # Collision queries + debug drawing helpers
+│   │   ├── input.lua            # Input manager + state-scoped input event dispatch
+│   │   ├── lens.lua             # Camera module; owns HUMP camera instance
+│   │   ├── herald.lua           # Lightweight pub/sub event bus
+│   │   ├── events.lua           # Centralized event name constants
+│   │   ├── physics.lua          # Physics wrapper + collider factory/tag system
+│   │   ├── dbg.lua              # Debug overlay and collider/query rendering
+│   │   └── transition.lua       # Fade transition overlay driven by Flux
+│   ├── graphics/
+│   │   ├── nineSlice.lua        # Nine-slice panel renderer for UI
+│   │   └── theme.lua            # Global UI theme built from art and fonts
 │   ├── realm/
-│   │   ├── Realm.lua         # World/level controller (map, camera, entities)
-│   │   ├── SoulSpawner.lua   # Spawn Soul entities from Tiled object layers
-│   │   ├── WallSpawner.lua   # Spawn wall colliders from Tiled object layers
-│   │   └── WarpSpawner.lua   # Spawn warps + handle map transitions
+│   │   ├── Realm.lua            # World/map controller (map, entities, camera, physics)
+│   │   ├── SoulSpawner.lua      # Spawn soul NPCs from Tiled object layers
+│   │   ├── HuskSpawner.lua      # Spawn interactable/static props from Tiled object layers
+│   │   ├── WallSpawner.lua      # Spawn wall colliders from Tiled object layers
+│   │   ├── WarpSpawner.lua      # Spawn warp colliders and resolve overlap checks
+│   │   └── mapTransitions.lua   # Warp-name -> destination map/spawn lookup
 │   ├── state/
-│   │   ├── BaseState.lua     # No-op base: enterState, exitState, update, draw
-│   │   ├── StateMachine.lua  # Generic state machine (changeState, update, draw)
-│   │   ├── StartState.lua    # Title screen with fade-in/out
-│   │   ├── PlayState.lua     # Main gameplay (pause, fade, realm delegation)
-│   │   └── vessel/soul/
-│   │       ├── SoulIdleState.lua   # NPC idle: paused animation
-│   │       ├── SoulWalkState.lua   # NPC walk: direct position update + AI stub
-│   │       └── player/
-│   │           ├── PlayerIdleState.lua  # Player idle: detect input to walk
-│   │           └── PlayerWalkState.lua  # Player walk: physics velocity + 8-dir anim
+│   │   ├── BaseState.lua        # No-op base state with lifecycle hooks
+│   │   ├── StateMachine.lua     # Factory-based single-active-state machine
+│   │   ├── StateStack.lua       # Stack of active game states; top updates, all draw
+│   │   ├── game/
+│   │   │   ├── StartState.lua   # Title screen
+│   │   │   ├── PlayState.lua    # Main gameplay state
+│   │   │   └── MenuState.lua    # Overlay menu panel drawn on top of play
+│   │   └── vessel/
+│   │       ├── husk/
+│   │       │   └── HuskIdleState.lua
+│   │       └── soul/
+│   │           ├── SoulIdleState.lua
+│   │           ├── SoulWanderState.lua
+│   │           ├── SoulChaseState.lua
+│   │           ├── SoulReturnState.lua
+│   │           └── player/
+│   │               ├── PlayerIdleState.lua
+│   │               └── PlayerWalkState.lua
 │   └── vessel/
-│       ├── Vessel.lua    # Physics body composition layer (owns a collider)
+│       ├── Vessel.lua           # Physics body composition layer around colliders
+│       ├── husk/
+│       │   └── Husk.lua         # Interactable/static world props
 │       └── soul/
-│           ├── Soul.lua      # Entity class (has-a Vessel, animations, state machine)
-│           └── Player.lua    # Player extends Soul (8-dir movement, physics-based)
-├── lib/                  # Third-party libraries — do not modify
-├── art/                  # Sprite sheets and tilesets (.png)
-├── fonts/                # Pixel fonts (.ttf)
-└── maps/                 # Tiled map files (.tmx source + .lua export)
+│           ├── Soul.lua         # Base moving entity with animations + AI helpers
+│           └── Player.lua       # Player soul subclass with 8-dir anims + interaction
+├── lib/                         # Third-party libraries; do not modify
+├── art/                         # Sprites, UI panels, tilesets
+├── fonts/                       # TTF fonts
+├── maps/                        # Tiled sources and exported Lua maps
+└── tests/                       # Not present yet; new tests should go here
 ```
 
 ## Code Style Guidelines
 
 ### Indentation and Formatting
 
-- **Indentation**: Tabs (not spaces) — enforced throughout all source files
-- **String quotes**: Double quotes preferred (`"idle"`, `"map-start"`)
-- **Line length**: Keep reasonable (~100 chars max)
-- **Spacing**: Space after commas and around operators; no space before function call parens
+- **Indentation**: Tabs, not spaces
+- **String quotes**: Double quotes preferred
+- **Line length**: Keep lines reasonably compact, around ~100 chars when practical
+- **Spacing**: Use spaces after commas and around operators
 
 ### Naming Conventions
 
 | Type | Convention | Example |
 |------|------------|---------|
-| Classes | PascalCase | `Soul`, `Player`, `StateMachine`, `Realm` |
-| Utility modules | camelCase | `collision`, `physics`, `input`, `herald` |
-| Global variables | PascalCase | `Camera`, `GStateMachine`, `Input` |
-| Global asset tables | G-prefix PascalCase | `GFonts`, `GArt` |
-| Constants | SCREAMING_SNAKE_CASE | `VIRTUAL_WIDTH`, `KEY_UP`, `FADE_RATE` |
-| Local variables | camelCase | `moveUp`, `isMoving`, `centerX` |
-| Instance methods | PascalCase colon-syntax | `self:MovePlayer()`, `self:AnimatePlayer()` |
-| Static/utility functions | camelCase dot-syntax | `collision.isColliding()`, `physics.new()` |
+| Classes | PascalCase | `Soul`, `Player`, `Realm`, `StateStack` |
+| Utility modules | camelCase | `collision`, `physics`, `input`, `theme` |
+| Global runtime instances | PascalCase with prefixes where established | `GStateStack`, `Input`, `Lens` |
+| Global asset/theme tables | G-prefix PascalCase | `GArt`, `GFonts`, `GTheme` |
+| Constants | SCREAMING_SNAKE_CASE | `VIRTUAL_WIDTH`, `KEY_MENU`, `FADE_RATE` |
+| Local variables | camelCase | `dirX`, `idleTimer`, `triggeredWarp` |
+| Instance methods | PascalCase colon-syntax for classes in this codebase | `self:changeState()`, `self:syncPosition()` |
+| Utility functions | camelCase dot-syntax | `collision.isColliding()`, `util.safeDraw()` |
 
-### Module/Class Definition Pattern
+Follow the file you are editing. Despite the convention note above, some existing instance methods also use lower camel case like `changeState` and `syncPosition`; preserve the surrounding style instead of renaming APIs for consistency churn.
 
-**Classes** use raw metatables. **Do not use `lib/class.lua`** — it is present but intentionally unused.
+### Module / Class Definition Pattern
+
+Classes use raw metatables.
 
 ```lua
--- Class pattern (PascalCase)
+---@class MyClass
 local MyClass = {}
 MyClass.__index = MyClass
 
-function MyClass.new(def)
-    local self = setmetatable({}, MyClass)
-    -- initialize from def table
-    return self
-end
-
-function MyClass:instanceMethod()
-    -- use self
+---@return MyClass
+function MyClass.new()
+	local self = setmetatable({}, MyClass)
+	return self
 end
 
 return MyClass
 ```
 
-**Utility modules** are simple function containers with no instances:
+Utility modules are function containers with no instances:
 
 ```lua
--- Module pattern (camelCase)
 ---@class mymodule
 local mymodule = {}
 
 ---@param x number
 ---@return number
 function mymodule.utilityFunction(x)
-    return x * 2
+	return x * 2
 end
 
 return mymodule
 ```
 
-### Inheritance & Composition Patterns
+### Inheritance and Composition Patterns
 
-**Composition — Soul has-a Vessel**:
+**Composition: Soul and Husk have-a Vessel**
 
-Soul owns a Vessel (physics body wrapper) rather than inheriting from it. Vessel is created
-internally and exposed via `soul.vessel` and `soul.collider` (convenience ref).
+`Soul` and `Husk` each create a `Vessel` internally and expose `self.vessel` plus `self.collider` as a convenience reference.
 
 ```lua
--- Soul.new builds a Vessel internally:
-self.vessel = Vessel.new({ physics = def.physics, ... })
+self.vessel = Vessel.new(vesselOpts)
 self.collider = self.vessel.collider
+self.collider.owner = self
 ```
 
-**Delegating constructor** (Soul → Player):
+**Delegating constructor** (`Soul -> Player`):
+
 ```lua
 local Soul = require("src.vessel.soul.Soul")
 local Player = {}
@@ -161,13 +169,14 @@ Player.__index = Player
 setmetatable(Player, { __index = Soul })
 
 function Player.new(def)
-    local self = Soul.new(def, Player)  -- Soul.new does setmetatable({}, subclass or Soul)
-    self.collider:setLinearDamping(0)   -- post-creation customization
-    return self
+	local self = Soul.new(def, Player)
+	self.collider:setLinearDamping(0)
+	return self
 end
 ```
 
-**BaseState constructor** (state classes):
+**BaseState constructor**:
+
 ```lua
 local BaseState = require("src.state.BaseState")
 local PlayState = {}
@@ -175,174 +184,241 @@ PlayState.__index = PlayState
 setmetatable(PlayState, { __index = BaseState })
 
 function PlayState.new()
-    local self = BaseState.new(PlayState)
-    return self
+	local self = BaseState.new(PlayState)
+	return self
 end
 ```
 
-**Re-setmetatable** (deeper state inheritance, e.g. PlayerIdleState):
-```lua
-function PlayerIdleState.new(player)
-    local self = SoulIdleState.new(player)  -- create with parent metatable
-    setmetatable(self, PlayerIdleState)     -- then override to child metatable
-    return self
-end
-```
+### Import / Require Conventions
 
-### Import/Require Conventions
-
-1. All shared dependencies are loaded once in `src/deps.lua` and assigned to globals — no import needed in consuming files.
-2. Non-global, file-local dependencies are `require`d at the top of each file:
-   ```lua
-   local BaseState = require("src.state.BaseState")
-   local Soul = require("src.vessel.soul.Soul")
-   ```
-3. Always use **dot notation** (not slashes): `require("src.vessel.soul.Player")`
-4. `main.lua` only requires `src.deps` — everything else is accessed via globals.
+1. Shared systems are loaded in `src/deps.lua` and assigned to globals.
+2. File-local dependencies are still `require`d explicitly at the top of the file.
+3. Use dot notation for requires: `require("src.state.game.PlayState")`
+4. `main.lua` requires `src.deps`, then uses globals for the rest of boot.
+5. `src/deps.lua` load order matters in a few places:
+   `Debug` depends on `Herald` and `Events`, and `Transition` depends on `Flux` and `Util`.
 
 ### Type Annotations
 
-Use LuaLS (`---@`) annotations on all public APIs and definitions:
+Use LuaLS annotations (`---@`) on public modules, classes, methods, aliases, and important fields.
 
-**Classes** use `---@class` with field annotations:
+Common patterns in this repo:
+
 ```lua
----@class PlayerIdleState : BaseState
----@field soul Player
-local PlayerIdleState = {}
-PlayerIdleState.__index = PlayerIdleState
+---@class MenuState : BaseState
+---@field stateName string
+local MenuState = {}
 ```
 
-**Utility modules** use `---@class`:
 ```lua
----@class collision
-local collision = {}
-
----Create a rectangle collider.
----@param world love.World
----@param x number Center X position
----@param y number Center Y position
----@param w number Width in pixels
----@param h number Height in pixels
----@param bodyType? love.BodyType Body type (default "static")
----@return collider
-function collision.newRectangle(world, x, y, w, h, bodyType)
+---@alias StateInputAction
+---| "interact"
+---| "toggle_menu"
+---| "toggle_pause"
 ```
 
 ### Error Handling
 
-- Use `assert()` for invariants: `assert(self.states[state])`
-- Use `or` for defaults: `bodyType = bodyType or "static"`, `alpha = alpha or 1`
+- Use `assert()` for invariants and programmer errors
+- Use `or` defaults for optional fields where appropriate
 - Mark optional params with `?` in LuaLS annotations
-- No `pcall`/`xpcall` in game code — only in test infrastructure
+- Avoid `pcall`/`xpcall` in game runtime code
 
 ### Comments
 
-- `-- ` for inline and section comments
-- `---` for LuaLS documentation (directly above the item)
-- `-- TODO:` for todos (both forms appear in the codebase)
-- Explain non-obvious logic — especially Box2D quirks and LOVE rendering order
+- Use `-- ` for normal comments
+- Use `---` for LuaLS docs directly above the item
+- Use `-- TODO:` for follow-up work
+- Comment Box2D quirks, render ordering, or event/lifecycle subtleties when not obvious
 
 ### Table Formatting
 
 ```lua
--- Inline for simple tables
 local t = { x = 1, y = 2 }
 
--- Multi-line for constructor defs — trailing comma required
 self.player = Player.new({
-    x = 160,
-    y = 200,
-    width = 16,
-    height = 16,
-    speed = 0.8,
-    spriteSheet = GArt["sprite-player"],
-    physics = self.physics,
+	x = 152,
+	y = 136,
+	width = 16,
+	height = 17,
+	speed = 0.8,
+	scale = 1,
+	spriteSheet = GArt["sprite-player"],
+	physics = self.physics,
 })
 ```
 
+Prefer trailing commas in multi-line constructor/config tables.
+
 ## Key Architectural Patterns
 
-### Global State
+### Global State and Bootstrapping
 
-All major systems are globals defined in `src/deps.lua`. This is intentional — avoids passing references everywhere.
+`src/deps.lua` is intentionally the central bootstrap for globals. It loads third-party libs, engine modules, entities, states, assets, and the UI theme.
 
-- **Libraries**: `Anim8`, `Push`, `Tiled`, `Flux`
-- **Instances**: `GStateMachine`
-- **Assets**: `GFonts`, `GArt`
-- **Classes**: `Vessel`, `Soul`, `Player`, `Realm`, `SoulSpawner`, `WallSpawner`, `WarpSpawner`
-- **Utility modules**: `Collision`, `Lens`, `Physics`, `Input`, `Herald`, `Debug`, `Transition`
-- **State classes**: `StateMachine`, `BaseState`, `StartState`, `PlayState`, `SoulIdleState`, `SoulWalkState`, `PlayerIdleState`, `PlayerWalkState`
+Current important globals include:
 
-### State Machine Pattern
+- **Libraries**: `Anim8`, `Flux`, `Push`, `Tiled`
+- **Core systems**: `Collision`, `Events`, `Input`, `Lens`, `Physics`, `Herald`, `Debug`, `Transition`
+- **UI**: `NineSlice`, `GTheme`
+- **Classes**: `Vessel`, `Soul`, `Husk`, `Player`, `Realm`
+- **Spawners / data**: `MapTransitions`, `WallSpawner`, `WarpSpawner`, `SoulSpawner`, `HuskSpawner`
+- **States**: `StateStack`, `StateMachine`, `StartState`, `PlayState`, `MenuState`, and the vessel states
+- **Assets**: `GArt`, `GFonts`
+- **Runtime state**: `GStateStack`
 
-Two-tier state machine:
-1. **Top-level** `GStateMachine` — manages game screens (`"start"` / `"play"`)
-2. **Per-entity** `stateMachine` inside each `Soul` — manages entity states (`"idle"` / `"walk"`)
+### Game State Model
 
-`StateMachine` stores factory functions (not instances) and calls them fresh on each `changeState`. Lifecycle: `exitState()` → factory() → `enterState(opts)`. States inherit from `BaseState` and implement:
-- `enterState(opts)` — setup on entry
-- `exitState()` — teardown on exit
-- `update(dt)` — per-frame logic
-- `draw()` — per-frame rendering
-- Add an immediate `return` after writing a `changeState(...)` call so the current function cannot continue running old-state logic if more code is added later; skip that `return` only when it would change required follow-up behavior and introduce a regression
+Top-level game flow now uses `StateStack`, not a single `GStateMachine`.
+
+- `GStateStack:push(StartState.new())` boots the title screen
+- Only the top state updates
+- All stacked states draw from bottom to top
+- Overlay states like `MenuState` render on top of `PlayState` while gameplay update is paused implicitly because only the top state updates
+
+Use `StateMachine` for entity-local behavior and `StateStack` for game/screen layering.
+
+### State Lifecycle
+
+`BaseState` exposes these hooks:
+
+- `enterState(opts)`
+- `exitState()`
+- `update(dt)`
+- `postPhysicsUpdate(dt)`
+- `draw()`
+
+`StateMachine` stores factory functions, not instances. On transition it runs:
+
+`exitState() -> factory() -> enterState(opts)`
+
+For entity states, add an immediate `return` after a `changeState(...)` call unless follow-up behavior is explicitly required.
 
 ### Input Handling
 
-- `love.keyboard.wasPressed(key)` — single-frame press check (extension added in `main.lua`)
-- `love.keyboard.isDown(key)` — continuous hold check
-- `Input.getDirection()` — returns `dirX`, `dirY`, `isMoving` from directional key state
+Input is centralized in `src/engine/input.lua`.
+
+- `love.keypressed` forwards into `Input:keyPressed(key)`
+- Frame-local presses are stored in `Input.keysPressed`
+- `Input:wasPressed(key)` is the single-frame press query
+- `Input.getDirection()` returns `dirX`, `dirY`, `isMoving`
+- Input is routed to the top stacked state through event names built from `Events.STATE_INPUT_PREFIX .. topState.stateName`
+
+### Events and Pub/Sub
+
+Cross-system communication uses `Herald`.
+
+- `Herald.hearken(name, callback)` subscribes and returns an unsubscriber
+- `Herald.decree(name, ...)` dispatches synchronously
+- Returning `false` from a handler stops propagation
+- `Herald.muster()` groups subscriptions so a state/system can clean them up together with `unhearkenAll()`
+
+Current built-in events are defined in `src/engine/events.lua`:
 
 ### Physics and Collision
 
-- Box2D world with zero gravity: `love.physics.newWorld(0, 0)`
-- `Physics` is instantiated per-world: `Physics.new(world)` — the instance owns the Box2D world
-- Create colliders via `physics:collider(x, y, opts)` — single factory for all shapes (rectangle, octagon)
-- Colliders (`collider` class) wrap Box2D body/shape/fixture and support a tag system (`addTags`, `hasTag`)
-- `Collision.isColliding(c1, c2)` checks whether two colliders are touching
-- Player uses **physics velocity** (`collider:setLinearVelocity()`); NPCs use **direct position mutation**
-- Debug collision rendering: `Collision.drawAll(World, alpha)` — toggled with `KEY_DEBUG` (`.`)
-- `collider:setUserData()` stores metadata (e.g. warp destination) for collision callbacks
+- The world is created per `Realm` via `love.physics.newWorld(0, 0)`
+- `Physics.new(world)` wraps the Box2D world
+- `Vessel` owns the collider/body abstraction for moving/static world objects
+- Collider tagging is used heavily, including tags like `"soul"`, `"husk"`, and `"interactable"`
+- `Collision.isColliding(c1, c2)` is used for collider overlap checks
+- `Collision.queryCircleArea(...)` is used for front-of-player interaction queries
+- Player movement uses physics velocity
+- AI souls also set Box2D velocity, then validate motion in `postPhysicsUpdate`
+- Debug rendering uses `Debug.drawAll(world, alpha)`, which draws both colliders and query shapes
+
+### Realm / Map System
+
+`Realm` owns the current map, current world physics instance, map-scoped colliders/entities, and the persistent player.
+
+`Realm:loadMap(mapName, destX, destY)` does the following:
+
+- Destroys current walls, warps, souls, and husks
+- Loads the new STI map from `maps/<name>.lua`
+- Spawns objects from object layers if present
+- Teleports the player when destination coordinates are provided
+- Re-snaps the camera with `Lens.follow(...)`
+
+Warp destination lookup lives in `src/realm/mapTransitions.lua`.
+
+### Souls, AI, and Interaction
+
+`Soul` is the base moving entity.
+
+- Owns animations and an entity-local `StateMachine`
+- Supports AI config via `self.ai`
+- Tracks `previousX/previousY` for post-physics blocked-movement checks
+- Uses helper methods like `setAIMoveVector`, `chooseAIWanderDirection`, `setAIChaseTarget`, and `canDetectAIChaseTarget`
+
+`Player` extends `Soul` and overrides:
+
+- animation setup for 8 directions
+- state machine setup
+- directional animation syncing
+- `interact()` to query nearby interactables in front of the persisted facing direction
+
+### Husks and Interactables
+
+`Husk` is a lighter world-entity type for props or interactables.
+
+- Uses a `Vessel` with a static body
+- Can be animated or static depending on `animOpts`
+- Owns its own state machine
+- Supports an overridable `interact()` method
+
+Current concrete husk content is spawned in `HuskSpawner`.
 
 ### Rendering Pipeline
 
-```
+Current high-level draw order:
+
+```text
 love.draw()
   Push:start()
-  GStateMachine:draw()
+  GStateStack:draw()
+    StartState or PlayState
     PlayState:draw()
       Realm:draw()
-        Lens.attach()            -- clips to virtual 240x160
-          Map layer draws        -- "base", "ground", "building"
-          NPC entity:draw()
-          player:draw()
-          Collision.drawAll()    -- debug only
+        love.graphics.clear(bgColor)
+        Lens.attach(...)
+          map layers
+          souls
+          husks
+          player
+          Debug.drawAll(...)   -- when enabled
         Lens.detach()
-      Fade overlay rectangle     -- during map transitions
-      Pause text overlay
+      Transition.draw()        -- after realm so fade overlays whole screen
+      MenuState:draw()         -- if stacked on top
   Push:finish()
+  Debug.drawFPS()              -- outside Push when debug is enabled
 ```
+
+When temporarily changing graphics state, use `Util.safeDraw(function() ... end)` so fonts, colors, and transforms do not leak.
 
 ### Camera
 
-- `Lens` (`src/engine/lens.lua`) owns the HUMP camera instance — do not instantiate HUMP directly elsewhere
-- `Lens.follow(player, map)` must be called every frame including during fades; it is called inside `Realm:update(dt)` for normal frames and once in `Realm:loadMap()` to snap the camera before any fade begins — if only called in `Realm:update`, the camera will be off-map until the fade completes
-- `Lens.setZoom(n)` sets `cam.scale`; `Lens.follow` accounts for zoom in its map boundary clamping via `VIRTUAL_WIDTH / (2 * cam.scale)`
+- `Lens` owns the HUMP camera instance; do not create other camera instances ad hoc
+- `Lens.follow(player, map)` is called every `Realm:update(dt)` and once after map load to avoid transition-time camera mismatch
+- `Realm:draw()` wraps world drawing in `Lens.attach(...)` / `Lens.detach()`
 
-### Map / Warp System
+### UI Theme
 
-- Maps are Tiled `.lua` exports loaded by STI (`Tiled("maps/name.lua")`)
-- Object layers used: `"wall"`, `"warp"`, `"soul"` (spawning) + `"base"`, `"ground"`, `"building"` (rendering)
-- `WarpSpawner` holds a `MAP_TRANSITIONS` lookup table (warp name → destination map + spawn coords)
-- Warp collision checked each frame via `Collision.isColliding()`; triggers `Realm:loadMap()`
-- `Realm:loadMap()` destroys all existing colliders before loading the new map
+UI styling has a dedicated theme layer:
 
-## Third-Party Libraries (lib/)
+- `src/graphics/nineSlice.lua` provides resizable 9-slice panels
+- `src/graphics/theme.lua` builds `GTheme` from `GArt` and `GFonts`
+- `MenuState` uses `GTheme.panels`, `GTheme.fonts`, and `GTheme.colors`
+
+If you add more UI, prefer extending `GTheme` rather than hardcoding repeated panel/font/color choices in each state.
+
+## Third-Party Libraries
 
 | Library | Global | Purpose |
 |---------|--------|---------|
 | anim8 | `Anim8` | Sprite sheet animation |
 | push | `Push` | Virtual resolution scaling |
 | sti | `Tiled` | Tiled map loading |
-| flux | `Flux` | Tweens |
+| flux | `Flux` | Tweens and transitions |
+| hump camera | internal to `Lens` | Camera follow/clamping |
 
-**Do not modify files in `lib/`** — these are external dependencies.
+Do not modify files under `lib/` unless the user explicitly asks for dependency work.

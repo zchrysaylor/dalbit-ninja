@@ -1,53 +1,60 @@
 # lua-boy-advance
 
-A well-structured, thoroughly documented LÖVE (Love2d) project. This project contains many of the primitives needed to build up a GBA-style 2D game (Pokémon, Zelda, Mario & Luigi: Superstar Saga, etc).
+A well-structured, thoroughly documented LÖVE (Love2d) project. This project contains many of the primitives needed to build up a GBA-style top-down game with a GBA-inspired presentation layer.
 
 ## Project Structure
 
-The project uses two main important concepts: Vessels and StateMachines.
+The project uses two main important concepts: Vessels and state-driven runtime flow.
 
 ### Architecture Overview
 
 ```mermaid
 flowchart TD
-	A[main.lua] --> B[src/deps.lua<br/>loads libs, engine modules, assets]
-	A --> C[GStateMachine<br/>global game state machine]
+	A[main.lua] --> B[src/deps.lua<br/>loads libs, engine modules, states, assets, theme]
+	A --> C[GStateStack<br/>global game state stack]
 	C --> D[StartState]
 	C --> E[PlayState]
+	C --> F[MenuState<br/>overlay state]
 
-	E --> F[Realm]
-	E --> G[Transition + Herald Events]
+	G[Input + Herald Events<br/>state-scoped actions] --> C
+	G --> E
+	H[Transition + Debug + Lens] --> E
+	H --> I[Realm]
 
-	F --> H[Tiled Map]
-	F --> I[Physics World]
-	F --> J[Spawners<br/>Wall / Warp / Soul / Husk]
-	F --> K[Player]
-	J --> L[NPC Souls]
-	J --> M[Static Husks]
+	E --> I[Realm]
+	F -.draws over.-> E
 
-	K --> N[Vessel]
-	L --> N
-	M --> N
+	I --> J[Tiled Map]
+	I --> K[Physics World]
+	I --> L[Spawners<br/>Wall / Warp / Soul / Husk]
+	I --> M[Player]
+	L --> N[NPC Souls]
+	L --> O[Static / Interactable Husks]
 
-	K --> O[Entity StateMachine]
-	L --> O
-	M --> O
+	M --> P[Vessel]
+	N --> P
+	O --> P
 
-	P[Engine Modules<br/>Input / Lens / Collision / Debug] --> E
-	P --> F
+	M --> Q[Entity StateMachine]
+	N --> Q
+	O --> Q
+
+	R[GTheme + NineSlice UI] --> F
 ```
 
 ### Vessels
 
-Heavily inspired by the great Challacade (see References), all things that exist in the world (i.e. love.physics bodies) are considered "Vessels". A Vessel can belong of two types: "Soul", an entity which moves dynamically (i.e. the player or npcs), and "Husk", an object with physics properties that does not move dynamically (i.e. breakable boxes, trees, etc). Souls and Husks do not inherit from Vessel, rather they *possess* a vessel. A soul or husk's vessel should essentially encapsulate all of the physics/collision-related data and mechanics.
+Heavily inspired by the great Challacade (see References), all things that exist in the world as Box2D-backed objects are considered "Vessels". A Vessel is the shared physics/collision composition layer used by two higher-level world object types: "Soul", a moving entity such as the player or an NPC, and "Husk", a static or lightly animated world prop such as a chest or other interactable.
 
-One should prefer to instantiate a new Soul or Husk through composition, not inheritence. Meaning, it's better to define the Soul or Husk where it is needed, rather than creating many subclasses for every new type of npc or object. 
+Souls and Husks do not inherit from `Vessel`; they *possess* one via `self.vessel` and expose `self.collider` as a convenience reference. The Vessel should encapsulate the physics and collision details so the owning entity can focus on gameplay behavior.
 
-### State Machine
+One should prefer to instantiate a new Soul or Husk through composition, not inheritance. In practice, it is usually better to define a new Soul or Husk where it is needed, rather than creating many subclasses for every new NPC or prop type.
 
-Heavily inspired by GD50 (see References), most of the game logic is controlled via a state machine, or more precisely, a state stack. The game has a global state stack defined in `main.lua` which controls the overall state of gameplay (i.e. start state, play state, menu state, etc), whereas Souls and Husks can have their own state machine for controlling the various states they might be in irrespective of the global state (i.e. walk state, idle state, attack state, etc).
+### State Stack & State Machine
 
-The benefit of using a state stack is that new states can be pushed on top of the stack while the previous state continues to render without updating (i.e. is "paused"). This allows for things like a Menu State, which when pushed to the stack pauses the play state but continues to render it underneath the menu (in the case of a floating UI) and preserves the data of the play state, such that when the menu is closed (Menu State is popped off the stack) the gameplay resumed exactly where left off (as opposed to creating a new, fresh play state).
+Heavily inspired by GD50 (see References), most of the game logic is controlled via state objects. At the top level, the game uses a global `StateStack` defined in `main.lua` to control screen-level flow such as the start screen, play state, and menu overlay. Separately, Souls and Husks each use their own `StateMachine` instances for local behavior such as idle, walk, wander, chase, or return-home transitions.
+
+The benefit of using a state stack is that a new state can be pushed on top while lower states continue to render without updating. This is what allows `MenuState` to pause gameplay while still drawing `PlayState` underneath the menu panel. When the menu is popped, the underlying play state resumes exactly where it left off.
 
 ### Conventions
 
@@ -57,7 +64,7 @@ Always use LuaLS [annotations](https://github.com/LuaLS/lua-language-server/wiki
 
 Try to re-use the same description for the same fields (i.e. every `update(dt)` function should re-use the exact same description for the `dt` field docstring) for cleanliness.
 
-#### OOP-style inheritence
+#### OOP-style inheritance
 
 When making classes that should inherit from another class, follow this structure:
 
@@ -87,7 +94,7 @@ setmetatable(ChildClass, { __index = ParentClass })
 
 -- The rest of the functions go here...
 
-function ChildClass.new(def) -- of course, subclass should also be added if needed
+function ChildClass.new(def) -- add subclass too if needed
 	local self = ParentClass.new(def, ChildClass)
 	self.exampleChildProperty = def.exampleChildProperty
 	return self
@@ -96,7 +103,7 @@ end
 return ChildClass
 ```
 
-Aim to use inheritence sparingly; it is only warranted when the child class truly adds or encapsulates a lot of unique logic. You should not, for example, create a new subclass for every single type of entity or object in the game when they could have been instantiated by passing their properties to the parent class.
+Aim to use inheritance sparingly; it is only warranted when the child class truly adds or encapsulates a lot of unique logic. You should not, for example, create a new subclass for every single type of entity or object in the game when it could be instantiated by passing properties and behavior into the parent type.
 
 #### Class function ordering
 
@@ -109,23 +116,25 @@ In general, I prefer to order class functions like so for consistency:
 
 #### Events
 
-Events are handled by the `Herald` module. Herald has three main functions: `hearken` (e.g. subscribe to an event), `decree` (e.g. emit an event), and `muster` (e.g. define a group of subscriptions to avoid boilerplate and be able to unsubscribe all of them at once).
+Events are handled by the `Herald` module. Herald has three main functions: `hearken` to subscribe, `decree` to emit, and `muster` to define a group of subscriptions that can later be cleaned up together.
 
 In general, events should not be used to orchestrate game logic, rather they should pass data between components to trigger actions or provide information.
 
-Use a `muster` if a single file needs to define three or more events.
+Use a `muster` when a single file owns several related subscriptions or needs deterministic cleanup during `exitState()`.
 
 Event names, centrally registered in `events.lua`, should adhere to the following pattern: `<scope>:<action>`.
 
-If you `hearken`/subscribe to an event within a State, make sure you also `unhearken` when the state exits, otherwise many subscriptions will build up every time you enter the state and won't be cleaned up.
+If you subscribe within a State, make sure you unsubscribe when the state exits. Otherwise subscriptions will accumulate every time the state is re-entered.
 
 #### Input
 
-All keyboard input is handle via `input.lua`. In most cases, a keypress triggers a `Herald.decree` event emission, so that several subscribers can listen to this event and decide what to do. Be mindful of how you broadcast the events; if, for example, you globally emit a decree for the player interaction event, then the associated keypress will fire regardless of the game state. Meaning, if standing within range of an interactable item and pressing the interact key, the interaction would happen even if the game was paused or the menu was open, which is not expected behavior. Avoid these scenarios by emitting global events only for actions that should truly happen at any point in time/state (e.g. toggle debug HUD), and for non-global events (like triggering player<>object interaction) rather pass the data that "this event is requested" to the responsible class to determine if the action should be executed or not.
+All keyboard input is handled via `input.lua`. In the current runtime model, `love.keypressed` forwards into `Input:keyPressed(key)`, which records single-frame presses and then routes most gameplay actions through a state-scoped `Herald.decree` using the current top state on `GStateStack`.
+
+This routing is important. It prevents actions like interaction, menu toggling, or pause toggling from firing in the wrong state. For example, player interaction should only be requested when `PlayState` is the active top state, not while a menu overlay is active. Reserve truly global behavior for truly global input, such as the debug toggle. Note that `escape` currently exits the game globally.
 
 #### Drawing
 
-Any time you wish to draw something and you need to change the color (e.g. for drawing colored text or shapes/outlines), wrap the draw logic in the `safeDraw` utility, which takes care of resetting the global color state, since `love.graphics.setColor()` affects the global state.
+Any time you wish to draw something and you need to change the graphics state, wrap the draw logic in the `safeDraw` utility. This protects global state like color, font, blend mode, and transforms from leaking into the rest of the draw pipeline.
 
 ```lua
 Util.safeDraw(function()
