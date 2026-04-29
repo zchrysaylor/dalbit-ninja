@@ -22,7 +22,7 @@ No tests exist yet. Do not write tests unless asked.
 ## Project Structure
 
 ```
-lua-boy-advance/
+dalbit-ninja/
 ├── main.lua
 ├── conf.lua
 ├── src/

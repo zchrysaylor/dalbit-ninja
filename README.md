@@ -1,10 +1,12 @@
-# lua-boy-advance
+# Dalbit Ninja
+
+*달빛 닌자*
+
+> 달빛  /dal.bit/  n.  moonlight
 
 A well-structured, thoroughly documented LÖVE (Love2d) project. This project contains many of the primitives needed to build up a GBA-style top-down game with a GBA-inspired presentation layer.
 
 ## Project Structure
-
-The project uses two main important concepts: Vessels and state-driven runtime flow.
 
 ### Architecture Overview
 
@@ -41,6 +43,8 @@ flowchart TD
 
 	R[GTheme + NineSlice UI] --> F
 ```
+
+The project uses two main important concepts: Vessels and state-driven runtime flow.
 
 ### Vessels
 

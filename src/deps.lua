@@ -80,6 +80,7 @@ GFonts = {
 	-- TODO: add dedicated pixel font for in-game menu
 	["antiquity"] = love.graphics.newFont("fonts/antiquity-print.ttf", 12),
 	["debug"] = love.graphics.newFont("fonts/sproutlands.ttf", 24),
+	["ninjaLarge"] = love.graphics.newFont("fonts/ninja-font.ttf", 36),
 	["ninjaMedium"] = love.graphics.newFont("fonts/ninja-font.ttf", 16),
 	["ninjaSmall"] = love.graphics.newFont("fonts/ninja-font.ttf", 8),
 	["sproutlandsLarge"] = love.graphics.newFont("fonts/sproutlands.ttf", 36),

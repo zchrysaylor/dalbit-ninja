@@ -4,7 +4,7 @@ require("src.deps")
 
 ---@return nil
 function love.load()
-	love.window.setTitle("LBA: Lua Boy Advance")
+	love.window.setTitle("Dalbit Ninja")
 
 	Push:setupScreen(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT, {
 		vsync = true,
