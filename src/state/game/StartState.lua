@@ -28,26 +28,28 @@ function StartState:draw()
 	-- since we are using Push, we need to manually clear the canvas for the background color to take effect
 	love.graphics.clear(love.math.colorFromBytes(42, 42, 46))
 
-	local font = GFonts["ninjaLarge"]
-	love.graphics.setFont(font)
-	font:setLineHeight(0.7)
-	local y = VIRTUAL_HEIGHT / 2 - 56
+	Util.safeDraw(function()
+		local font = GFonts["ninjaLarge"]
+		love.graphics.setFont(font)
+		font:setLineHeight(0.7)
+		local y = VIRTUAL_HEIGHT / 2 - 56
 
-	-- farthest layer
-	love.graphics.setColor(love.math.colorFromBytes(162, 135, 138))
-	love.graphics.printf("Dalbit\nNinja", 2, y + 4, VIRTUAL_WIDTH, "center")
+		-- farthest layer
+		love.graphics.setColor(love.math.colorFromBytes(162, 135, 138))
+		love.graphics.printf("Dalbit\nNinja", 2, y + 4, VIRTUAL_WIDTH, "center")
 
-	-- middle layer
-	love.graphics.setColor(love.math.colorFromBytes(176, 158, 160))
-	love.graphics.printf("Dalbit\nNinja", 1, y + 2, VIRTUAL_WIDTH, "center")
+		-- middle layer
+		love.graphics.setColor(love.math.colorFromBytes(176, 158, 160))
+		love.graphics.printf("Dalbit\nNinja", 1, y + 2, VIRTUAL_WIDTH, "center")
 
-	-- closest layer
-	love.graphics.setColor(love.math.colorFromBytes(218, 206, 211))
-	love.graphics.printf("Dalbit\nNinja", 0, y, VIRTUAL_WIDTH, "center")
+		-- closest layer
+		love.graphics.setColor(love.math.colorFromBytes(218, 206, 211))
+		love.graphics.printf("Dalbit\nNinja", 0, y, VIRTUAL_WIDTH, "center")
 
-	love.graphics.setColor(love.math.colorFromBytes(218, 206, 211))
-	love.graphics.setFont(GFonts["ninjaSmall"])
-	love.graphics.printf("Press Enter", -2, VIRTUAL_HEIGHT / 2 + 32, VIRTUAL_WIDTH, "center")
+		love.graphics.setColor(love.math.colorFromBytes(218, 206, 211))
+		love.graphics.setFont(GFonts["ninjaSmall"])
+		love.graphics.printf("Press Enter", -2, VIRTUAL_HEIGHT / 2 + 32, VIRTUAL_WIDTH, "center")
+	end)
 
 	Transition.draw()
 end
