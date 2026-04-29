@@ -43,6 +43,7 @@ function SoulIdleState:update(dt)
 		self.idleTimer = self.idleTimer - dt
 	else
 		self.soul:changeState("wander")
+		return
 	end
 end
 

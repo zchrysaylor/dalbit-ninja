@@ -284,6 +284,7 @@ Two-tier state machine:
 - `exitState()` — teardown on exit
 - `update(dt)` — per-frame logic
 - `draw()` — per-frame rendering
+- Add an immediate `return` after writing a `changeState(...)` call so the current function cannot continue running old-state logic if more code is added later; skip that `return` only when it would change required follow-up behavior and introduce a regression
 
 ### Input Handling
 

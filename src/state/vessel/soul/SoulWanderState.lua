@@ -67,6 +67,7 @@ function SoulWanderState:postPhysicsUpdate(dt)
 
 	if self.blockedFrames >= 3 then
 		self.soul:changeState("idle")
+		return
 	end
 end
 
