@@ -4,7 +4,7 @@
 
 -- animation library
 -- https://github.com/kikito/anim8
-Anim8 = require("lib.anim8")
+Anim8 = require("lib.anim8.anim8")
 
 -- camera library
 -- https://github.com/vrld/hump
@@ -16,11 +16,11 @@ Flux = require("lib.flux.flux")
 
 -- resolution handling library
 -- https://github.com/Ulydev/push
-Push = require("lib.push")
+Push = require("lib.push.push")
 
 -- Simple Tiled Implementation map library
 -- https://github.com/karai17/Simple-Tiled-Implementation
-Tiled = require("lib.sti")
+Tiled = require("lib.sti.init")
 
 require("src.constants")
 Util = require("src.util")

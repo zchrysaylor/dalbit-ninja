@@ -5,7 +5,7 @@ local lens = {}
 
 -- camera library
 -- https://github.com/vrld/hump
-local HumpCamera = require("lib.camera")
+local HumpCamera = require("lib.hump.camera")
 local cam = HumpCamera()
 
 ---Begin rendering through the camera viewport. All draw calls made between
