@@ -13,9 +13,7 @@ collision.queryDebugFrames = 10 -- how many frames each shape persists
 ---@param radius number
 ---@return boolean
 local function pointInCircle(px, py, cx, cy, radius)
-	local dx = px - cx
-	local dy = py - cy
-	return dx * dx + dy * dy <= radius * radius
+	return Util.distanceSquared(px, py, cx, cy) <= radius * radius
 end
 
 ---Return the squared distance from a point to a line segment.
@@ -32,19 +30,15 @@ local function distanceSquaredToSegment(px, py, ax, ay, bx, by)
 	local aby = by - ay
 	local apx = px - ax
 	local apy = py - ay
-	local abLenSq = abx * abx + aby * aby
+	local abLenSq = Util.distanceSquared(ax, ay, bx, by)
 	if abLenSq == 0 then
-		local dx = px - ax
-		local dy = py - ay
-		return dx * dx + dy * dy
+		return Util.distanceSquared(px, py, ax, ay)
 	end
 	local t = (apx * abx + apy * aby) / abLenSq
 	t = math.max(0, math.min(1, t))
 	local closestX = ax + abx * t
 	local closestY = ay + aby * t
-	local dx = px - closestX
-	local dy = py - closestY
-	return dx * dx + dy * dy
+	return Util.distanceSquared(px, py, closestX, closestY)
 end
 
 ---Return true when a point lies inside a polygon using ray casting.
@@ -129,9 +123,7 @@ local function fixtureIntersectsCircle(fixture, cx, cy, radius)
 		local fx = bodyX + offsetX
 		local fy = bodyY + offsetY
 		local totalRadius = radius + shape:getRadius()
-		local dx = cx - fx
-		local dy = cy - fy
-		return dx * dx + dy * dy <= totalRadius * totalRadius
+		return Util.distanceSquared(cx, cy, fx, fy) <= totalRadius * totalRadius
 	end
 	return false
 end

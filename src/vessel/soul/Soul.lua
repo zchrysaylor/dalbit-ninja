@@ -90,9 +90,8 @@ end
 function Soul:isOutsideAIWanderRadius(x, y)
 	assert(self:isAI(), "isOutsideAIWanderRadius called for non-AI soul")
 
-	local dx = x - self.ai.homeX
-	local dy = y - self.ai.homeY
-	return dx * dx + dy * dy > self.ai.wanderRadius * self.ai.wanderRadius
+	return Util.distanceSquared(x, y, self.ai.homeX, self.ai.homeY)
+		> self.ai.wanderRadius * self.ai.wanderRadius
 end
 
 ---Pick a random idle duration from AI config bounds.
@@ -206,11 +205,10 @@ function Soul:canDetectAIChaseTarget()
 
 	local soulX, soulY = self:getPosition()
 	local targetX, targetY = target:getPosition()
-	local dx = targetX - soulX
-	local dy = targetY - soulY
 	local detectionRadius = self.ai.detectionRadius or self.ai.wanderRadius
 
-	return dx * dx + dy * dy <= detectionRadius * detectionRadius
+	return Util.distanceSquared(targetX, targetY, soulX, soulY)
+		<= detectionRadius * detectionRadius
 end
 
 ---Point this Soul toward its chase target and refresh its move vector.

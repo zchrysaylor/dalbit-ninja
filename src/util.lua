@@ -15,4 +15,17 @@ function util.safeDraw(fn)
 	love.graphics.pop()
 end
 
+---Return the squared distance between two points.
+---Useful for range checks that intentionally avoid taking a square root.
+---@param x1 number
+---@param y1 number
+---@param x2 number
+---@param y2 number
+---@return number
+function util.distanceSquared(x1, y1, x2, y2)
+	local dx = x1 - x2
+	local dy = y1 - y2
+	return dx * dx + dy * dy
+end
+
 return util
