@@ -58,6 +58,9 @@ function Soul:createStateMachine()
 		["chase"] = function()
 			return SoulChaseState.new(self)
 		end,
+		["returnHome"] = function()
+			return SoulReturnState.new(self)
+		end,
 	})
 end
 

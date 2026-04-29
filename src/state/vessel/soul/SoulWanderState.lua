@@ -16,6 +16,7 @@ SoulWanderState.STATE_NAME = "wander"
 ---@param opts? table Optional options
 ---@return nil
 function SoulWanderState:enterState(opts)
+	self.soul:chooseAIWanderDirection()
 	self.soul:setIsAnimating(true)
 	self.soul:refreshAnimation()
 	self.wanderBufferTimer = self.soul.ai.wanderBufferDuration
@@ -41,7 +42,6 @@ function SoulWanderState:update(dt)
 	if self.wanderBufferTimer > 0 then
 		self.wanderBufferTimer = self.wanderBufferTimer - dt
 	elseif self.soul:isOutsideAIWanderRadius(nextX, nextY) then
-		-- TODO: refactor to a "return home" state instead of idling
 		self.soul:changeState("idle")
 		return
 	end

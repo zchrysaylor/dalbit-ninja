@@ -42,8 +42,7 @@ function SoulIdleState:update(dt)
 	if self.idleTimer > 0 then
 		self.idleTimer = self.idleTimer - dt
 	else
-		self.soul:chooseAIWanderDirection()
-		self.soul.stateMachine:changeState("wander")
+		self.soul:changeState("wander")
 	end
 end
 
