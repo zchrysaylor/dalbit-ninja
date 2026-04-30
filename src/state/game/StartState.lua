@@ -25,6 +25,7 @@ end
 ---Render the title screen.
 ---@return nil
 function StartState:draw()
+	-- TODO: draw dark moon texture as background
 	-- since we are using Push, we need to manually clear the canvas for the background color to take effect
 	love.graphics.clear(love.math.colorFromBytes(42, 42, 46))
 
