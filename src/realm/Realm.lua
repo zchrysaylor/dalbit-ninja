@@ -125,7 +125,7 @@ function Realm:draw()
 	self.player:draw()
 
 	-- draw collision borders for debugging
-	if Debug.isActive then
+	if Debug.showColliders then
 		Debug.drawAll(self.world, 0.7)
 	end
 

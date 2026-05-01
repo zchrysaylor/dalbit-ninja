@@ -142,7 +142,7 @@ function collision.queryCircleArea(world, x, y, radius, filter)
 	local results = {}
 	local seen = {}
 
-	if Debug.isActive then
+	if Debug.showColliders then
 		-- Keep debug query lifetimes bounded even when queries are called repeatedly.
 		table.insert(collision.queryDebugDraw, {
 			type = "circle",

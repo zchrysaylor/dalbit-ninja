@@ -16,7 +16,12 @@ function input:keyPressed(key)
 		love.event.quit()
 	end
 
-	if key == KEY_DEBUG then
+	if key == KEY_DEBUG_COLLIDERS then
+		Herald.decree(Events.GAME_DEBUG_COLLIDERS)
+		return
+	end
+
+	if key == KEY_DEBUG_MENU then
 		Herald.decree(Events.GAME_DEBUG_TOGGLED)
 		return
 	end

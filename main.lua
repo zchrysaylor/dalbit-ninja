@@ -43,7 +43,11 @@ function love.draw()
 	GStateStack:draw()
 	Push:finish()
 
-	if Debug.isActive then
+	if Debug.showColliders then
 		Debug.drawFPS()
+	end
+
+	if Debug.showDebugMenu then
+		Debug.drawMenu()
 	end
 end
