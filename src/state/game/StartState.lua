@@ -37,11 +37,11 @@ function StartState:draw()
 
 		-- farthest layer
 		love.graphics.setColor(love.math.colorFromBytes(162, 135, 138))
-		love.graphics.printf("Dalbit\nNinja", 2, y + 4, VIRTUAL_WIDTH, "center")
+		love.graphics.printf("Dalbit\nNinja", 2, y + 2, VIRTUAL_WIDTH, "center")
 
 		-- middle layer
 		love.graphics.setColor(love.math.colorFromBytes(176, 158, 160))
-		love.graphics.printf("Dalbit\nNinja", 1, y + 2, VIRTUAL_WIDTH, "center")
+		love.graphics.printf("Dalbit\nNinja", 1, y + 1, VIRTUAL_WIDTH, "center")
 
 		-- closest layer
 		love.graphics.setColor(love.math.colorFromBytes(218, 206, 211))
