@@ -64,8 +64,8 @@ function PlayState:draw()
 
 	if self.isPaused then
 		Util.safeDraw(function()
-			love.graphics.setColor(love.math.colorFromBytes(64, 39, 81))
-			love.graphics.setFont(GFonts["antiquity"])
+			love.graphics.setColor(love.math.colorFromBytes(218, 206, 211))
+			love.graphics.setFont(GFonts["ninjaSmall"])
 			love.graphics.printf(
 				"Game Paused. Press 'p' to resume.",
 				0,
