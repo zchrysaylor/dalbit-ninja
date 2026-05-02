@@ -35,6 +35,10 @@
 local Soul = {}
 Soul.__index = Soul
 
+local AI_BLOCKED_MOVEMENT_FACTOR = 0.2
+local AI_BLOCKED_MIN_EXPECTED_DISTANCE = 0.01
+local AI_BLOCKED_FRAME_THRESHOLD = 3
+
 ---Build animation grid and directional animations from the sprite sheet.
 ---@return nil
 function Soul:createAnimations()
@@ -234,6 +238,39 @@ function Soul:updateAIChaseVector()
 
 	self:setAIMoveVector(dirX, dirY)
 	return true
+end
+
+---Enter chase state if this AI soul is a chase type and can detect its target.
+---@return boolean True when the state changed.
+function Soul:tryChangeToAIChaseState()
+	if self:isAIType("chase") and self:canDetectAIChaseTarget() then
+		self:changeState(SoulChaseState.STATE_NAME)
+		return true
+	end
+
+	return false
+end
+
+---Update blocked-frame count from post-physics movement and report when blocked.
+---@param dt number Delta time in seconds
+---@param blockedFrames number Current consecutive blocked-frame count
+---@return number blockedFrames Updated consecutive blocked-frame count
+---@return boolean isBlocked True when blocked long enough to trigger recovery behavior
+function Soul:updateAIBlockedFrames(dt, blockedFrames)
+	local movedX = self.x - self.previousX
+	local movedY = self.y - self.previousY
+	local movedDistanceSq = movedX * movedX + movedY * movedY
+	local expectedDistance =
+		math.max(self.speed * 100 * dt * AI_BLOCKED_MOVEMENT_FACTOR, AI_BLOCKED_MIN_EXPECTED_DISTANCE)
+	local expectedDistanceSq = expectedDistance * expectedDistance
+
+	if movedDistanceSq < expectedDistanceSq then
+		blockedFrames = blockedFrames + 1
+	else
+		blockedFrames = 0
+	end
+
+	return blockedFrames, blockedFrames >= AI_BLOCKED_FRAME_THRESHOLD
 end
 
 ---Validate AI walking after physics has stepped and positions are synced.

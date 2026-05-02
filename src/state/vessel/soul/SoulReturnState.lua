@@ -51,8 +51,7 @@ end
 ---@param dt number Delta time in seconds
 ---@return nil
 function SoulReturnState:update(dt)
-	if self.soul:isAIType("chase") and self.soul:canDetectAIChaseTarget() then
-		self.soul:changeState(SoulChaseState.STATE_NAME)
+	if self.soul:tryChangeToAIChaseState() then
 		return
 	end
 
@@ -90,19 +89,9 @@ function SoulReturnState:postPhysicsUpdate(dt)
 		return
 	end
 
-	local movedX = self.soul.x - self.soul.previousX
-	local movedY = self.soul.y - self.soul.previousY
-	local movedDistanceSq = movedX * movedX + movedY * movedY
-	local expectedDistance = math.max(self.soul.speed * 100 * dt * 0.2, 0.01)
-	local expectedDistanceSq = expectedDistance * expectedDistance
-
-	if movedDistanceSq < expectedDistanceSq then
-		self.blockedFrames = self.blockedFrames + 1
-	else
-		self.blockedFrames = 0
-	end
-
-	if self.blockedFrames >= 3 then
+	local isBlocked
+	self.blockedFrames, isBlocked = self.soul:updateAIBlockedFrames(dt, self.blockedFrames)
+	if isBlocked then
 		self:startRecovery()
 		return
 	end

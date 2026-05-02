@@ -107,6 +107,20 @@ function Player:syncDirectionalAnimation()
 	Soul.syncDirectionalAnimation(self)
 end
 
+---Apply current directional input to movement fields and persisted facing.
+---@return boolean True when directional input is active.
+function Player:applyInputDirection()
+	local dirX, dirY, isMoving = Input.getDirection()
+	if not isMoving then
+		return false
+	end
+
+	self.dirX = dirX
+	self.dirY = dirY
+	self:setFacingFromVector(dirX, dirY)
+	return true
+end
+
 ---Query nearby interactables in front of the player's persisted facing direction.
 ---@return nil
 function Player:interact()

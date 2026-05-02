@@ -14,11 +14,7 @@ PlayerHurtState.STATE_NAME = "hurt"
 ---@return nil
 function PlayerHurtState:update(dt)
 	if self.player.stunTimer <= 0 then
-		local dirX, dirY, isMoving = Input.getDirection()
-		if isMoving then
-			self.player.dirX = dirX
-			self.player.dirY = dirY
-			self.player:setFacingFromVector(dirX, dirY)
+		if self.player:applyInputDirection() then
 			self.player:changeState(PlayerWalkState.STATE_NAME)
 			return
 		end

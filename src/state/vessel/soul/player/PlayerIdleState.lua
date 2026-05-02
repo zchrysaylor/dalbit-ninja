@@ -3,7 +3,7 @@ local BaseState = require("src.state.BaseState")
 ---Idle state for the player character.
 ---@class PlayerIdleState : BaseState
 ---@field stateName string
----@field soul Player
+---@field player Player
 local PlayerIdleState = {}
 PlayerIdleState.__index = PlayerIdleState
 setmetatable(PlayerIdleState, { __index = BaseState })
@@ -15,23 +15,18 @@ PlayerIdleState.STATE_NAME = "idle"
 ---@param opts? table Optional options
 ---@return nil
 function PlayerIdleState:enterState(opts)
-	self.soul.dirX = 0
-	self.soul.dirY = 0
-	self.soul:setIsAnimating(false)
-	self.soul:refreshAnimation()
+	self.player.dirX = 0
+	self.player.dirY = 0
+	self.player:setIsAnimating(false)
+	self.player:refreshAnimation()
 end
 
 ---Transition the player to walking when directional input is pressed.
 ---@param dt number Delta time in seconds
 ---@return nil
 function PlayerIdleState:update(dt)
-	local dirX, dirY, isMoving = Input.getDirection()
-	if isMoving then
-		-- Set direction before transitioning
-		self.soul.dirX = dirX
-		self.soul.dirY = dirY
-		self.soul:setFacingFromVector(dirX, dirY)
-		self.soul:changeState(PlayerWalkState.STATE_NAME)
+	if self.player:applyInputDirection() then
+		self.player:changeState(PlayerWalkState.STATE_NAME)
 		return
 	end
 end
@@ -42,7 +37,7 @@ end
 function PlayerIdleState.new(player)
 	local self = BaseState.new(PlayerIdleState)
 	self.stateName = PlayerIdleState.STATE_NAME
-	self.soul = player
+	self.player = player
 	return self
 end
 

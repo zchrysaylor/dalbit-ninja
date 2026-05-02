@@ -34,8 +34,7 @@ function SoulIdleState:update(dt)
 		return
 	end
 
-	if self.soul:isAIType("chase") and self.soul:canDetectAIChaseTarget() then
-		self.soul:changeState(SoulChaseState.STATE_NAME)
+	if self.soul:tryChangeToAIChaseState() then
 		return
 	end
 
