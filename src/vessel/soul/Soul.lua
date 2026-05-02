@@ -10,6 +10,8 @@
 ---@field moveDirY? number
 ---@field detectionRadius? number
 ---@field chaseTarget? Soul
+---@field chaseForce? number
+---@field linearDamping? number  -- TODO: now that both player and soul use, combine?
 
 ---@class Soul
 ---@field vessel Vessel
@@ -90,8 +92,7 @@ end
 function Soul:isOutsideAIWanderRadius(x, y)
 	assert(self:isAI(), "isOutsideAIWanderRadius called for non-AI soul")
 
-	return Util.distanceSquared(x, y, self.ai.homeX, self.ai.homeY)
-		> self.ai.wanderRadius * self.ai.wanderRadius
+	return Util.distanceSquared(x, y, self.ai.homeX, self.ai.homeY) > self.ai.wanderRadius * self.ai.wanderRadius
 end
 
 ---Pick a random idle duration from AI config bounds.
@@ -207,8 +208,7 @@ function Soul:canDetectAIChaseTarget()
 	local targetX, targetY = target:getPosition()
 	local detectionRadius = self.ai.detectionRadius or self.ai.wanderRadius
 
-	return Util.distanceSquared(targetX, targetY, soulX, soulY)
-		<= detectionRadius * detectionRadius
+	return Util.distanceSquared(targetX, targetY, soulX, soulY) <= detectionRadius * detectionRadius
 end
 
 ---Point this Soul toward its chase target and refresh its move vector.
@@ -322,7 +322,7 @@ end
 
 ---Create a new Soul.
 ---@generic T : Soul
----@param def {x: number, y: number, width: number, height: number, scale: number, speed: number, spriteSheet: love.Image, physics: physics, direction?: string, ai?: SoulAIConfig, tags?: string[]}
+---@param def {x: number, y: number, width: number, height: number, scale: number, speed: number, spriteSheet: love.Image, physics: physics, direction?: string, group?: number, ai?: SoulAIConfig, tags?: string[]}
 ---@param subclass? T Metatable for subclass (defaults to Soul)
 ---@return T
 function Soul.new(def, subclass)
@@ -356,11 +356,15 @@ function Soul.new(def, subclass)
 		scale = def.scale,
 		speed = def.speed,
 		physics = def.physics,
+		group = def.group,
 		tags = def.tags or { "soul" },
 	}
 	self.vessel = Vessel.new(vesselOpts)
 	self.collider = self.vessel.collider
 	self.collider.owner = self
+	if self.ai and self.ai.linearDamping then
+		self.collider:setLinearDamping(self.ai.linearDamping)
+	end
 
 	self.animations = {}
 	self.isAnimating = false

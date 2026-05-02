@@ -62,9 +62,10 @@ SoulIdleState = require("src.state.vessel.soul.SoulIdleState")
 SoulWanderState = require("src.state.vessel.soul.SoulWanderState")
 SoulChaseState = require("src.state.vessel.soul.SoulChaseState")
 SoulReturnState = require("src.state.vessel.soul.SoulReturnState")
-HuskIdleState = require("src.state.vessel.husk.HuskIdleState")
 PlayerIdleState = require("src.state.vessel.soul.player.PlayerIdleState")
 PlayerWalkState = require("src.state.vessel.soul.player.PlayerWalkState")
+PlayerHurtState = require("src.state.vessel.soul.player.PlayerHurtState")
+HuskIdleState = require("src.state.vessel.husk.HuskIdleState")
 
 ---@type table<string, love.Image> Global image table.
 GArt = {

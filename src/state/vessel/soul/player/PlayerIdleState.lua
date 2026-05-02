@@ -1,12 +1,12 @@
-local SoulIdleState = require("src.state.vessel.soul.SoulIdleState")
+local BaseState = require("src.state.BaseState")
 
 ---Idle state for the player character.
----@class PlayerIdleState : SoulIdleState
+---@class PlayerIdleState : BaseState
 ---@field stateName string
 ---@field soul Player
 local PlayerIdleState = {}
 PlayerIdleState.__index = PlayerIdleState
-setmetatable(PlayerIdleState, { __index = SoulIdleState })
+setmetatable(PlayerIdleState, { __index = BaseState })
 
 PlayerIdleState.STATE_NAME = "idle"
 
@@ -17,7 +17,8 @@ PlayerIdleState.STATE_NAME = "idle"
 function PlayerIdleState:enterState(opts)
 	self.soul.dirX = 0
 	self.soul.dirY = 0
-	SoulIdleState.enterState(self, opts)
+	self.soul:setIsAnimating(false)
+	self.soul:refreshAnimation()
 end
 
 ---Transition the player to walking when directional input is pressed.
@@ -39,7 +40,10 @@ end
 ---@param player Player
 ---@return PlayerIdleState
 function PlayerIdleState.new(player)
-	return SoulIdleState.new(player, PlayerIdleState)
+	local self = BaseState.new(PlayerIdleState)
+	self.stateName = PlayerIdleState.STATE_NAME
+	self.soul = player
+	return self
 end
 
 return PlayerIdleState

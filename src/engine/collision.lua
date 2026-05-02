@@ -135,10 +135,10 @@ end
 ---@param x number Circle center X in pixels
 ---@param y number Circle center Y in pixels
 ---@param radius number Circle radius in pixels
----@param filter? fun(collider: collider, fixture: love.Fixture): boolean
----Optional predicate to reject colliders before the narrow-phase test.
+---@param filter? fun(collider: collider, fixture: love.Fixture): boolean Optional predicate to reject colliders before the narrow-phase test.
+---@param debugFrames? number The number of debug frames to print in debug mode
 ---@return collider[]
-function collision.queryCircleArea(world, x, y, radius, filter)
+function collision.queryCircleArea(world, x, y, radius, filter, debugFrames)
 	local results = {}
 	local seen = {}
 
@@ -149,7 +149,7 @@ function collision.queryCircleArea(world, x, y, radius, filter)
 			x = x,
 			y = y,
 			r = radius,
-			frames = collision.queryDebugFrames,
+			frames = debugFrames or collision.queryDebugFrames,
 		})
 	end
 

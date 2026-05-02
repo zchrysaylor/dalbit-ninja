@@ -114,7 +114,7 @@ end
 ---Create a new collider in the physics world.
 ---@param x number Center X position in pixels
 ---@param y number Center Y position in pixels
----@param opts? {width?: number, height?: number, bevel?: number, bodyType?: love.BodyType, shape?: "rectangle"|"octagon", density?: number, restitution?: number, tags?: string[]}
+---@param opts? {width?: number, height?: number, bevel?: number, bodyType?: love.BodyType, shape?: "rectangle"|"octagon", density?: number, restitution?: number, group?: number, tags?: string[]}
 ---@return collider
 function physics:collider(x, y, opts)
 	opts = opts or {}
@@ -158,6 +158,10 @@ function physics:collider(x, y, opts)
 	-- TODO: can later be defined in a vessel tag (i.e. tag "bouncy" sets restitution to a certain number)
 	if opts.restitution then
 		fixture:setRestitution(opts.restitution)
+	end
+
+	if opts.group ~= nil then
+		fixture:setFilterData(1, 0xFFFF, opts.group) -- 1 and 0xFFFF are the default values
 	end
 
 	local coll = setmetatable({

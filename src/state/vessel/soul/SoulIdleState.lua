@@ -48,13 +48,11 @@ function SoulIdleState:update(dt)
 end
 
 ---Create a new SoulIdleState
----@generic T : SoulIdleState
 ---@param soul Soul
----@param subclass? T Metatable to use (defaults to SoulIdleState)
----@return T
-function SoulIdleState.new(soul, subclass)
-	local self = BaseState.new(subclass or SoulIdleState)
-	self.stateName = (subclass or SoulIdleState).STATE_NAME
+---@return SoulIdleState
+function SoulIdleState.new(soul)
+	local self = BaseState.new(SoulIdleState)
+	self.stateName = SoulIdleState.STATE_NAME
 	self.soul = soul
 	self.idleTimer = 0
 	return self

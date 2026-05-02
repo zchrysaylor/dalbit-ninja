@@ -24,3 +24,6 @@ KEY_PAUSE = "p"
 
 -- rate in seconds of the start screen fade duration
 FADE_RATE = 0.6
+
+-- should be set for player/souls so their colliders do not collide
+COLLISION_GROUP_PASS_THROUGH = -1

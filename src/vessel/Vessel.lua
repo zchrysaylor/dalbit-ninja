@@ -47,7 +47,7 @@ function Vessel:destroy()
 end
 
 ---Create a new Vessel with a physics collider.
----@param opts {physics: physics, x?: number, y?: number, width?: number, height?: number, scale?: number, shape?: "rectangle"|"octagon", bodyType?: love.BodyType, tags?: string[]}
+---@param opts {physics: physics, x?: number, y?: number, width?: number, height?: number, scale?: number, shape?: "rectangle"|"octagon", bodyType?: love.BodyType, group?: number, tags?: string[]}
 ---@return Vessel
 function Vessel.new(opts)
 	local self = setmetatable({}, Vessel)
@@ -64,6 +64,7 @@ function Vessel.new(opts)
 		shape = opts.shape or "octagon",
 		bodyType = opts.bodyType or "dynamic",
 		bevel = 3 * self.scale,
+		group = opts.group,
 	}
 	self.collider = opts.physics:collider(self.x, self.y, collisionOpts)
 

@@ -60,6 +60,7 @@ function Realm:loadMap(mapName, destX, destY)
 	if destX and destY then
 		self.player.vessel:setPosition(destX, destY)
 		self.player:syncPosition()
+		self.player.vessel:setLinearVelocity(0, 0)
 		self.player:changeState("idle")
 	end
 
@@ -70,6 +71,7 @@ end
 ---@param dt number Delta time in seconds
 ---@return nil
 function Realm:update(dt)
+	-- TODO: check if ordering of updates is correct
 	Lens.follow(self.player, self.map)
 
 	for _, soul in pairs(self.souls) do
@@ -77,6 +79,8 @@ function Realm:update(dt)
 	end
 
 	self.player:update(dt)
+	self.player:updateDamageTimers(dt)
+
 	for _, soul in pairs(self.souls) do
 		soul:update(dt)
 	end
@@ -88,6 +92,8 @@ function Realm:update(dt)
 		soul:syncPosition()
 		soul:postPhysicsUpdate(dt)
 	end
+
+	self.player:checkDamage() -- should be checked after player and soul positions are synced
 
 	self:checkWarps()
 
@@ -114,15 +120,15 @@ function Realm:draw()
 		self.map:drawLayer(self.map.layers["building"])
 	end
 
-	for _, soul in pairs(self.souls) do
-		soul:draw()
-	end
-
 	for _, husk in pairs(self.husks) do
 		husk:draw()
 	end
 
 	self.player:draw()
+
+	for _, soul in pairs(self.souls) do
+		soul:draw()
+	end
 
 	-- draw collision borders for debugging
 	if Debug.showColliders then
@@ -182,9 +188,10 @@ function Realm.new()
 		width = 16,
 		height = 17,
 		speed = 0.8,
-		scale = 1, -- can remove if keep 16x16
+		scale = 1, -- TODO: can remove if keep 16x16
 		spriteSheet = GArt["sprite-player"],
 		physics = self.physics,
+		group = COLLISION_GROUP_PASS_THROUGH,
 	})
 
 	return self

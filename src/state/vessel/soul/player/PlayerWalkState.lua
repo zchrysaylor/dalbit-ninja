@@ -34,6 +34,9 @@ end
 function PlayerWalkState:movePlayer()
 	local dirX, dirY, isMoving = Input.getDirection()
 	if not isMoving then
+		local vx, vy = self.soul.vessel:getLinearVelocity()
+		local coastMultiplier = self.soul.releaseCoastMultiplier or 1
+		self.soul.vessel:setLinearVelocity(vx * coastMultiplier, vy * coastMultiplier)
 		self.soul:changeState("idle")
 		return
 	end

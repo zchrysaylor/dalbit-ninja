@@ -29,10 +29,16 @@ function SoulChaseState:update(dt)
 		return
 	end
 
-	local speed = self.soul.speed * 100
-	local vx = self.soul.ai.moveDirX * speed
-	local vy = self.soul.ai.moveDirY * speed
-	self.soul.vessel:setLinearVelocity(vx, vy)
+	local vx, vy = self.soul.vessel:getLinearVelocity()
+	local currentSpeed = math.sqrt(vx * vx + vy * vy)
+	local maxSpeed = self.soul.speed * 100
+
+	if currentSpeed < maxSpeed then
+		local force = self.soul.ai.chaseForce or 80
+		local fx = self.soul.ai.moveDirX * force
+		local fy = self.soul.ai.moveDirY * force
+		self.soul.collider.body:applyForce(fx, fy)
+	end
 end
 
 ---Create a new SoulChaseState
