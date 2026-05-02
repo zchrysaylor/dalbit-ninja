@@ -25,7 +25,7 @@ function PlayState:enterState(opts)
 	end)
 
 	---@param action StateInputAction
-	self.heraldGroup:hearken(Events.STATE_INPUT_PREFIX .. self.STATE_NAME, function(action)
+	self.heraldGroup:hearken(Events.STATE_INPUT_PREFIX .. self.stateName, function(action)
 		if action == "interact" then
 			self.realm.player:interact()
 		elseif action == "toggle_menu" then

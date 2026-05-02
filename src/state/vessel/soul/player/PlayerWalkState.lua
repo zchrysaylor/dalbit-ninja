@@ -29,7 +29,7 @@ function PlayerWalkState:update(dt)
 end
 
 ---Read directional input, compute Box2D velocity, and select the correct animation.
----Transitions back to "idle" if no directional key is held.
+---Transitions back to idle if no directional key is held.
 ---@return nil
 function PlayerWalkState:movePlayer()
 	local dirX, dirY, isMoving = Input.getDirection()
@@ -37,7 +37,7 @@ function PlayerWalkState:movePlayer()
 		local vx, vy = self.soul.vessel:getLinearVelocity()
 		local coastMultiplier = self.soul.releaseCoastMultiplier or 1
 		self.soul.vessel:setLinearVelocity(vx * coastMultiplier, vy * coastMultiplier)
-		self.soul:changeState("idle")
+		self.soul:changeState(PlayerIdleState.STATE_NAME)
 		return
 	end
 

@@ -31,7 +31,7 @@ function PlayerIdleState:update(dt)
 		self.soul.dirX = dirX
 		self.soul.dirY = dirY
 		self.soul:setFacingFromVector(dirX, dirY)
-		self.soul:changeState("walk")
+		self.soul:changeState(PlayerWalkState.STATE_NAME)
 		return
 	end
 end

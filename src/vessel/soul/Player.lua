@@ -66,13 +66,13 @@ end
 ---@return nil
 function Player:createStateMachine()
 	self.stateMachine = StateMachine.new({
-		["idle"] = function()
+		[PlayerIdleState.STATE_NAME] = function()
 			return PlayerIdleState.new(self)
 		end,
-		["walk"] = function()
+		[PlayerWalkState.STATE_NAME] = function()
 			return PlayerWalkState.new(self)
 		end,
-		["hurt"] = function()
+		[PlayerHurtState.STATE_NAME] = function()
 			return PlayerHurtState.new(self)
 		end,
 	})
@@ -174,7 +174,7 @@ function Player:hurt(damage, srcX, srcY)
 	self.stunTimer = STUN_DURATION
 	self.damagedTimer = INVINCIBLE_DURATION
 	self.health = self.health - damage
-	self:changeState("hurt")
+	self:changeState(PlayerHurtState.STATE_NAME)
 end
 
 ---Advance the player's invincibility flash and stun timers.

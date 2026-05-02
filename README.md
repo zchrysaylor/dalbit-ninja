@@ -60,7 +60,13 @@ Heavily inspired by GD50 (see References), most of the game logic is controlled 
 
 The benefit of using a state stack is that a new state can be pushed on top while lower states continue to render without updating. This is what allows `MenuState` to pause gameplay while still drawing `PlayState` underneath the menu panel. When the menu is popped, the underlying play state resumes exactly where it left off.
 
+Each state module defines a `STATE_NAME` constant and assigns that value to `self.stateName` on instances. Use `self.stateName` when a state instance refers to itself, such as subscribing to its own state-scoped input event. Use `OtherState.STATE_NAME` when transitioning or referring to another state, and use `SomeState.STATE_NAME` as the key when registering state factories in a `StateMachine`.
+
 ### Conventions
+
+#### Syntax checks
+
+After completing Lua changes, run `luac -p` on the changed Lua files to catch syntax errors before running the game or handing off work.
 
 #### LuaLS documentation
 

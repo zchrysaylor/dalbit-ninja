@@ -25,7 +25,7 @@ function SoulChaseState:update(dt)
 	if self.soul:canDetectAIChaseTarget() then
 		self.soul:updateAIChaseVector()
 	else
-		self.soul:changeState("returnHome")
+		self.soul:changeState(SoulReturnState.STATE_NAME)
 		return
 	end
 

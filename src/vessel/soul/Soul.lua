@@ -51,16 +51,16 @@ end
 ---@return nil
 function Soul:createStateMachine()
 	self.stateMachine = StateMachine.new({
-		["idle"] = function()
+		[SoulIdleState.STATE_NAME] = function()
 			return SoulIdleState.new(self)
 		end,
-		["wander"] = function()
+		[SoulWanderState.STATE_NAME] = function()
 			return SoulWanderState.new(self)
 		end,
-		["chase"] = function()
+		[SoulChaseState.STATE_NAME] = function()
 			return SoulChaseState.new(self)
 		end,
-		["returnHome"] = function()
+		[SoulReturnState.STATE_NAME] = function()
 			return SoulReturnState.new(self)
 		end,
 	})
@@ -372,7 +372,7 @@ function Soul.new(def, subclass)
 	self:syncDirectionalAnimation()
 
 	self:createStateMachine()
-	self:changeState("idle")
+	self:changeState(SoulIdleState.STATE_NAME)
 
 	return self
 end

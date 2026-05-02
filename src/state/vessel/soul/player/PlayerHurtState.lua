@@ -19,11 +19,11 @@ function PlayerHurtState:update(dt)
 			self.player.dirX = dirX
 			self.player.dirY = dirY
 			self.player:setFacingFromVector(dirX, dirY)
-			self.player:changeState("walk")
+			self.player:changeState(PlayerWalkState.STATE_NAME)
 			return
 		end
 
-		self.player:changeState("idle")
+		self.player:changeState(PlayerIdleState.STATE_NAME)
 	end
 end
 

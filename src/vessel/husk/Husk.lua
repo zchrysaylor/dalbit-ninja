@@ -31,7 +31,7 @@ end
 ---@return nil
 function Husk:createStateMachine()
 	self.stateMachine = StateMachine.new({
-		["idle"] = function()
+		[HuskIdleState.STATE_NAME] = function()
 			return HuskIdleState.new(self)
 		end,
 	})
@@ -115,7 +115,7 @@ function Husk.new(def, subclass)
 	self.animOpts = def.animOpts
 	self:createAnimations()
 	self:createStateMachine()
-	self:changeState("idle")
+	self:changeState(HuskIdleState.STATE_NAME)
 
 	return self
 end

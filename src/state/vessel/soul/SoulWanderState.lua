@@ -28,7 +28,7 @@ end
 ---@return nil
 function SoulWanderState:update(dt)
 	if self.soul:isAIType("chase") and self.soul:canDetectAIChaseTarget() then
-		self.soul:changeState("chase")
+		self.soul:changeState(SoulChaseState.STATE_NAME)
 		return
 	end
 
@@ -42,7 +42,7 @@ function SoulWanderState:update(dt)
 	if self.wanderBufferTimer > 0 then
 		self.wanderBufferTimer = self.wanderBufferTimer - dt
 	elseif self.soul:isOutsideAIWanderRadius(nextX, nextY) then
-		self.soul:changeState("idle")
+		self.soul:changeState(SoulIdleState.STATE_NAME)
 		return
 	end
 
@@ -66,7 +66,7 @@ function SoulWanderState:postPhysicsUpdate(dt)
 	end
 
 	if self.blockedFrames >= 3 then
-		self.soul:changeState("idle")
+		self.soul:changeState(SoulIdleState.STATE_NAME)
 		return
 	end
 end

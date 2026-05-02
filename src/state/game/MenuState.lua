@@ -14,7 +14,7 @@ MenuState.STATE_NAME = "menu"
 ---@return nil
 function MenuState:enterState()
 	---@param action StateInputAction
-	self.unhearken = Herald.hearken(Events.STATE_INPUT_PREFIX .. self.STATE_NAME, function(action)
+	self.unhearken = Herald.hearken(Events.STATE_INPUT_PREFIX .. self.stateName, function(action)
 		if action == "toggle_menu" then
 			GStateStack:pop()
 		end

@@ -61,7 +61,7 @@ function Realm:loadMap(mapName, destX, destY)
 		self.player.vessel:setPosition(destX, destY)
 		self.player:syncPosition()
 		self.player.vessel:setLinearVelocity(0, 0)
-		self.player:changeState("idle")
+		self.player:changeState(PlayerIdleState.STATE_NAME)
 	end
 
 	Lens.follow(self.player, self.map)

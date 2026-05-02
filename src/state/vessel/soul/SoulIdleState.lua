@@ -35,14 +35,14 @@ function SoulIdleState:update(dt)
 	end
 
 	if self.soul:isAIType("chase") and self.soul:canDetectAIChaseTarget() then
-		self.soul:changeState("chase")
+		self.soul:changeState(SoulChaseState.STATE_NAME)
 		return
 	end
 
 	if self.idleTimer > 0 then
 		self.idleTimer = self.idleTimer - dt
 	else
-		self.soul:changeState("wander")
+		self.soul:changeState(SoulWanderState.STATE_NAME)
 		return
 	end
 end

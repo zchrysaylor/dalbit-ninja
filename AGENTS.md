@@ -14,10 +14,12 @@ Guidelines for AI coding agents working on this LOVE 2D game project.
 ```bash
 love .                                    # Run from project root
 love . 2>&1 | tee debug.log              # Run with console output
+luac -p path/to/file.lua                 # Check Lua syntax after changes
 zip -r game.love . -x "*.git*" "*.DS_Store" "AGENTS.md"  # Distributable
 ```
 
-No tests exist yet. Do not write tests unless asked.
+No tests exist yet. Do not write tests unless asked. Always run `luac -p` on changed Lua files
+after edits are complete to catch syntax errors before handing work back.
 
 ## Project Structure
 
@@ -159,6 +161,9 @@ All globals are defined in `src/deps.lua`. Read it to see the current set. Conve
 - `StateStack` for game/screen layering (only top state updates; all draw bottom-to-top)
 - `StateMachine` for entity-local behavior (stores factory functions, not instances)
 - `BaseState` lifecycle hooks: `enterState(opts)`, `exitState()`, `update(dt)`, `postPhysicsUpdate(dt)`, `draw()`
+- Every state module defines `STATE_NAME`. Use `self.stateName` when a state instance refers to itself
+  (for example state-scoped input subscriptions), use `OtherState.STATE_NAME` when transitioning or
+  registering another state, and use `SomeState.STATE_NAME` for `StateMachine` table keys.
 - On entity state transitions: `exitState() -> factory() -> enterState(opts)`. Add `return` after `changeState(...)` unless follow-up is needed.
 
 ### Input

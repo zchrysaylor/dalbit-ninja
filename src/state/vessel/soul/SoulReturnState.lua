@@ -52,14 +52,14 @@ end
 ---@return nil
 function SoulReturnState:update(dt)
 	if self.soul:isAIType("chase") and self.soul:canDetectAIChaseTarget() then
-		self.soul:changeState("chase")
+		self.soul:changeState(SoulChaseState.STATE_NAME)
 		return
 	end
 
 	local x, y = self.soul:getPosition()
 
 	if not self.soul:isOutsideAIWanderRadius(x, y) then
-		self.soul:changeState("wander")
+		self.soul:changeState(SoulWanderState.STATE_NAME)
 		return
 	end
 
