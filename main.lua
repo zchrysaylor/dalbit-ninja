@@ -29,6 +29,12 @@ function love.keypressed(key)
 	Input:keyPressed(key)
 end
 
+---@param text string
+---@return nil
+function love.textinput(text)
+	Input:textInput(text)
+end
+
 ---@param dt number
 ---@return nil
 function love.update(dt)

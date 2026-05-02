@@ -1,8 +1,10 @@
 ---Keyboard input manager.
 ---@class input
 ---@field keysPressed table<string, boolean> Keys pressed this frame, cleared each update
+---@field commandBuffer string Recently typed text for global command sequences
 local input = {}
 input.keysPressed = {}
+input.commandBuffer = ""
 
 ---Record a key press for the current frame and handle global shortcuts.
 ---@param key string LOVE key constant (e.g. "return", "escape")
@@ -39,6 +41,18 @@ function input:keyPressed(key)
 		Herald.decree(stateInputEvent, "toggle_menu")
 	elseif key == KEY_PAUSE then
 		Herald.decree(stateInputEvent, "toggle_pause")
+	end
+end
+
+---Record printable text input for global command sequences.
+---@param text string
+---@return nil
+function input:textInput(text)
+	self.commandBuffer = (self.commandBuffer .. text):sub(-2)
+
+	if self.commandBuffer == ":q" then
+		love.event.quit()
+		self.commandBuffer = ""
 	end
 end
 
