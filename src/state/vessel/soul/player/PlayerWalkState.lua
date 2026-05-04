@@ -33,9 +33,7 @@ end
 ---@return nil
 function PlayerWalkState:movePlayer()
 	if not self.player:applyInputDirection() then
-		local vx, vy = self.player.vessel:getLinearVelocity()
-		local coastMultiplier = self.player.releaseCoastMultiplier or 1
-		self.player.vessel:setLinearVelocity(vx * coastMultiplier, vy * coastMultiplier)
+		self.player.vessel:setLinearVelocity(0, 0)
 		self.player:changeState(PlayerIdleState.STATE_NAME)
 		return
 	end

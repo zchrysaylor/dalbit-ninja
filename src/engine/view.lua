@@ -3,7 +3,9 @@
 ---@class view
 local view = {}
 
-local BASE_VIEW_HEIGHT = 140
+local BASE_VIEW_HEIGHT = WINDOW_HEIGHT / 5
+assert(BASE_VIEW_HEIGHT == math.floor(BASE_VIEW_HEIGHT),
+	"BASE_VIEW_HEIGHT must be an integer to avoid pixel shimmer")
 
 ---Get the current drawable window width in pixels.
 ---@return number

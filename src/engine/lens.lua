@@ -3,10 +3,26 @@
 ---@class lens
 local lens = {}
 
+-- NOTE: as camera stiffness decreases, settle screen pixels should increase
 local CAMERA_STIFFNESS = 8
+local CAMERA_SETTLE_SCREEN_PIXELS = 1.5
+local CAMERA_STOPPED_SPEED = 0.01
 
 local cam = HumpCamera()
 cam.smoother = HumpCamera.smooth.damped(CAMERA_STIFFNESS)
+
+local function snapToScreenPixel(value, scale)
+	return math.floor(value * scale + 0.5) / scale
+end
+
+local function isPlayerStopped(player)
+	if not player.vessel then
+		return false
+	end
+
+	local vx, vy = player.vessel:getLinearVelocity()
+	return vx * vx + vy * vy <= CAMERA_STOPPED_SPEED * CAMERA_STOPPED_SPEED
+end
 
 ---Compute the clamped target camera center for the current map bounds.
 ---@param player Soul Entity with x and y fields representing its center position
@@ -49,7 +65,12 @@ end
 ---@param noclip? boolean If true, disables scissor clipping (default false)
 ---@return nil
 function lens.attach(x, y, w, h, noclip)
+	local camX, camY = cam.x, cam.y
+	local scale = cam.scale
+	cam.x = snapToScreenPixel(cam.x, scale)
+	cam.y = snapToScreenPixel(cam.y, scale)
 	cam:attach(x, y, w, h, noclip)
+	cam.x, cam.y = camX, camY
 end
 
 ---End rendering through the camera viewport.
@@ -66,6 +87,14 @@ end
 ---@return nil
 function lens.follow(player, map)
 	local targetX, targetY = getFollowTarget(player, map)
+	local dx = targetX - cam.x
+	local dy = targetY - cam.y
+	local settleDistance = CAMERA_SETTLE_SCREEN_PIXELS / cam.scale
+
+	if isPlayerStopped(player) and dx * dx + dy * dy <= settleDistance * settleDistance then
+		return
+	end
+
 	cam:lockPosition(targetX, targetY)
 end
 

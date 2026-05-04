@@ -16,7 +16,6 @@ local Soul = require("src.vessel.soul.Soul")
 ---@field dirY number  -1, 0, or 1
 ---@field direction? "up"|"down"|"left"|"right"|"upLeft"|"upRight"|"downLeft"|"downRight" Persisted facing used for idle animation and interaction queries
 ---@field animations PlayerAnimations
----@field releaseCoastMultiplier number
 ---@field health number
 ---@field damagedTimer number
 ---@field damagedFlashTimer number
@@ -40,7 +39,6 @@ local FLASH_INTERVAL = 0.05
 local STUN_DURATION = 0.1
 local KNOCKBACK_SPEED = 200
 local PLAYER_LINEAR_DAMPING = 7
-local PLAYER_RELEASE_COAST_MULTIPLIER = 0.4
 local DAMAGE_QUERY_RADIUS = 5
 
 -- TODO: Fix bug where can't enter idle state on diagonal animation
@@ -219,6 +217,7 @@ end
 ---Draw the player, flashing while invincible after taking damage.
 ---@return nil
 function Player:draw()
+	-- TODO: also add camera shake effect when taking damage
 	if self.damagedTimer > 0 then
 		local alpha = self.damagedFlashVisible and 0.8 or 0.5
 		Util.safeDraw(function()
@@ -238,7 +237,6 @@ function Player.new(def)
 
 	self.collider:setLinearDamping(PLAYER_LINEAR_DAMPING)
 	self.collider.owner = self
-	self.releaseCoastMultiplier = PLAYER_RELEASE_COAST_MULTIPLIER
 
 	self.health = 4
 	self.damagedTimer = 0
