@@ -28,11 +28,16 @@ setmetatable(Player, { __index = Soul })
 local ANIMATION_SPEED = 0.1
 local INTERACT_RADIUS = 8
 local INTERACT_OFFSET = 6
+local DIAGONAL_UNIT = 1 / math.sqrt(2)
 local INTERACT_FACING_OFFSETS = {
 	up = { x = 0, y = -1 },
 	down = { x = 0, y = 1 },
 	left = { x = -1, y = 0 },
 	right = { x = 1, y = 0 },
+	upLeft = { x = -DIAGONAL_UNIT, y = -DIAGONAL_UNIT },
+	upRight = { x = DIAGONAL_UNIT, y = -DIAGONAL_UNIT },
+	downLeft = { x = -DIAGONAL_UNIT, y = DIAGONAL_UNIT },
+	downRight = { x = DIAGONAL_UNIT, y = DIAGONAL_UNIT },
 }
 local INVINCIBLE_DURATION = 2.0
 local FLASH_INTERVAL = 0.05
@@ -40,8 +45,6 @@ local STUN_DURATION = 0.1
 local KNOCKBACK_SPEED = 200
 local PLAYER_LINEAR_DAMPING = 7
 local DAMAGE_QUERY_RADIUS = 5
-
--- TODO: Fix bug where can't enter idle state on diagonal animation
 
 ---Build the 8-directional animation set from the player sprite sheet.
 ---Overrides Soul:createAnimations() to add diagonal directions.
@@ -105,6 +108,27 @@ function Player:syncDirectionalAnimation()
 	Soul.syncDirectionalAnimation(self)
 end
 
+---Update the player's persisted facing direction from an 8-direction movement vector.
+---@param dirX number
+---@param dirY number
+---@return nil
+function Player:setFacingFromVector(dirX, dirY)
+	if dirX == 0 and dirY == 0 then
+		return
+	end
+
+	if dirX ~= 0 and dirY ~= 0 then
+		if dirY < 0 then
+			self.direction = dirX < 0 and "upLeft" or "upRight"
+		else
+			self.direction = dirX < 0 and "downLeft" or "downRight"
+		end
+		return
+	end
+
+	Soul.setFacingFromVector(self, dirX, dirY)
+end
+
 ---Apply current directional input to movement fields and persisted facing.
 ---@return boolean True when directional input is active.
 function Player:applyInputDirection()
@@ -154,6 +178,7 @@ function Player:checkDamage()
 
 	local world = self.collider.body:getWorld()
 	local px, py = self:getPosition()
+	-- TODO: refactor into player-owned hurtbox
 	local enemies = Collision.queryCircleArea(world, px, py, DAMAGE_QUERY_RADIUS, function(c)
 		return c:hasTag("hostile")
 	end, 1)
