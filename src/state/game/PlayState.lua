@@ -10,6 +10,7 @@ local PlayState = {}
 PlayState.__index = PlayState
 setmetatable(PlayState, { __index = BaseState })
 
+---@type string
 PlayState.STATE_NAME = "play"
 
 ---Called when this state becomes active.
@@ -63,14 +64,15 @@ function PlayState:draw()
 	Transition.draw() -- must be drawn after realm's draw to take effect
 
 	if self.isPaused then
+		-- TODO: Make normal size again
 		Util.safeDraw(function()
 			love.graphics.setColor(love.math.colorFromBytes(218, 206, 211))
-			love.graphics.setFont(GFonts["ninjaSmall"])
+			love.graphics.setFont(GFonts["ninjaMedium"])
 			love.graphics.printf(
 				"Game Paused. Press 'p' to resume.",
 				0,
-				(Push:getHeight() / 2) - 0,
-				Push:getWidth(),
+				View.getHeight() / 2,
+				View.getWidth(),
 				"center"
 			)
 		end)

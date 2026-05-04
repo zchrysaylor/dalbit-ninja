@@ -5,7 +5,7 @@ local BaseState = {}
 BaseState.__index = BaseState
 
 ---Called when this state becomes active. Override to perform setup.
----@param opts? table Optional options
+---@param opts? table Optional options.
 ---@return nil
 function BaseState:enterState(opts) end
 

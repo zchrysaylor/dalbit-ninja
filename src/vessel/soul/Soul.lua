@@ -282,7 +282,7 @@ end
 
 ---Transition this Soul to a new state.
 ---@param state string State key (e.g. "idle", "wander")
----@param opts? table Optional options forwarded to the state's enterState()
+---@param opts? table Optional options.
 ---@return nil
 function Soul:changeState(state, opts)
 	self.stateMachine:changeState(state, opts)

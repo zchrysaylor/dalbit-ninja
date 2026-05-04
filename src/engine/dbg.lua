@@ -52,15 +52,19 @@ function dbg.drawFPS()
 	end)
 end
 
+---Draw the debug menu backdrop.
+---@return nil
 function dbg.drawMenu()
 	-- TODO: finish implementing with option to show FPS, spawn enemies, change map, etc
 	-- screen margin
-	local x = WINDOW_WIDTH / 2 - WINDOW_WIDTH / 4
-	local y = WINDOW_HEIGHT / 2 - WINDOW_HEIGHT / 4
+	local screenWidth = View.getWidth()
+	local screenHeight = View.getHeight()
+	local x = screenWidth / 2 - screenWidth / 4
+	local y = screenHeight / 2 - screenHeight / 4
 
 	Util.safeDraw(function()
 		love.graphics.setColor(0, 0, 0, 0.4)
-		love.graphics.rectangle("fill", x, y, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2)
+		love.graphics.rectangle("fill", x, y, screenWidth / 2, screenHeight / 2)
 	end)
 end
 

@@ -5,12 +5,12 @@ require("src.deps")
 ---@return nil
 function love.load()
 	love.window.setTitle("Dalbit Ninja")
-
-	Push:setupScreen(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT, {
+	love.window.setMode(WINDOW_WIDTH, WINDOW_HEIGHT, {
 		vsync = true,
 		fullscreen = false,
 		resizable = true,
 	})
+	Lens.setZoom(View.getScale())
 
 	GStateStack = StateStack.new()
 	GStateStack:push(StartState.new())
@@ -20,7 +20,7 @@ end
 ---@param h number
 ---@return nil
 function love.resize(w, h)
-	Push:resize(w, h)
+	Lens.setZoom(View.getScale())
 end
 
 ---@param key string
@@ -45,9 +45,7 @@ end
 
 ---@return nil
 function love.draw()
-	Push:start()
 	GStateStack:draw()
-	Push:finish()
 
 	if Debug.showColliders then
 		Debug.drawFPS()

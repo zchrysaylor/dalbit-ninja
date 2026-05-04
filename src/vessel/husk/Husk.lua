@@ -39,7 +39,7 @@ end
 
 ---Transition this Husk to a new state.
 ---@param state string State key (e.g. "idle", "walk")
----@param opts? table Optional arguments forwarded to the state's enterState()
+---@param opts? table Optional options.
 ---@return nil
 function Husk:changeState(state, opts)
 	self.stateMachine:changeState(state, opts)

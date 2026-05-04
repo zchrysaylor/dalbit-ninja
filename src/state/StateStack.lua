@@ -9,7 +9,7 @@ StateStack.__index = StateStack
 
 ---Push a state onto the stack and enter it immediately.
 ---@param state BaseState State instance to activate
----@param opts? table Optional data forwarded to `state:enterState`
+---@param opts? table Optional options.
 ---@return nil
 function StateStack:push(state, opts)
 	table.insert(self.states, state)

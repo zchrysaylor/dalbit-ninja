@@ -8,15 +8,11 @@ Anim8 = require("lib.anim8.anim8")
 
 -- camera library
 -- https://github.com/vrld/hump
--- required in lens.lua only
+HumpCamera = require("lib.hump.camera")
 
 -- tween library
 -- https://github.com/rxi/flux
 Flux = require("lib.flux.flux")
-
--- resolution handling library
--- https://github.com/Ulydev/push
-Push = require("lib.push.push")
 
 -- Simple Tiled Implementation map library
 -- https://github.com/karai17/Simple-Tiled-Implementation
@@ -30,6 +26,7 @@ Collision = require("src.engine.collision")
 Events = require("src.engine.events")
 Input = require("src.engine.input")
 Lens = require("src.engine.lens")
+View = require("src.engine.view")
 Physics = require("src.engine.physics")
 Herald = require("src.engine.herald")
 Debug = require("src.engine.dbg") -- depends on Herald & Events; must be loaded after
@@ -82,6 +79,8 @@ GFonts = {
 	["ninjaLarge"] = love.graphics.newFont("fonts/ninja-font.ttf", 36),
 	["ninjaMedium"] = love.graphics.newFont("fonts/ninja-font.ttf", 16),
 	["ninjaSmall"] = love.graphics.newFont("fonts/ninja-font.ttf", 8),
+	["startTitle"] = love.graphics.newFont("fonts/ninja-font.ttf", 220),
+	["startPrompt"] = love.graphics.newFont("fonts/ninja-font.ttf", 20 * 2),
 	["sproutlandsLarge"] = love.graphics.newFont("fonts/sproutlands.ttf", 36),
 	["sproutlandsMedium"] = love.graphics.newFont("fonts/sproutlands.ttf", 20),
 	["sproutlandsSmall"] = love.graphics.newFont("fonts/sproutlands.ttf", 12),

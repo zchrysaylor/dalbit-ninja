@@ -11,7 +11,7 @@ setmetatable(SoulChaseState, { __index = BaseState })
 SoulChaseState.STATE_NAME = "chase"
 
 ---Called when this state becomes active.
----@param opts? table Optional options
+---@param opts? table Optional options.
 ---@return nil
 function SoulChaseState:enterState(opts)
 	self.soul:setIsAnimating(true)

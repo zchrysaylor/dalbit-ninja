@@ -64,16 +64,13 @@ function Realm:loadMap(mapName, destX, destY)
 		self.player:changeState(PlayerIdleState.STATE_NAME)
 	end
 
-	Lens.follow(self.player, self.map)
+	Lens.snapTo(self.player, self.map)
 end
 
 ---Advance camera follow, entities, physics, and warp handling.
 ---@param dt number Delta time in seconds
 ---@return nil
 function Realm:update(dt)
-	-- TODO: check if ordering of updates is correct
-	Lens.follow(self.player, self.map)
-
 	for _, soul in pairs(self.souls) do
 		soul:capturePreviousPosition()
 	end
@@ -93,6 +90,8 @@ function Realm:update(dt)
 		soul:postPhysicsUpdate(dt)
 	end
 
+	Lens.follow(self.player, self.map)
+
 	self.player:checkDamage() -- should be checked after player and soul positions are synced
 
 	self:checkWarps()
@@ -107,7 +106,7 @@ end
 ---@return nil
 function Realm:draw()
 	love.graphics.clear(self.bgColor)
-	Lens.attach(0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT, true)
+	Lens.attach(0, 0, View.getWidth(), View.getHeight(), true)
 
 	-- draw map layers conditionally (not all maps have all layers)
 	if self.map.layers["base"] then

@@ -11,7 +11,7 @@ setmetatable(HuskIdleState, { __index = BaseState })
 HuskIdleState.STATE_NAME = "idle"
 
 ---Called when this state becomes active.
----@param opts? table Optional arguments
+---@param opts? table Optional options.
 ---@return nil
 function HuskIdleState:enterState(opts)
 	if self.husk.animations and self.husk.animations.current then

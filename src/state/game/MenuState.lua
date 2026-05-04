@@ -8,6 +8,7 @@ local MenuState = {}
 MenuState.__index = MenuState
 setmetatable(MenuState, { __index = BaseState })
 
+---@type string
 MenuState.STATE_NAME = "menu"
 
 ---Called when this state becomes active.
@@ -37,16 +38,24 @@ function MenuState:update(dt) end
 ---Render the menu panel.
 ---@return nil
 function MenuState:draw()
+	-- TODO: make menu normal size again
 	Util.safeDraw(function()
-		GTheme.panels.wood:draw(10, 10, VIRTUAL_WIDTH - 20, VIRTUAL_HEIGHT - 20)
-		GTheme.panels.woodInterior:draw(17, 17, VIRTUAL_WIDTH - 34, VIRTUAL_HEIGHT - 34)
+		local screenWidth = View.getWidth()
+		local screenHeight = View.getHeight()
+		local panelWidth = math.min(screenWidth - 32, 420)
+		local panelHeight = math.min(screenHeight - 32, 280)
+		local panelX = (screenWidth - panelWidth) / 2
+		local panelY = (screenHeight - panelHeight) / 2
+
+		GTheme.panels.wood:draw(panelX, panelY, panelWidth, panelHeight)
+		GTheme.panels.woodInterior:draw(panelX + 7, panelY + 7, panelWidth - 14, panelHeight - 14)
 
 		love.graphics.setColor(GTheme.colors.text)
 		love.graphics.setFont(GTheme.fonts.title)
-		love.graphics.print("MENU TEST", 20, 18, 0, 0.5, 0.5)
+		love.graphics.print("MENU TEST", panelX + 10, panelY + 8, 0, 0.5, 0.5)
 
 		love.graphics.setFont(GTheme.fonts.body)
-		love.graphics.print("menu test", 20, 28, 0, 0.5, 0.5)
+		love.graphics.print("menu test", panelX + 10, panelY + 18, 0, 0.5, 0.5)
 	end)
 end
 

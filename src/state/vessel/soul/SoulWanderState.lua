@@ -13,7 +13,7 @@ setmetatable(SoulWanderState, { __index = BaseState })
 SoulWanderState.STATE_NAME = "wander"
 
 ---Called when this state becomes active.
----@param opts? table Optional options
+---@param opts? table Optional options.
 ---@return nil
 function SoulWanderState:enterState(opts)
 	self.soul:chooseAIWanderDirection()

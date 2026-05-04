@@ -5,7 +5,7 @@ Guidelines for AI coding agents working on this LOVE 2D game project.
 ## Project Overview
 
 - **Type**: LOVE 2D (Lua) game project, version 11.5
-- **Style**: GBA-inspired top-down game with low-res virtual screen (192x128) scaled to 1080x720 via `push`
+- **Style**: GBA-inspired top-down game with a low-res camera framing that scales to the current window size via `View` and `Lens`
 - **Physics**: Box2D via `love.physics`
 - **Architecture**: Global dependency loader in `src/deps.lua`, stack-based game states, per-entity state machines, event-driven cross-system communication via `Herald`
 
@@ -35,6 +35,7 @@ dalbit-ninja/
 │   │   ├── collision.lua
 │   │   ├── input.lua
 │   │   ├── lens.lua
+│   │   ├── view.lua
 │   │   ├── herald.lua
 │   │   ├── events.lua
 │   │   ├── physics.lua
@@ -85,7 +86,7 @@ dalbit-ninja/
 | Utility modules | camelCase | `collision`, `physics`, `input` |
 | Global instances | PascalCase | `GStateStack`, `Input`, `Lens` |
 | Global asset tables | G-prefix PascalCase | `GArt`, `GFonts`, `GTheme` |
-| Constants | SCREAMING_SNAKE_CASE | `VIRTUAL_WIDTH`, `KEY_MENU` |
+| Constants | SCREAMING_SNAKE_CASE | `WINDOW_WIDTH`, `KEY_MENU` |
 | Local variables | camelCase | `dirX`, `idleTimer` |
 | Instance methods | colon-syntax | `self:changeState()` |
 | Utility functions | dot-syntax | `collision.isColliding()` |
@@ -132,11 +133,13 @@ The same pattern applies to `BaseState` subclasses. `Soul` and `Husk` use compos
 
 - Shared systems are loaded in `src/deps.lua` as globals
 - File-local dependencies use `require` at the top: `require("src.state.game.PlayState")`
-- Load order in `deps.lua` matters: `Debug` depends on `Herald`/`Events`; `Transition` depends on `Flux`/`Util`
+- Load order in `deps.lua` matters: `View` should be available before modules that size UI/overlays from the current window, `Debug` depends on `Herald`/`Events`, and `Transition` depends on `Flux`/`Util`
 
 ### Type Annotations
 
 Use LuaLS annotations (`---@`) on public modules, classes, methods, aliases, and important fields. If a constructor accepts a `subclass` metatable, annotate with a constrained generic (`---@generic T : BaseState`).
+
+- For `opts` parameters: use `---@param opts? table Optional options.` when the function accepts legacy or currently-unused options for API consistency/posterity, use an inline table type or named options type for `opts` when the function actually reads specific `opts` fields (for example `physics:collider` or `Vessel.new`).
 
 ### Error Handling
 
@@ -197,21 +200,23 @@ Centralized in `src/engine/input.lua`. Input is routed to the top stacked state 
 
 ```text
 love.draw()
-  Push:start()
   GStateStack:draw()          -- all states bottom-to-top
     PlayState -> Realm:draw()
-      Lens.attach / detach    -- camera-space world rendering
-    Transition.draw()         -- fade overlay
+      Lens.attach / detach    -- camera-space world rendering using current View size
+    Transition.draw()         -- fade overlay sized to the window
     MenuState:draw()          -- if stacked
-  Push:finish()
-  Debug.drawFPS()             -- outside Push
+  Debug.drawFPS()             -- debug overlay when enabled
 ```
 
 Use `Util.safeDraw(fn)` to scope temporary graphics state changes.
 
 ### Camera
 
-`Lens` owns the HUMP camera instance. `Realm:draw()` wraps world drawing in `Lens.attach/detach`. Do not create other camera instances.
+`Lens` owns the shared HUMP camera instance and uses `View.getScale()` for zoom. `Realm:update()` follows the player after physics/state updates, `Realm:loadMap()` uses `Lens.snapTo(...)` to avoid map-load easing, and `Realm:draw()` wraps world rendering in `Lens.attach/detach` using the current view size. Do not create other camera instances.
+
+### Window Scaling
+
+`main.lua` creates a resizable window with `love.window.setMode(...)`, and screen-space UI or overlays should size themselves from `View.getWidth()`, `View.getHeight()`, and `View.getScale()`.
 
 ### UI Theme
 

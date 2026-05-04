@@ -14,13 +14,18 @@ A well-structured, thoroughly documented LÖVE (Love2d) project. This project co
 flowchart TD
 	A[main.lua] --> B[src/deps.lua<br/>loads libs, engine modules, states, assets, theme]
 	A --> C[GStateStack<br/>global game state stack]
+	A --> U[View + Lens<br/>window sizing and camera zoom]
 	C --> D[StartState]
 	C --> E[PlayState]
 	C --> F[MenuState<br/>overlay state]
 
 	G[Input + Herald Events<br/>state-scoped actions] --> C
 	G --> E
-	H[Transition + Debug + Lens] --> E
+	U --> D
+	U --> F
+	H[Transition + Debug<br/>window-space overlays] --> E
+	U --> H
+	U --> I
 	H --> I[Realm]
 
 	E --> I[Realm]

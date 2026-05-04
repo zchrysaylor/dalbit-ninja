@@ -1,8 +1,13 @@
 --- A module for defining transition-related utilites.
 ---@class transition
+---@field alpha number Current fade opacity from 0 to 1
+---@field isActive boolean True while a fade transition is in progress
 local transition = {}
 
+---@type number
 transition.alpha = 0
+
+---@type boolean
 transition.isActive = false
 
 ---Perform a fade-out → callback → fade-in transition.
@@ -34,7 +39,7 @@ function transition.draw()
 	if transition.isActive then
 		Util.safeDraw(function()
 			love.graphics.setColor(0, 0, 0, transition.alpha)
-			love.graphics.rectangle("fill", 0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT)
+			love.graphics.rectangle("fill", 0, 0, View.getWidth(), View.getHeight())
 		end)
 	end
 end

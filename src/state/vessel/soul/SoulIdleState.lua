@@ -12,7 +12,7 @@ setmetatable(SoulIdleState, { __index = BaseState })
 SoulIdleState.STATE_NAME = "idle"
 
 ---Called when this state becomes active.
----@param opts? table Optional options
+---@param opts? table Optional options.
 ---@return nil
 function SoulIdleState:enterState(opts)
 	self.soul.vessel:setLinearVelocity(0, 0)

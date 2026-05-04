@@ -3,10 +3,42 @@
 ---@class lens
 local lens = {}
 
--- camera library
--- https://github.com/vrld/hump
-local HumpCamera = require("lib.hump.camera")
+local CAMERA_STIFFNESS = 8
+
 local cam = HumpCamera()
+cam.smoother = HumpCamera.smooth.damped(CAMERA_STIFFNESS)
+
+---Compute the clamped target camera center for the current map bounds.
+---@param player Soul Entity with x and y fields representing its center position
+---@param map table STI map instance with width, height, tilewidth, and tileheight fields
+---@return number targetX
+---@return number targetY
+local function getFollowTarget(player, map)
+	local mapWidth = map.width * map.tilewidth
+	local mapHeight = map.height * map.tileheight
+	local halfViewW = love.graphics.getWidth() / (2 * cam.scale)
+	local halfViewH = love.graphics.getHeight() / (2 * cam.scale)
+	local minX = halfViewW
+	local maxX = mapWidth - halfViewW
+	local minY = halfViewH
+	local maxY = mapHeight - halfViewH
+	local targetX = player.x
+	local targetY = player.y
+
+	if minX > maxX then
+		targetX = mapWidth / 2
+	else
+		targetX = math.max(minX, math.min(maxX, targetX))
+	end
+
+	if minY > maxY then
+		targetY = mapHeight / 2
+	else
+		targetY = math.max(minY, math.min(maxY, targetY))
+	end
+
+	return targetX, targetY
+end
 
 ---Begin rendering through the camera viewport. All draw calls made between
 ---attach and detach will be transformed by the camera.
@@ -33,26 +65,17 @@ end
 ---@param map table STI map instance with width, height, tilewidth, and tileheight fields
 ---@return nil
 function lens.follow(player, map)
-	local mapWidth = map.width * map.tilewidth
-	local mapHeight = map.height * map.tileheight
+	local targetX, targetY = getFollowTarget(player, map)
+	cam:lockPosition(targetX, targetY)
+end
 
-	cam:lookAt(player.x, player.y)
-
-	local halfViewW = VIRTUAL_WIDTH / (2 * cam.scale)
-	local halfViewH = VIRTUAL_HEIGHT / (2 * cam.scale)
-
-	if cam.x < halfViewW then
-		cam.x = halfViewW
-	end
-	if cam.y < halfViewH then
-		cam.y = halfViewH
-	end
-	if cam.x > mapWidth - halfViewW then
-		cam.x = mapWidth - halfViewW
-	end
-	if cam.y > mapHeight - halfViewH then
-		cam.y = mapHeight - halfViewH
-	end
+---Snap the camera immediately to the clamped target position.
+---@param player Soul Entity with x and y fields representing its center position
+---@param map table STI map instance with width, height, tilewidth, and tileheight fields
+---@return nil
+function lens.snapTo(player, map)
+	local targetX, targetY = getFollowTarget(player, map)
+	cam:lookAt(targetX, targetY)
 end
 
 ---Set the camera zoom level. Values greater than 1 zoom in; less than 1 zoom out.

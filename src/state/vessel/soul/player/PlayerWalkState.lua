@@ -11,7 +11,7 @@ setmetatable(PlayerWalkState, { __index = BaseState })
 PlayerWalkState.STATE_NAME = "walk"
 
 ---Called when this state becomes active.
----@param opts? table Optional options
+---@param opts? table Optional options.
 ---@return nil
 function PlayerWalkState:enterState(opts)
 	self.player:setIsAnimating(true)

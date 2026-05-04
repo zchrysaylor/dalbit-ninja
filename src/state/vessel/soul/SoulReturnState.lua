@@ -15,7 +15,7 @@ SoulReturnState.STATE_NAME = "returnHome"
 SoulReturnState.RECOVERY_DURATION = 0.35
 
 ---Called when this state becomes active.
----@param opts? table Optional options
+---@param opts? table Optional options.
 ---@return nil
 function SoulReturnState:enterState(opts)
 	self.soul:setIsAnimating(true)
