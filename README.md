@@ -35,7 +35,9 @@ flowchart TD
 	I --> K[Physics World]
 	I --> L[Spawners<br/>Wall / Warp / Soul / Husk]
 	I --> M[Player]
-	L --> N[NPC Souls]
+	L --> SR[SoulRegistry]
+	SR --> SA[Soul Archetypes]
+	SA --> N[NPC Souls]
 	L --> O[Static / Interactable Husks]
 
 	M --> P[Vessel]

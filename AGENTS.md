@@ -61,6 +61,8 @@ dalbit-ninja/
 │       ├── Vessel.lua
 │       ├── husk/
 │       └── soul/
+│           ├── soulRegistry.lua
+│           └── archetypes/
 ├── lib/                         # Third-party; do not modify
 ├── art/
 ├── fonts/
@@ -189,6 +191,8 @@ Centralized in `src/engine/input.lua`. Input is routed to the top stacked state 
 ### Realm / Map System
 
 `Realm` owns the current map, physics world, map-scoped entities, and the persistent player. `Realm:loadMap(mapName, destX, destY)` tears down existing objects, loads an STI map, spawns from object layers, and re-snaps the camera. Warp destinations are in `src/realm/mapTransitions.lua`.
+
+`SoulSpawner` resolves Tiled object names through `SoulRegistry` and delegates creation to per-archetype modules under `src/vessel/soul/archetypes/`. Prefer adding new NPC soul types by registering another archetype instead of growing a long conditional inside the spawner.
 
 ### Entity Hierarchy
 
