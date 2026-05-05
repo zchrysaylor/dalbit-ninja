@@ -6,36 +6,18 @@ local SoulSpawner = {}
 ---Returns nil for unrecognized object names.
 ---@param physics physics Physics instance
 ---@param player Player
----@param obj {name: string, x: number, y: number} Tiled map object with at minimum `name`, `x`, and `y` fields
+---@param obj SoulMapObject Tiled map object with at minimum `name`, `x`, and `y` fields
 ---@return Soul|nil soul The spawned Soul, or nil if the object type is unrecognized
 function SoulSpawner.spawn(physics, player, obj)
-	if obj.name == "pointCamoRed" then
-		-- TODO: See if can define souls in common place to avoid this function growing huge
-		local camoRedEnemy = Soul.new({
-			x = obj.x,
-			y = obj.y,
-			width = 16,
-			height = 16,
-			speed = 0.5, -- TODO: speed * 100 exists in a lot of places, maybe easier to already define as * 100?
-			spriteSheet = GArt["sprite-camo-red"],
-			physics = physics,
-			group = COLLISION_GROUP_PASS_THROUGH,
-			ai = {
-				homeX = obj.x,
-				homeY = obj.y,
-				type = "chase",
-				wanderRadius = 24,
-				detectionRadius = 40,
-				idleDurationMin = 0.5,
-				idleDurationMax = 2.5,
-				chaseForce = 80,
-				linearDamping = 2,
-			},
-			tags = { "soul", "hostile" },
-		})
-		camoRedEnemy:setAIChaseTarget(player)
-		return camoRedEnemy
+	local archetype = SoulRegistry[obj.name]
+	if not archetype then
+		return nil
 	end
+
+	return archetype.spawn({
+		physics = physics,
+		player = player,
+	}, obj)
 end
 
 ---Destroy the physics bodies of all provided Soul entities.
