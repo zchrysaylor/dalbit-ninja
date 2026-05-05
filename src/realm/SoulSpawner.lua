@@ -16,8 +16,7 @@ function SoulSpawner.spawn(physics, player, obj)
 			y = obj.y,
 			width = 16,
 			height = 16,
-			speed = 0.5, -- TODO: we do self.soul.speed * 100 in a lot of places, maybe easier to already define as * 100?
-			scale = 1,
+			speed = 0.5, -- TODO: speed * 100 exists in a lot of places, maybe easier to already define as * 100?
 			spriteSheet = GArt["sprite-camo-red"],
 			physics = physics,
 			group = COLLISION_GROUP_PASS_THROUGH,

@@ -168,10 +168,8 @@ end
 ---@return Realm
 function Realm.new()
 	local self = setmetatable({}, Realm)
-
 	self.bgColor = { 0, 0, 0, 1 }
 
-	-- create a new physics world and physics instance
 	self.world = love.physics.newWorld(0, 0)
 	self.physics = Physics.new(self.world)
 
@@ -187,7 +185,6 @@ function Realm.new()
 		width = 16,
 		height = 17,
 		speed = 0.8,
-		scale = 1, -- TODO: can remove if keep 16x16
 		spriteSheet = GArt["sprite-player"],
 		physics = self.physics,
 		group = COLLISION_GROUP_PASS_THROUGH,

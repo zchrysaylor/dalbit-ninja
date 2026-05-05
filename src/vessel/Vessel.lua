@@ -3,7 +3,6 @@
 ---@field y number
 ---@field width number
 ---@field height number
----@field scale number
 ---@field collider collider
 local Vessel = {}
 Vessel.__index = Vessel
@@ -47,7 +46,7 @@ function Vessel:destroy()
 end
 
 ---Create a new Vessel with a physics collider.
----@param opts {physics: physics, x?: number, y?: number, width?: number, height?: number, scale?: number, shape?: "rectangle"|"octagon", bodyType?: love.BodyType, group?: number, tags?: string[]}
+---@param opts {physics: physics, x?: number, y?: number, width?: number, height?: number, shape?: "rectangle"|"octagon", bodyType?: love.BodyType, group?: number, tags?: string[]}
 ---@return Vessel
 function Vessel.new(opts)
 	local self = setmetatable({}, Vessel)
@@ -56,14 +55,13 @@ function Vessel.new(opts)
 	self.y = opts.y or 0
 	self.width = opts.width or 16
 	self.height = opts.height or 16
-	self.scale = opts.scale or 1
 
 	local collisionOpts = {
-		width = self.width * self.scale - 2,
-		height = self.height * self.scale,
+		width = self.width - 2,
+		height = self.height,
 		shape = opts.shape or "octagon",
 		bodyType = opts.bodyType or "dynamic",
-		bevel = 3 * self.scale,
+		bevel = 3,
 		group = opts.group,
 	}
 	self.collider = opts.physics:collider(self.x, self.y, collisionOpts)

@@ -255,7 +255,7 @@ function Player:draw()
 end
 
 ---Create a new Player.
----@param def {x: number, y: number, width: number, height: number, scale: number, speed: number, spriteSheet: love.Image, physics: physics, dirX?: number, dirY?: number, group?: number}
+---@param def {x: number, y: number, width: number, height: number, speed: number, spriteSheet: love.Image, physics: physics, dirX?: number, dirY?: number, group?: number}
 ---@return Player
 function Player.new(def)
 	local self = Soul.new(def, Player)

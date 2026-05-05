@@ -20,7 +20,6 @@
 ---@field y number
 ---@field width number
 ---@field height number
----@field scale number
 ---@field spriteSheet love.Image
 ---@field speed number
 ---@field animations table
@@ -350,7 +349,7 @@ function Soul:draw()
 		self.x,
 		self.y, -- body center position
 		nil, -- rotation
-		self.scale, -- scaleX
+		nil, -- scaleX
 		nil, -- scaleY (defaults to scaleX)
 		self.width / 2, -- originX: centered (half of sprite width)
 		self.height / 2 -- originY: centered (half of sprite height)
@@ -359,7 +358,7 @@ end
 
 ---Create a new Soul.
 ---@generic T : Soul
----@param def {x: number, y: number, width: number, height: number, scale: number, speed: number, spriteSheet: love.Image, physics: physics, direction?: string, group?: number, ai?: SoulAIConfig, tags?: string[]}
+---@param def {x: number, y: number, width: number, height: number, speed: number, spriteSheet: love.Image, physics: physics, direction?: string, group?: number, ai?: SoulAIConfig, tags?: string[]}
 ---@param subclass? T Metatable for subclass (defaults to Soul)
 ---@return T
 function Soul.new(def, subclass)
@@ -373,7 +372,6 @@ function Soul.new(def, subclass)
 	self.previousY = def.y
 	self.width = def.width
 	self.height = def.height
-	self.scale = def.scale
 	self.speed = def.speed
 	self.direction = def.direction
 	self.spriteSheet = def.spriteSheet
@@ -390,7 +388,6 @@ function Soul.new(def, subclass)
 		y = def.y,
 		width = def.width,
 		height = def.height,
-		scale = def.scale,
 		speed = def.speed,
 		physics = def.physics,
 		group = def.group,
