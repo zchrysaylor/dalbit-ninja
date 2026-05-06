@@ -28,4 +28,16 @@ function util.distanceSquared(x1, y1, x2, y2)
 	return dx * dx + dy * dy
 end
 
+---Return a shallow copy of a table.
+---@generic T : table
+---@param source T Table to copy.
+---@return T copy Copied table with the same first-level keys and values.
+function util.shallowCopy(source)
+	local copy = {}
+	for key, value in pairs(source) do
+		copy[key] = value
+	end
+	return copy
+end
+
 return util

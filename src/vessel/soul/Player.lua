@@ -258,9 +258,10 @@ end
 ---@param def {x: number, y: number, width: number, height: number, speed: number, spriteSheet: love.Image, physics: physics, dirX?: number, dirY?: number, group?: number}
 ---@return Player
 function Player.new(def)
-	local self = Soul.new(def, Player)
+	local soulDef = Util.shallowCopy(def)
+	soulDef.linearDamping = PLAYER_LINEAR_DAMPING
+	local self = Soul.new(soulDef, Player)
 
-	self.collider:setLinearDamping(PLAYER_LINEAR_DAMPING)
 	self.collider.owner = self
 
 	self.health = 4

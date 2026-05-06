@@ -25,8 +25,8 @@ function ArchetypeCamoRed.spawn(ctx, obj)
 			idleDurationMin = 0.5,
 			idleDurationMax = 2.5,
 			chaseForce = 80,
-			linearDamping = 2,
 		},
+		linearDamping = 2,
 		tags = { "soul", "hostile" },
 	})
 	soul:setAIChaseTarget(ctx.player)

@@ -11,7 +11,6 @@
 ---@field detectionRadius? number
 ---@field chaseTarget? Soul
 ---@field chaseForce? number
----@field linearDamping? number  -- TODO: now that both player and soul use, combine?
 
 ---@class Soul
 ---@field vessel Vessel
@@ -27,6 +26,7 @@
 ---@field grid any
 ---@field direction? string
 ---@field ai? SoulAIConfig
+---@field linearDamping? number
 ---@field previousX number
 ---@field previousY number
 ---@field isAnimating boolean
@@ -358,7 +358,7 @@ end
 
 ---Create a new Soul.
 ---@generic T : Soul
----@param def {x: number, y: number, width: number, height: number, speed: number, spriteSheet: love.Image, physics: physics, direction?: string, group?: number, ai?: SoulAIConfig, tags?: string[]}
+---@param def {x: number, y: number, width: number, height: number, speed: number, spriteSheet: love.Image, physics: physics, direction?: string, group?: number, ai?: SoulAIConfig, linearDamping?: number, tags?: string[]}
 ---@param subclass? T Metatable for subclass (defaults to Soul)
 ---@return T
 function Soul.new(def, subclass)
@@ -396,8 +396,9 @@ function Soul.new(def, subclass)
 	self.vessel = Vessel.new(vesselOpts)
 	self.collider = self.vessel.collider
 	self.collider.owner = self
-	if self.ai and self.ai.linearDamping then
-		self.collider:setLinearDamping(self.ai.linearDamping)
+	self.linearDamping = def.linearDamping
+	if self.linearDamping then
+		self.collider:setLinearDamping(self.linearDamping)
 	end
 
 	self.animations = {}
