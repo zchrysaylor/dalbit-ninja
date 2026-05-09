@@ -91,6 +91,7 @@ function Realm:update(dt)
 	end
 
 	Lens.follow(self.player, self.map)
+	Lens.update(dt)
 
 	self.player:checkDamage() -- should be checked after player and soul positions are synced
 

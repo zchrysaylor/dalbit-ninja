@@ -1,5 +1,4 @@
----Camera control module. Owns the HUMP camera instance and exposes
----attach/detach for viewport clipping and follow logic for player tracking.
+---Camera control module.
 ---@class lens
 local lens = {}
 
@@ -8,13 +7,38 @@ local CAMERA_STIFFNESS = 8
 local CAMERA_SETTLE_SCREEN_PIXELS = 1.5
 local CAMERA_STOPPED_SPEED = 0.01
 
+local SHAKE_DURATION = 0.1
+local SHAKE_INTENSITY = 1.5
+local SHAKE_SPEED = 0.03
+local SHAKE_FADE_SPEED = 15
+
 local cam = HumpCamera()
 cam.smoother = HumpCamera.smooth.damped(CAMERA_STIFFNESS)
 
+local currentMap = nil
+
+local shake = {
+	time = 0,
+	intensity = 0,
+	speed = 0,
+	speedTimer = 0,
+	fade = true,
+	fadeSpeed = SHAKE_FADE_SPEED,
+	dir = 1,
+	offsetX = 0,
+}
+
+---Snap a world-space camera coordinate to the nearest screen pixel.
+---@param value number Coordinate value in world pixels
+---@param scale number Current camera scale
+---@return number snappedValue
 local function snapToScreenPixel(value, scale)
 	return math.floor(value * scale + 0.5) / scale
 end
 
+---Return whether the player's physics velocity is below the camera settle threshold.
+---@param player Soul Entity with an optional vessel field
+---@return boolean stopped
 local function isPlayerStopped(player)
 	if not player.vessel then
 		return false
@@ -24,12 +48,13 @@ local function isPlayerStopped(player)
 	return vx * vx + vy * vy <= CAMERA_STOPPED_SPEED * CAMERA_STOPPED_SPEED
 end
 
----Compute the clamped target camera center for the current map bounds.
----@param player Soul Entity with x and y fields representing its center position
----@param map table STI map instance with width, height, tilewidth, and tileheight fields
----@return number targetX
----@return number targetY
-local function getFollowTarget(player, map)
+---Clamp a camera center point so the viewport never exceeds map bounds.
+---@param x number Camera center X in world pixels
+---@param y number Camera center Y in world pixels
+---@param map {width: number, height: number, tilewidth: number, tileheight: number} STI map bounds
+---@return number clampedX
+---@return number clampedY
+local function clampToMap(x, y, map)
 	local mapWidth = map.width * map.tilewidth
 	local mapHeight = map.height * map.tileheight
 	local halfViewW = love.graphics.getWidth() / (2 * cam.scale)
@@ -38,22 +63,31 @@ local function getFollowTarget(player, map)
 	local maxX = mapWidth - halfViewW
 	local minY = halfViewH
 	local maxY = mapHeight - halfViewH
-	local targetX = player.x
-	local targetY = player.y
+	local clampedX = x
+	local clampedY = y
 
 	if minX > maxX then
-		targetX = mapWidth / 2
+		clampedX = mapWidth / 2
 	else
-		targetX = math.max(minX, math.min(maxX, targetX))
+		clampedX = math.max(minX, math.min(maxX, clampedX))
 	end
 
 	if minY > maxY then
-		targetY = mapHeight / 2
+		clampedY = mapHeight / 2
 	else
-		targetY = math.max(minY, math.min(maxY, targetY))
+		clampedY = math.max(minY, math.min(maxY, clampedY))
 	end
 
-	return targetX, targetY
+	return clampedX, clampedY
+end
+
+---Compute the clamped target camera center for the current map bounds.
+---@param player Soul Entity with x and y fields representing its center position
+---@param map {width: number, height: number, tilewidth: number, tileheight: number} STI map bounds
+---@return number targetX
+---@return number targetY
+local function getFollowTarget(player, map)
+	return clampToMap(player.x, player.y, map)
 end
 
 ---Begin rendering through the camera viewport. All draw calls made between
@@ -67,8 +101,12 @@ end
 function lens.attach(x, y, w, h, noclip)
 	local camX, camY = cam.x, cam.y
 	local scale = cam.scale
-	cam.x = snapToScreenPixel(cam.x, scale)
-	cam.y = snapToScreenPixel(cam.y, scale)
+	local drawX, drawY = cam.x + shake.offsetX, cam.y
+	if currentMap then
+		drawX, drawY = clampToMap(drawX, drawY, currentMap)
+	end
+	cam.x = snapToScreenPixel(drawX, scale)
+	cam.y = snapToScreenPixel(drawY, scale)
 	cam:attach(x, y, w, h, noclip)
 	cam.x, cam.y = camX, camY
 end
@@ -83,9 +121,10 @@ end
 ---Accounts for the current zoom level when computing clamp boundaries.
 ---Should be called every frame before drawing, including during fades.
 ---@param player Soul Entity with x and y fields representing its center position
----@param map table STI map instance with width, height, tilewidth, and tileheight fields
+---@param map {width: number, height: number, tilewidth: number, tileheight: number} STI map bounds
 ---@return nil
 function lens.follow(player, map)
+	currentMap = map
 	local targetX, targetY = getFollowTarget(player, map)
 	local dx = targetX - cam.x
 	local dy = targetY - cam.y
@@ -100,11 +139,59 @@ end
 
 ---Snap the camera immediately to the clamped target position.
 ---@param player Soul Entity with x and y fields representing its center position
----@param map table STI map instance with width, height, tilewidth, and tileheight fields
+---@param map {width: number, height: number, tilewidth: number, tileheight: number} STI map bounds
 ---@return nil
 function lens.snapTo(player, map)
+	currentMap = map
 	local targetX, targetY = getFollowTarget(player, map)
 	cam:lookAt(targetX, targetY)
+end
+
+---Start a short horizontal camera shake.
+---@param duration? number Duration at full intensity in seconds
+---@param intensity? number Horizontal offset amount in world pixels
+---@param speed? number Seconds between direction flips
+---@param fade? boolean Whether to fade out after duration
+---@param fadeSpeed? number Intensity fade speed in pixels per second
+---@return nil
+function lens.shake(duration, intensity, speed, fade, fadeSpeed)
+	shake.time = duration or SHAKE_DURATION
+	shake.intensity = intensity or SHAKE_INTENSITY
+	shake.speed = speed or SHAKE_SPEED
+	shake.speedTimer = shake.speed
+	shake.fade = fade ~= false
+	shake.fadeSpeed = fadeSpeed or SHAKE_FADE_SPEED
+	shake.dir = 1
+	shake.offsetX = shake.intensity * shake.dir
+end
+
+---Advance the active camera shake. Call after normal follow logic.
+---@param dt number Delta time in seconds
+---@return nil
+function lens.update(dt)
+	if shake.time > 0 then
+		shake.time = math.max(0, shake.time - dt)
+	end
+
+	if shake.time > 0 or (shake.fade and shake.intensity > 0) then
+		shake.offsetX = shake.intensity * shake.dir
+
+		if shake.speedTimer <= 0 then
+			shake.dir = shake.dir * -1
+			shake.speedTimer = shake.speed
+		else
+			shake.speedTimer = math.max(0, shake.speedTimer - dt)
+		end
+
+		if shake.time <= 0 and shake.fade and shake.intensity > 0 then
+			shake.intensity = math.max(0, shake.intensity - dt * shake.fadeSpeed)
+			if shake.intensity <= 0 then
+				shake.offsetX = 0
+			end
+		end
+	else
+		shake.offsetX = 0
+	end
 end
 
 ---Set the camera zoom level. Values greater than 1 zoom in; less than 1 zoom out.

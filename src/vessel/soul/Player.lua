@@ -207,6 +207,7 @@ function Player:hurt(damage, srcX, srcY)
 	else
 		dx, dy = 0, -1
 	end
+	Lens.shake()
 	self.vessel:setLinearVelocity(dx * KNOCKBACK_SPEED, dy * KNOCKBACK_SPEED)
 	self.stunTimer = STUN_DURATION
 	self.damagedTimer = INVINCIBLE_DURATION
@@ -242,7 +243,6 @@ end
 ---Draw the player, flashing while invincible after taking damage.
 ---@return nil
 function Player:draw()
-	-- TODO: also add camera shake effect when taking damage
 	if self.damagedTimer > 0 then
 		local alpha = self.damagedFlashVisible and 0.8 or 0.5
 		Util.safeDraw(function()
