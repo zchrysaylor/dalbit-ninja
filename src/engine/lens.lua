@@ -8,14 +8,12 @@ local CAMERA_SETTLE_SCREEN_PIXELS = 1.5
 local CAMERA_STOPPED_SPEED = 0.01
 
 local SHAKE_DURATION = 0.1
-local SHAKE_INTENSITY = 1.5
+local SHAKE_INTENSITY = 2
 local SHAKE_SPEED = 0.03
 local SHAKE_FADE_SPEED = 15
 
 local cam = HumpCamera()
 cam.smoother = HumpCamera.smooth.damped(CAMERA_STIFFNESS)
-
-local currentMap = nil
 
 local shake = {
 	time = 0,
@@ -102,9 +100,6 @@ function lens.attach(x, y, w, h, noclip)
 	local camX, camY = cam.x, cam.y
 	local scale = cam.scale
 	local drawX, drawY = cam.x + shake.offsetX, cam.y
-	if currentMap then
-		drawX, drawY = clampToMap(drawX, drawY, currentMap)
-	end
 	cam.x = snapToScreenPixel(drawX, scale)
 	cam.y = snapToScreenPixel(drawY, scale)
 	cam:attach(x, y, w, h, noclip)
@@ -124,7 +119,6 @@ end
 ---@param map {width: number, height: number, tilewidth: number, tileheight: number} STI map bounds
 ---@return nil
 function lens.follow(player, map)
-	currentMap = map
 	local targetX, targetY = getFollowTarget(player, map)
 	local dx = targetX - cam.x
 	local dy = targetY - cam.y
@@ -142,7 +136,6 @@ end
 ---@param map {width: number, height: number, tilewidth: number, tileheight: number} STI map bounds
 ---@return nil
 function lens.snapTo(player, map)
-	currentMap = map
 	local targetX, targetY = getFollowTarget(player, map)
 	cam:lookAt(targetX, targetY)
 end
