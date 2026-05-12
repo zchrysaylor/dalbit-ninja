@@ -39,7 +39,7 @@ function PlayerWalkState:movePlayer()
 	end
 
 	-- build velocity from direction
-	local speed = self.player.speed * 100 -- velocity in pixels/sec
+	local speed = self.player.speed
 	local vx = self.player.dirX * speed
 	local vy = self.player.dirY * speed
 

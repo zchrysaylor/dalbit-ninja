@@ -12,7 +12,7 @@ function ArchetypeCamoRed.spawn(ctx, obj)
 		y = obj.y,
 		width = 16,
 		height = 16,
-		speed = 0.5, -- TODO: speed * 100 exists in a lot of places, maybe easier to already define as * 100?
+		speed = 50,
 		spriteSheet = GArt["sprite-camo-red"],
 		physics = ctx.physics,
 		group = COLLISION_GROUP_PASS_THROUGH,

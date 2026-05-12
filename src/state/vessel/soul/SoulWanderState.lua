@@ -31,7 +31,7 @@ function SoulWanderState:update(dt)
 		return
 	end
 
-	local speed = self.soul.speed * 100
+	local speed = self.soul.speed
 	local vx = self.soul.ai.moveDirX * speed
 	local vy = self.soul.ai.moveDirY * speed
 	local x, y = self.soul.vessel:getPosition()

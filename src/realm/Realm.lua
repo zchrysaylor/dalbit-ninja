@@ -185,7 +185,7 @@ function Realm.new()
 		y = 136,
 		width = 16,
 		height = 17,
-		speed = 0.8,
+		speed = 80,
 		spriteSheet = GArt["sprite-player"],
 		physics = self.physics,
 		group = COLLISION_GROUP_PASS_THROUGH,

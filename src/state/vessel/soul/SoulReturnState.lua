@@ -74,7 +74,7 @@ function SoulReturnState:update(dt)
 		self.soul:setAIMoveVector(dx, dy)
 	end
 
-	local speed = self.soul.speed * 100
+	local speed = self.soul.speed
 	local vx = self.soul.ai.moveDirX * speed
 	local vy = self.soul.ai.moveDirY * speed
 	self.soul.vessel:setLinearVelocity(vx, vy)

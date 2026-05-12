@@ -255,7 +255,7 @@ function Player:draw()
 end
 
 ---Create a new Player.
----@param def {x: number, y: number, width: number, height: number, speed: number, spriteSheet: love.Image, physics: physics, dirX?: number, dirY?: number, group?: number}
+---@param def {x: number, y: number, width: number, height: number, speed: number, spriteSheet: love.Image, physics: physics, dirX?: number, dirY?: number, group?: number} speed is pixels/sec.
 ---@return Player
 function Player.new(def)
 	local soulDef = Util.shallowCopy(def)

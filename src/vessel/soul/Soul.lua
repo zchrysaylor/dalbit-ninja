@@ -20,7 +20,7 @@
 ---@field width number
 ---@field height number
 ---@field spriteSheet love.Image
----@field speed number
+---@field speed number Movement speed in pixels/sec
 ---@field animations table
 ---@field stateMachine StateMachine
 ---@field grid any
@@ -260,7 +260,7 @@ function Soul:updateAIBlockedFrames(dt, blockedFrames)
 	local movedY = self.y - self.previousY
 	local movedDistanceSq = movedX * movedX + movedY * movedY
 	local expectedDistance =
-		math.max(self.speed * 100 * dt * AI_BLOCKED_MOVEMENT_FACTOR, AI_BLOCKED_MIN_EXPECTED_DISTANCE)
+		math.max(self.speed * dt * AI_BLOCKED_MOVEMENT_FACTOR, AI_BLOCKED_MIN_EXPECTED_DISTANCE)
 	local expectedDistanceSq = expectedDistance * expectedDistance
 
 	if movedDistanceSq < expectedDistanceSq then
@@ -358,7 +358,7 @@ end
 
 ---Create a new Soul.
 ---@generic T : Soul
----@param def {x: number, y: number, width: number, height: number, speed: number, spriteSheet: love.Image, physics: physics, direction?: string, group?: number, ai?: SoulAIConfig, linearDamping?: number, tags?: string[]}
+---@param def {x: number, y: number, width: number, height: number, speed: number, spriteSheet: love.Image, physics: physics, direction?: string, group?: number, ai?: SoulAIConfig, linearDamping?: number, tags?: string[]} speed is pixels/sec.
 ---@param subclass? T Metatable for subclass (defaults to Soul)
 ---@return T
 function Soul.new(def, subclass)

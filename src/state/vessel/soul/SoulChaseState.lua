@@ -31,7 +31,7 @@ function SoulChaseState:update(dt)
 
 	local vx, vy = self.soul.vessel:getLinearVelocity()
 	local currentSpeed = math.sqrt(vx * vx + vy * vy)
-	local maxSpeed = self.soul.speed * 100
+	local maxSpeed = self.soul.speed
 
 	if currentSpeed < maxSpeed then
 		local force = self.soul.ai.chaseForce or 80
