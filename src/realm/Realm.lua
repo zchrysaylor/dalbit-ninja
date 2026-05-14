@@ -189,6 +189,10 @@ function Realm.new()
 		spriteSheet = GArt["sprite-player"],
 		physics = self.physics,
 		group = COLLISION_GROUP_PASS_THROUGH,
+		hurtbox = {
+			radius = 5,
+			damageTags = { HurtBox.DAMAGE_TAGS.ENEMY_ATTACK, HurtBox.DAMAGE_TAGS.ENVIRONMENT },
+		},
 	})
 
 	return self

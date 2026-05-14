@@ -27,7 +27,7 @@ function ArchetypeCamoRed.spawn(ctx, obj)
 			chaseForce = 80,
 		},
 		linearDamping = 2,
-		tags = { "soul", "hostile" },
+		tags = { "soul", "hostile", HurtBox.DAMAGE_TAGS.ENEMY_ATTACK },
 	})
 	soul:setAIChaseTarget(ctx.player)
 	return soul

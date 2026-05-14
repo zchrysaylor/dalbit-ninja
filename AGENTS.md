@@ -141,6 +141,8 @@ The same pattern applies to `BaseState` subclasses. `Soul` and `Husk` use compos
 
 Use LuaLS annotations (`---@`) on public modules, classes, methods, aliases, and important fields. If a constructor accepts a `subclass` metatable, annotate with a constrained generic (`---@generic T : BaseState`).
 
+- Do not add a custom alias or class when it only wraps a single primitive type like `string`, `boolean`, or `number`; use the primitive directly.
+- Reserve custom annotations for table-shaped data, like `SoulDef`, or for long/ugly field types that are clearer behind an alias, like `PlayerDirection`.
 - For `opts` parameters: use `---@param opts? table Optional options.` when the function accepts legacy or currently-unused options for API consistency/posterity, use an inline table type or named options type for `opts` when the function actually reads specific `opts` fields (for example `physics:collider` or `Vessel.new`).
 
 ### Error Handling

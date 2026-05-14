@@ -1,26 +1,32 @@
----@class PlayerAnimations : table<string, any>
----@field down any
----@field downLeft any
----@field left any
----@field upLeft any
----@field up any
----@field upRight any
----@field right any
----@field downRight any
----@field current any
-
 local Soul = require("src.vessel.soul.Soul")
 
+---@class PlayerAnimations : table<string, any>
+---@field down any Down-facing animation.
+---@field downLeft any Down-left animation.
+---@field left any Left-facing animation.
+---@field upLeft any Up-left animation.
+---@field up any Up-facing animation.
+---@field upRight any Up-right animation.
+---@field right any Right-facing animation.
+---@field downRight any Down-right animation.
+---@field current any Active animation.
+
+---@alias PlayerDirection "up"|"down"|"left"|"right"|"upLeft"|"upRight"|"downLeft"|"downRight"
+
+---@class PlayerDef : SoulDef
+---@field dirX? number Initial X move direction.
+---@field dirY? number Initial Y move direction.
+
 ---@class Player : Soul
----@field dirX number  -1, 0, or 1
----@field dirY number  -1, 0, or 1
----@field direction? "up"|"down"|"left"|"right"|"upLeft"|"upRight"|"downLeft"|"downRight" Persisted facing used for idle animation and interaction queries
----@field animations PlayerAnimations
----@field health number
----@field damagedTimer number
----@field damagedFlashTimer number
----@field damagedFlashVisible boolean
----@field stunTimer number
+---@field dirX number Current X move direction.
+---@field dirY number Current Y move direction.
+---@field direction? PlayerDirection Persisted facing direction.
+---@field animations PlayerAnimations Player animation set.
+---@field health number Current health points.
+---@field damagedTimer number Invincibility time left.
+---@field damagedFlashTimer number Flash interval time left.
+---@field damagedFlashVisible boolean Whether flash is visible.
+---@field stunTimer number Stun time left.
 local Player = {}
 Player.__index = Player
 setmetatable(Player, { __index = Soul })
@@ -44,7 +50,6 @@ local FLASH_INTERVAL = 0.05
 local STUN_DURATION = 0.1
 local KNOCKBACK_SPEED = 200
 local PLAYER_LINEAR_DAMPING = 7
-local DAMAGE_QUERY_RADIUS = 5
 
 ---Build the 8-directional animation set from the player sprite sheet.
 ---Overrides Soul:createAnimations() to add diagonal directions.
@@ -167,37 +172,25 @@ function Player:interact()
 	end
 end
 
----Check whether any hostile collider is overlapping the player's hurt radius.
----Applies damage and knockback from the first hostile collider found.
----@return nil
-function Player:checkDamage()
+---Return whether the player can currently take damage.
+---@return boolean
+function Player:canTakeDamage()
 	-- TODO: investigate if timers can be better managed (i.e. in src/engine, use knife or hump timer as inspo)
-	if self.damagedTimer > 0 then
-		return
-	end
-
-	local world = self.collider.body:getWorld()
-	local px, py = self:getPosition()
-	-- TODO: refactor into player-owned hurtbox
-	local enemies = Collision.queryCircleArea(world, px, py, DAMAGE_QUERY_RADIUS, function(c)
-		return c:hasTag("hostile")
-	end, 1)
-
-	if #enemies > 0 then
-		local ex, ey = enemies[1]:getPosition()
-		self:hurt(1, ex, ey)
-	end
+	return self.damagedTimer <= 0
 end
 
 ---Apply damage, knock the player away from the source, and enter the hurt state.
----@param damage number
----@param srcX number
----@param srcY number
+---@param source collider
 ---@return nil
-function Player:hurt(damage, srcX, srcY)
+function Player:hurt(source)
 	if self.damagedTimer > 0 then
 		return
 	end
+
+	local srcX, srcY = source:getPosition()
+	local damage = source.damage or 1 -- TODO: make damage part of the entity (soul or husk) not the collider
+
+	Lens.shake()
 
 	local px, py = self:getPosition()
 	local dx, dy = px - srcX, py - srcY
@@ -207,8 +200,8 @@ function Player:hurt(damage, srcX, srcY)
 	else
 		dx, dy = 0, -1
 	end
-	Lens.shake()
 	self.vessel:setLinearVelocity(dx * KNOCKBACK_SPEED, dy * KNOCKBACK_SPEED)
+
 	self.stunTimer = STUN_DURATION
 	self.damagedTimer = INVINCIBLE_DURATION
 	self.health = self.health - damage
@@ -255,7 +248,7 @@ function Player:draw()
 end
 
 ---Create a new Player.
----@param def {x: number, y: number, width: number, height: number, speed: number, spriteSheet: love.Image, physics: physics, dirX?: number, dirY?: number, group?: number} speed is pixels/sec.
+---@param def PlayerDef
 ---@return Player
 function Player.new(def)
 	local soulDef = Util.shallowCopy(def)

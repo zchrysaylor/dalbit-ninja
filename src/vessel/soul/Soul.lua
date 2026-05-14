@@ -1,36 +1,58 @@
+---@class HurtBoxConfig
+---@field radius? number Hurt radius in pixels.
+---@field offsetX? number Horizontal offset from owner.
+---@field offsetY? number Vertical offset from owner.
+---@field damageTags? string[] Accepted damage source tags.
+
 ---@class SoulAIConfig
----@field homeX number
----@field homeY number
----@field type string
----@field wanderRadius number
----@field idleDurationMin number
----@field idleDurationMax? number
----@field wanderBufferDuration? number
----@field moveDirX? number
----@field moveDirY? number
----@field detectionRadius? number
----@field chaseTarget? Soul
----@field chaseForce? number
+---@field homeX number Home X position.
+---@field homeY number Home Y position.
+---@field type string AI behavior type.
+---@field wanderRadius number Maximum wander distance.
+---@field idleDurationMin number Minimum idle seconds.
+---@field idleDurationMax? number Maximum idle seconds.
+---@field wanderBufferDuration? number Pause before wandering.
+---@field moveDirX? number Current X move direction.
+---@field moveDirY? number Current Y move direction.
+---@field detectionRadius? number Chase detection range.
+---@field chaseTarget? Soul Soul to chase.
+---@field chaseForce? number Chase movement force.
+
+---@class SoulDef
+---@field x number Spawn X position.
+---@field y number Spawn Y position.
+---@field width number Sprite and body width.
+---@field height number Sprite and body height.
+---@field speed number Movement speed in pixels/sec.
+---@field spriteSheet love.Image Sprite sheet image.
+---@field physics physics Physics world wrapper.
+---@field direction? string Initial facing direction.
+---@field group? number Collision filter group.
+---@field ai? SoulAIConfig Optional AI behavior.
+---@field linearDamping? number Body drag amount.
+---@field hurtbox? HurtBoxConfig Optional damage receiver.
+---@field tags? string[] Collider tag names.
 
 ---@class Soul
----@field vessel Vessel
----@field collider collider
----@field x number
----@field y number
----@field width number
----@field height number
----@field spriteSheet love.Image
----@field speed number Movement speed in pixels/sec
----@field animations table
----@field stateMachine StateMachine
----@field grid any
----@field direction? string
----@field ai? SoulAIConfig
----@field linearDamping? number
----@field previousX number
----@field previousY number
----@field isAnimating boolean
----@field interact? fun(self: Soul) Optional interaction handler invoked by nearby queries
+---@field vessel Vessel Physics-backed vessel wrapper.
+---@field collider collider Primary physics collider.
+---@field x number Current X position.
+---@field y number Current Y position.
+---@field width number Sprite and body width.
+---@field height number Sprite and body height.
+---@field spriteSheet love.Image Sprite sheet image.
+---@field speed number Movement speed in pixels/sec.
+---@field animations table Directional animation set.
+---@field stateMachine StateMachine Entity behavior machine.
+---@field grid any Animation frame grid.
+---@field direction? string Current facing direction.
+---@field ai? SoulAIConfig Optional AI behavior.
+---@field linearDamping? number Body drag amount.
+---@field hurtbox? HurtBox Optional damage receiver.
+---@field previousX number Previous frame X position.
+---@field previousY number Previous frame Y position.
+---@field isAnimating boolean Whether animation is playing.
+---@field interact? fun(self: Soul) Optional interaction handler.
 local Soul = {}
 Soul.__index = Soul
 
@@ -259,8 +281,7 @@ function Soul:updateAIBlockedFrames(dt, blockedFrames)
 	local movedX = self.x - self.previousX
 	local movedY = self.y - self.previousY
 	local movedDistanceSq = movedX * movedX + movedY * movedY
-	local expectedDistance =
-		math.max(self.speed * dt * AI_BLOCKED_MOVEMENT_FACTOR, AI_BLOCKED_MIN_EXPECTED_DISTANCE)
+	local expectedDistance = math.max(self.speed * dt * AI_BLOCKED_MOVEMENT_FACTOR, AI_BLOCKED_MIN_EXPECTED_DISTANCE)
 	local expectedDistanceSq = expectedDistance * expectedDistance
 
 	if movedDistanceSq < expectedDistanceSq then
@@ -327,6 +348,41 @@ function Soul:refreshAnimation()
 	end
 end
 
+---Return whether this Soul is currently able to receive damage.
+---@return boolean
+function Soul:canTakeDamage()
+	return true
+end
+
+---Check whether any damaging collider is overlapping this Soul's hurtbox.
+---Delegates damage response to `hurt`, which subclasses can override.
+---@return nil
+function Soul:checkDamage()
+	if not self.hurtbox then
+		return
+	end
+
+	if not self:canTakeDamage() then
+		return
+	end
+
+	local sources = self.hurtbox:query()
+	if #sources == 0 then
+		return
+	end
+
+	self:hurt(sources[1])
+end
+
+---Apply damage from a source collider.
+---Base Souls currently ignore damage.
+---@param source collider
+---@return nil
+function Soul:hurt(source)
+	-- TODO: implement hurt for non-player souls
+	return
+end
+
 ---Destroy the underlying Vessel (and its physics body).
 ---@return nil
 function Soul:destroy()
@@ -358,7 +414,7 @@ end
 
 ---Create a new Soul.
 ---@generic T : Soul
----@param def {x: number, y: number, width: number, height: number, speed: number, spriteSheet: love.Image, physics: physics, direction?: string, group?: number, ai?: SoulAIConfig, linearDamping?: number, tags?: string[]} speed is pixels/sec.
+---@param def SoulDef
 ---@param subclass? T Metatable for subclass (defaults to Soul)
 ---@return T
 function Soul.new(def, subclass)
@@ -391,7 +447,7 @@ function Soul.new(def, subclass)
 		speed = def.speed,
 		physics = def.physics,
 		group = def.group,
-		tags = def.tags or { "soul" },
+		tags = def.tags or { "soul" }, -- TODO: assert that soul is required when passing custom tag or always append soul to def
 	}
 	self.vessel = Vessel.new(vesselOpts)
 	self.collider = self.vessel.collider
@@ -399,6 +455,10 @@ function Soul.new(def, subclass)
 	self.linearDamping = def.linearDamping
 	if self.linearDamping then
 		self.collider:setLinearDamping(self.linearDamping)
+	end
+
+	if def.hurtbox then
+		self.hurtbox = HurtBox.new(self, def.hurtbox)
 	end
 
 	self.animations = {}

@@ -37,8 +37,9 @@ NineSlice = require("src.graphics.nineSlice")
 
 -- vessel-related requires
 Vessel = require("src.vessel.Vessel")
-Soul = require("src.vessel.soul.Soul")
 Husk = require("src.vessel.husk.Husk")
+Soul = require("src.vessel.soul.Soul")
+HurtBox = require("src.vessel.soul.HurtBox")
 Player = require("src.vessel.soul.Player")
 SoulRegistry = require("src.vessel.soul.soulRegistry")
 
