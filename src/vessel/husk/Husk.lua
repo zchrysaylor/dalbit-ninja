@@ -6,9 +6,7 @@
 ---@field spriteSheet love.Image Sprite sheet image.
 ---@field physics physics Physics world wrapper.
 ---@field animOpts? {frames: string, row: integer, interval: number, paused?: boolean} Optional animation config.
----@field damage? number Damage dealt when this Husk is a damage source.
----@field knockbackSpeed? number Knockback speed dealt by this Husk.
----@field damageTags? string[] Damage source tags dealt by this Husk.
+---@field damageSource? DamageSourceConfig Damage dealt by this Husk when overlapping a matching hurtbox.
 ---@field tags? string[] Collider tag names.
 
 ---@class Husk
@@ -23,9 +21,7 @@
 ---@field animations? {current: any}
 ---@field grid? any Only set when animOpts is provided
 ---@field stateMachine StateMachine
----@field damage? number Damage dealt when this Husk is a damage source.
----@field knockbackSpeed? number Knockback speed dealt by this Husk.
----@field damageTags string[] Damage source tags dealt by this Husk.
+---@field damageSource? DamageSource Damage dealt by this Husk when overlapping a matching hurtbox.
 local Husk = {}
 Husk.__index = Husk
 
@@ -33,24 +29,24 @@ Husk.__index = Husk
 ---No-op if animOpts is nil (static sprite mode).
 ---@return nil
 function Husk:createAnimations()
-	if not self.animOpts then
-		return
-	end
+    if not self.animOpts then
+        return
+    end
 
-	self.grid = Anim8.newGrid(self.width, self.height, self.spriteSheet:getWidth(), self.spriteSheet:getHeight())
-	local animation = Anim8.newAnimation(self.grid(self.animOpts.frames, self.animOpts.row), self.animOpts.interval)
-	self.animations = { current = animation }
+    self.grid = Anim8.newGrid(self.width, self.height, self.spriteSheet:getWidth(), self.spriteSheet:getHeight())
+    local animation = Anim8.newAnimation(self.grid(self.animOpts.frames, self.animOpts.row), self.animOpts.interval)
+    self.animations = { current = animation }
 end
 
 ---Build the state machine with an "idle" state.
 ---Subclasses override this to register additional state factories.
 ---@return nil
 function Husk:createStateMachine()
-	self.stateMachine = StateMachine.new({
-		[HuskIdleState.STATE_NAME] = function()
-			return HuskIdleState.new(self)
-		end,
-	})
+    self.stateMachine = StateMachine.new({
+        [HuskIdleState.STATE_NAME] = function()
+            return HuskIdleState.new(self)
+        end,
+    })
 end
 
 ---Transition this Husk to a new state.
@@ -58,13 +54,13 @@ end
 ---@param opts? table Optional options.
 ---@return nil
 function Husk:changeState(state, opts)
-	self.stateMachine:changeState(state, opts)
+    self.stateMachine:changeState(state, opts)
 end
 
 ---Return the Husk's current world position.
 ---@return number, number
 function Husk:getPosition()
-	return self.vessel:getPosition()
+    return self.vessel:getPosition()
 end
 
 ---No-op for non-interactable husks.
@@ -74,35 +70,35 @@ function Husk:interact() end
 ---Destroy the underlying Vessel (and its physics body).
 ---@return nil
 function Husk:destroy()
-	self.vessel:destroy()
+    self.vessel:destroy()
 end
 
 ---@param dt number Delta time in seconds
 ---@return nil
 function Husk:update(dt)
-	if self.animations and self.animations.current then
-		self.animations.current:update(dt)
-	end
-	self.stateMachine:update(dt)
+    if self.animations and self.animations.current then
+        self.animations.current:update(dt)
+    end
+    self.stateMachine:update(dt)
 end
 
 ---Draw the current animation frame centered at (x, y).
 ---@return nil
 function Husk:draw()
-	if self.animations and self.animations.current then
-		self.animations.current:draw(
-			self.spriteSheet,
-			self.x,
-			self.y, -- body center position
-			nil, -- rotation
-			1, -- scaleX
-			nil, -- scaleY (defaults to scaleX)
-			self.width / 2, -- originX: centered (half of sprite width)
-			self.height / 2 -- originY: centered (half of sprite height)
-		)
-	else
-		love.graphics.draw(self.spriteSheet, self.x, self.y, nil, 1, nil, self.width / 2, self.height / 2)
-	end
+    if self.animations and self.animations.current then
+        self.animations.current:draw(
+            self.spriteSheet,
+            self.x,
+            self.y, -- body center position
+            nil, -- rotation
+            1, -- scaleX
+            nil, -- scaleY (defaults to scaleX)
+            self.width / 2, -- originX: centered (half of sprite width)
+            self.height / 2 -- originY: centered (half of sprite height)
+        )
+    else
+        love.graphics.draw(self.spriteSheet, self.x, self.y, nil, 1, nil, self.width / 2, self.height / 2)
+    end
 end
 
 ---Create a new Husk.
@@ -111,38 +107,36 @@ end
 ---@param subclass? T Metatable to use (defaults to Husk)
 ---@return T
 function Husk.new(def, subclass)
-	assert(def.physics, "Husk must have a physics instance")
-	assert(def.spriteSheet, "Husk must have a spriteSheet")
-	local self = setmetatable({}, subclass or Husk)
-	self.x = def.x
-	self.y = def.y
-	self.width = def.width
-	self.height = def.height
-	self.spriteSheet = def.spriteSheet
-	self.damage = def.damage
-	self.knockbackSpeed = def.knockbackSpeed
-	self.damageTags = def.damageTags or {}
+    assert(def.physics, "Husk must have a physics instance")
+    assert(def.spriteSheet, "Husk must have a spriteSheet")
+    local self = setmetatable({}, subclass or Husk)
+    self.x = def.x
+    self.y = def.y
+    self.width = def.width
+    self.height = def.height
+    self.spriteSheet = def.spriteSheet
+    self.damageSource = Damage.normalizeSource(def.damageSource)
 
-	local vesselOpts = {
-		x = def.x,
-		y = def.y,
-		width = def.width,
-		height = def.height,
-		physics = def.physics,
-		shape = "rectangle",
-		bodyType = "static",
-		tags = def.tags or { "husk" },
-	}
-	self.vessel = Vessel.new(vesselOpts)
-	self.collider = self.vessel.collider
-	self.collider.owner = self
+    local vesselOpts = {
+        x = def.x,
+        y = def.y,
+        width = def.width,
+        height = def.height,
+        physics = def.physics,
+        shape = "rectangle",
+        bodyType = "static",
+        tags = def.tags or { "husk" },
+    }
+    self.vessel = Vessel.new(vesselOpts)
+    self.collider = self.vessel.collider
+    self.collider.owner = self
 
-	self.animOpts = def.animOpts
-	self:createAnimations()
-	self:createStateMachine()
-	self:changeState(HuskIdleState.STATE_NAME)
+    self.animOpts = def.animOpts
+    self:createAnimations()
+    self:createStateMachine()
+    self:changeState(HuskIdleState.STATE_NAME)
 
-	return self
+    return self
 end
 
 return Husk

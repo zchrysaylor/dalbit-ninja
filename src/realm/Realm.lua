@@ -19,183 +19,183 @@ Realm.__index = Realm
 ---@param destY? number Player spawn Y in pixels (optional)
 ---@return nil
 function Realm:loadMap(mapName, destX, destY)
-	self:destroyAll()
+    self:destroyAll()
 
-	-- TODO: capture loaded map for save state
-	-- loadedMap = mapName
+    -- TODO: capture loaded map for save state
+    -- loadedMap = mapName
 
-	self.map = Tiled("maps/" .. mapName .. ".lua")
+    self.map = Tiled("maps/" .. mapName .. ".lua")
 
-	if self.map.layers["wall"] then
-		for _, obj in pairs(self.map.layers["wall"].objects) do
-			local wall = WallSpawner.spawn(self.physics, obj)
-			table.insert(self.walls, wall)
-		end
-	end
+    if self.map.layers["wall"] then
+        for _, obj in pairs(self.map.layers["wall"].objects) do
+            local wall = WallSpawner.spawn(self.physics, obj)
+            table.insert(self.walls, wall)
+        end
+    end
 
-	if self.map.layers["warp"] then
-		for _, obj in pairs(self.map.layers["warp"].objects) do
-			local warp = WarpSpawner.spawn(self.physics, obj)
-			table.insert(self.warps, warp)
-		end
-	end
+    if self.map.layers["warp"] then
+        for _, obj in pairs(self.map.layers["warp"].objects) do
+            local warp = WarpSpawner.spawn(self.physics, obj)
+            table.insert(self.warps, warp)
+        end
+    end
 
-	if self.map.layers["soul"] then
-		for _, obj in pairs(self.map.layers["soul"].objects) do
-			local soul = SoulSpawner.spawn(self.physics, self.player, obj)
-			if soul then
-				table.insert(self.souls, soul)
-			end
-		end
-	end
+    if self.map.layers["soul"] then
+        for _, obj in pairs(self.map.layers["soul"].objects) do
+            local soul = SoulSpawner.spawn(self.physics, self.player, obj)
+            if soul then
+                table.insert(self.souls, soul)
+            end
+        end
+    end
 
-	if self.map.layers["husk"] then
-		for _, obj in pairs(self.map.layers["husk"].objects) do
-			local husk = HuskSpawner.spawn(self.physics, obj)
-			table.insert(self.husks, husk)
-		end
-	end
+    if self.map.layers["husk"] then
+        for _, obj in pairs(self.map.layers["husk"].objects) do
+            local husk = HuskSpawner.spawn(self.physics, obj)
+            table.insert(self.husks, husk)
+        end
+    end
 
-	-- spawn the player in idle state with zero velocity
-	if destX and destY then
-		self.player.vessel:setPosition(destX, destY)
-		self.player:syncPosition()
-		self.player.vessel:setLinearVelocity(0, 0)
-		self.player:changeState(PlayerIdleState.STATE_NAME)
-	end
+    -- spawn the player in idle state with zero velocity
+    if destX and destY then
+        self.player.vessel:setPosition(destX, destY)
+        self.player:syncPosition()
+        self.player.vessel:setLinearVelocity(0, 0)
+        self.player:changeState(PlayerIdleState.STATE_NAME)
+    end
 
-	Lens.snapTo(self.player, self.map)
+    Lens.snapTo(self.player, self.map)
 end
 
 ---Advance camera follow, entities, physics, and warp handling.
 ---@param dt number Delta time in seconds
 ---@return nil
 function Realm:update(dt)
-	for _, soul in pairs(self.souls) do
-		soul:capturePreviousPosition()
-	end
+    for _, soul in pairs(self.souls) do
+        soul:capturePreviousPosition()
+    end
 
-	self.player:update(dt)
-	self.player:updateDamageTimers(dt)
+    self.player:update(dt)
+    self.player:updateDamageTimers(dt)
 
-	for _, soul in pairs(self.souls) do
-		soul:update(dt)
-	end
+    for _, soul in pairs(self.souls) do
+        soul:update(dt)
+    end
 
-	self.world:update(dt)
+    self.world:update(dt)
 
-	self.player:syncPosition()
-	for _, soul in pairs(self.souls) do
-		soul:syncPosition()
-		soul:postPhysicsUpdate(dt)
-	end
+    self.player:syncPosition()
+    for _, soul in pairs(self.souls) do
+        soul:syncPosition()
+        soul:postPhysicsUpdate(dt)
+    end
 
-	Lens.follow(self.player, self.map)
-	Lens.update(dt)
+    Lens.follow(self.player, self.map)
+    Lens.update(dt)
 
-	self.player:checkDamage() -- should be checked after player and soul positions are synced
+    self.player:checkDamage() -- should be checked after player and soul positions are synced
 
-	self:checkWarps()
+    self:checkWarps()
 
-	for _, husk in pairs(self.husks) do
-		husk:update(dt)
-	end
+    for _, husk in pairs(self.husks) do
+        husk:update(dt)
+    end
 end
 
 ---Render the current map layers, all soul entities, the player, and optionally collision shapes.
 ---Wrapped inside Lens:attach/detach to clip to the virtual viewport.
 ---@return nil
 function Realm:draw()
-	love.graphics.clear(self.bgColor)
-	Lens.attach(0, 0, View.getWidth(), View.getHeight(), true)
+    love.graphics.clear(self.bgColor)
+    Lens.attach(0, 0, View.getWidth(), View.getHeight(), true)
 
-	-- draw map layers conditionally (not all maps have all layers)
-	if self.map.layers["base"] then
-		self.map:drawLayer(self.map.layers["base"])
-	end
-	if self.map.layers["ground"] then
-		self.map:drawLayer(self.map.layers["ground"])
-	end
-	if self.map.layers["building"] then
-		self.map:drawLayer(self.map.layers["building"])
-	end
+    -- draw map layers conditionally (not all maps have all layers)
+    if self.map.layers["base"] then
+        self.map:drawLayer(self.map.layers["base"])
+    end
+    if self.map.layers["ground"] then
+        self.map:drawLayer(self.map.layers["ground"])
+    end
+    if self.map.layers["building"] then
+        self.map:drawLayer(self.map.layers["building"])
+    end
 
-	for _, husk in pairs(self.husks) do
-		husk:draw()
-	end
+    for _, husk in pairs(self.husks) do
+        husk:draw()
+    end
 
-	self.player:draw()
+    self.player:draw()
 
-	for _, soul in pairs(self.souls) do
-		soul:draw()
-	end
+    for _, soul in pairs(self.souls) do
+        soul:draw()
+    end
 
-	-- draw collision borders for debugging
-	if Debug.showColliders then
-		Debug.drawAll(self.world, 0.7)
-	end
+    -- draw collision borders for debugging
+    if Debug.showColliders then
+        Debug.drawAll(self.world, 0.7)
+    end
 
-	Lens.detach()
+    Lens.detach()
 end
 
 ---Check all warp colliders and trigger a map transition event when needed.
 ---@return nil
 function Realm:checkWarps()
-	local triggeredWarp = WarpSpawner.check(self.player.collider, self.warps)
-	if triggeredWarp then
-		Herald.decree(Events.REALM_WARP_TRIGGERED, triggeredWarp)
-	end
+    local triggeredWarp = WarpSpawner.check(self.player.collider, self.warps)
+    if triggeredWarp then
+        Herald.decree(Events.REALM_WARP_TRIGGERED, triggeredWarp)
+    end
 end
 
 ---Destroy all map-scoped entities (walls, warps, souls) and reset the map table.
 ---@return nil
 function Realm:destroyAll()
-	WallSpawner.destroyAll(self.walls)
-	self.walls = {}
+    WallSpawner.destroyAll(self.walls)
+    self.walls = {}
 
-	WarpSpawner.destroyAll(self.warps)
-	self.warps = {}
+    WarpSpawner.destroyAll(self.warps)
+    self.warps = {}
 
-	SoulSpawner.destroyAll(self.souls)
-	self.souls = {}
+    SoulSpawner.destroyAll(self.souls)
+    self.souls = {}
 
-	HuskSpawner.destroyAll(self.husks)
-	self.husks = {}
+    HuskSpawner.destroyAll(self.husks)
+    self.husks = {}
 
-	self.map = {}
+    self.map = {}
 end
 
 ---Create a new Realm
 ---@return Realm
 function Realm.new()
-	local self = setmetatable({}, Realm)
-	self.bgColor = { 0, 0, 0, 1 }
+    local self = setmetatable({}, Realm)
+    self.bgColor = { 0, 0, 0, 1 }
 
-	self.world = love.physics.newWorld(0, 0)
-	self.physics = Physics.new(self.world)
+    self.world = love.physics.newWorld(0, 0)
+    self.physics = Physics.new(self.world)
 
-	self.map = {}
-	self.walls = {}
-	self.warps = {}
-	self.souls = {}
-	self.husks = {}
+    self.map = {}
+    self.walls = {}
+    self.warps = {}
+    self.souls = {}
+    self.husks = {}
 
-	self.player = Player.new({
-		x = 152,
-		y = 136,
-		width = 16,
-		height = 17,
-		speed = 80,
-		spriteSheet = GArt["sprite-player"],
-		physics = self.physics,
-		group = COLLISION_GROUP_PASS_THROUGH,
-		hurtbox = {
-			radius = 5,
-			damageTags = { HurtBox.DAMAGE_TAGS.ENEMY_ATTACK, HurtBox.DAMAGE_TAGS.ENVIRONMENT },
-		},
-	})
+    self.player = Player.new({
+        x = 152,
+        y = 136,
+        width = 16,
+        height = 17,
+        speed = 80,
+        spriteSheet = GArt["sprite-player"],
+        physics = self.physics,
+        group = COLLISION_GROUP_PASS_THROUGH,
+        hurtbox = {
+            radius = 5,
+            damageTags = { Damage.TYPES.ENEMY_ATTACK, Damage.TYPES.ENVIRONMENT },
+        },
+    })
 
-	return self
+    return self
 end
 
 return Realm

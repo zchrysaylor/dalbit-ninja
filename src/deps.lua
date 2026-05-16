@@ -36,6 +36,7 @@ Transition = require("src.engine.transition") -- depends on Herald & Events; mus
 NineSlice = require("src.graphics.nineSlice")
 
 -- vessel-related requires
+Damage = require("src.vessel.damage")
 Vessel = require("src.vessel.Vessel")
 Husk = require("src.vessel.husk.Husk")
 Soul = require("src.vessel.soul.Soul")
@@ -68,24 +69,24 @@ HuskIdleState = require("src.state.vessel.husk.HuskIdleState")
 
 ---@type table<string, love.Image> Global image table.
 GArt = {
-	["chest-little-blue"] = love.graphics.newImage("art/husk-chest-little-blue.png"),
-	["sprite-camo-red"] = love.graphics.newImage("art/sprite-camo-red.png"),
-	["sprite-player"] = love.graphics.newImage("art/sprite-player.png"),
-	["panel-wood"] = love.graphics.newImage("art/ninja-theme-wood-panel.png"),
-	["panel-wood-interior"] = love.graphics.newImage("art/ninja-theme-wood-panel-interior.png"),
+    ["chest-little-blue"] = love.graphics.newImage("art/husk-chest-little-blue.png"),
+    ["sprite-camo-red"] = love.graphics.newImage("art/sprite-camo-red.png"),
+    ["sprite-player"] = love.graphics.newImage("art/sprite-player.png"),
+    ["panel-wood"] = love.graphics.newImage("art/ninja-theme-wood-panel.png"),
+    ["panel-wood-interior"] = love.graphics.newImage("art/ninja-theme-wood-panel-interior.png"),
 }
 
 ---@type table<string, love.Font> Global font table.
 GFonts = {
-	["debug"] = love.graphics.newFont("fonts/sproutlands.ttf", 24),
-	["ninjaLarge"] = love.graphics.newFont("fonts/ninja-font.ttf", 36),
-	["ninjaMedium"] = love.graphics.newFont("fonts/ninja-font.ttf", 16),
-	["ninjaSmall"] = love.graphics.newFont("fonts/ninja-font.ttf", 8),
-	["startTitle"] = love.graphics.newFont("fonts/ninja-font.ttf", 220),
-	["startPrompt"] = love.graphics.newFont("fonts/ninja-font.ttf", 20 * 2),
-	["sproutlandsLarge"] = love.graphics.newFont("fonts/sproutlands.ttf", 36),
-	["sproutlandsMedium"] = love.graphics.newFont("fonts/sproutlands.ttf", 20),
-	["sproutlandsSmall"] = love.graphics.newFont("fonts/sproutlands.ttf", 12),
+    ["debug"] = love.graphics.newFont("fonts/sproutlands.ttf", 24),
+    ["ninjaLarge"] = love.graphics.newFont("fonts/ninja-font.ttf", 36),
+    ["ninjaMedium"] = love.graphics.newFont("fonts/ninja-font.ttf", 16),
+    ["ninjaSmall"] = love.graphics.newFont("fonts/ninja-font.ttf", 8),
+    ["startTitle"] = love.graphics.newFont("fonts/ninja-font.ttf", 220),
+    ["startPrompt"] = love.graphics.newFont("fonts/ninja-font.ttf", 20 * 2),
+    ["sproutlandsLarge"] = love.graphics.newFont("fonts/sproutlands.ttf", 36),
+    ["sproutlandsMedium"] = love.graphics.newFont("fonts/sproutlands.ttf", 20),
+    ["sproutlandsSmall"] = love.graphics.newFont("fonts/sproutlands.ttf", 12),
 }
 
 GTheme = require("src.graphics.theme")

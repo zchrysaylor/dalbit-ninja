@@ -74,7 +74,7 @@ dalbit-ninja/
 
 ### Formatting
 
-- **Indentation**: Tabs, not spaces
+- **Indentation**: Spaces, not tabs (4 spaces)
 - **String quotes**: Double quotes preferred
 - **Line length**: ~100 chars when practical
 - **Spacing**: Spaces after commas and around operators

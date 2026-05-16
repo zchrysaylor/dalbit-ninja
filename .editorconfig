@@ -1,0 +1,10 @@
+# reference: https://github.com/CppCXY/EmmyLuaCodeStyle/blob/9f462587d767abeae18ea931be359009e9c8ae0c/lua.template.editorconfig
+
+[*.lua]
+
+indent_style = space
+indent_size = 4
+continuation_indent = 4
+quote_style = double
+max_line_length = 120
+end_of_line = unset
