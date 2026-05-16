@@ -31,6 +31,9 @@
 ---@field ai? SoulAIConfig Optional AI behavior.
 ---@field linearDamping? number Body drag amount.
 ---@field hurtbox? HurtBoxConfig Optional damage receiver.
+---@field damage? number Damage dealt when this Soul is a damage source.
+---@field knockbackSpeed? number Knockback speed dealt by this Soul.
+---@field damageTags? string[] Damage source tags dealt by this Soul.
 ---@field tags? string[] Collider tag names.
 
 ---@class Soul
@@ -49,6 +52,9 @@
 ---@field ai? SoulAIConfig Optional AI behavior.
 ---@field linearDamping? number Body drag amount.
 ---@field hurtbox? HurtBox Optional damage receiver.
+---@field damage? number Damage dealt when this Soul is a damage source.
+---@field knockbackSpeed? number Knockback speed dealt by this Soul.
+---@field damageTags string[] Damage source tags dealt by this Soul.
 ---@field previousX number Previous frame X position.
 ---@field previousY number Previous frame Y position.
 ---@field isAnimating boolean Whether animation is playing.
@@ -354,7 +360,7 @@ function Soul:canTakeDamage()
 	return true
 end
 
----Check whether any damaging collider is overlapping this Soul's hurtbox.
+---Check whether any damage hit is overlapping this Soul's hurtbox.
 ---Delegates damage response to `hurt`, which subclasses can override.
 ---@return nil
 function Soul:checkDamage()
@@ -366,19 +372,19 @@ function Soul:checkDamage()
 		return
 	end
 
-	local sources = self.hurtbox:query()
-	if #sources == 0 then
+	local hits = self.hurtbox:query()
+	if #hits == 0 then
 		return
 	end
 
-	self:hurt(sources[1])
+	self:hurt(hits[1])
 end
 
----Apply damage from a source collider.
+---Apply a damage hit.
 ---Base Souls currently ignore damage.
----@param source collider
+---@param hit DamageHit
 ---@return nil
-function Soul:hurt(source)
+function Soul:hurt(hit)
 	-- TODO: implement hurt for non-player souls
 	return
 end
@@ -431,6 +437,9 @@ function Soul.new(def, subclass)
 	self.speed = def.speed
 	self.direction = def.direction
 	self.spriteSheet = def.spriteSheet
+	self.damage = def.damage
+	self.knockbackSpeed = def.knockbackSpeed
+	self.damageTags = def.damageTags or {}
 
 	self.ai = def.ai
 	if self.ai then

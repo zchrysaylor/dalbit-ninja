@@ -1,3 +1,16 @@
+---@class HuskDef
+---@field x number Spawn X position.
+---@field y number Spawn Y position.
+---@field width number Sprite and body width.
+---@field height number Sprite and body height.
+---@field spriteSheet love.Image Sprite sheet image.
+---@field physics physics Physics world wrapper.
+---@field animOpts? {frames: string, row: integer, interval: number, paused?: boolean} Optional animation config.
+---@field damage? number Damage dealt when this Husk is a damage source.
+---@field knockbackSpeed? number Knockback speed dealt by this Husk.
+---@field damageTags? string[] Damage source tags dealt by this Husk.
+---@field tags? string[] Collider tag names.
+
 ---@class Husk
 ---@field vessel Vessel
 ---@field collider collider
@@ -10,6 +23,9 @@
 ---@field animations? {current: any}
 ---@field grid? any Only set when animOpts is provided
 ---@field stateMachine StateMachine
+---@field damage? number Damage dealt when this Husk is a damage source.
+---@field knockbackSpeed? number Knockback speed dealt by this Husk.
+---@field damageTags string[] Damage source tags dealt by this Husk.
 local Husk = {}
 Husk.__index = Husk
 
@@ -43,6 +59,12 @@ end
 ---@return nil
 function Husk:changeState(state, opts)
 	self.stateMachine:changeState(state, opts)
+end
+
+---Return the Husk's current world position.
+---@return number, number
+function Husk:getPosition()
+	return self.vessel:getPosition()
 end
 
 ---No-op for non-interactable husks.
@@ -85,7 +107,7 @@ end
 
 ---Create a new Husk.
 ---@generic T : Husk
----@param def {x: number, y: number, width: number, height: number, spriteSheet: love.Image, physics: physics, animOpts?: {frames: string, row: integer, interval: number, paused?: boolean}, tags?: string[]}
+---@param def HuskDef
 ---@param subclass? T Metatable to use (defaults to Husk)
 ---@return T
 function Husk.new(def, subclass)
@@ -97,6 +119,9 @@ function Husk.new(def, subclass)
 	self.width = def.width
 	self.height = def.height
 	self.spriteSheet = def.spriteSheet
+	self.damage = def.damage
+	self.knockbackSpeed = def.knockbackSpeed
+	self.damageTags = def.damageTags or {}
 
 	local vesselOpts = {
 		x = def.x,

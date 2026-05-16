@@ -48,7 +48,7 @@ local INTERACT_FACING_OFFSETS = {
 local INVINCIBLE_DURATION = 2.0
 local FLASH_INTERVAL = 0.05
 local STUN_DURATION = 0.1
-local KNOCKBACK_SPEED = 200
+local DEFAULT_KNOCKBACK_SPEED = 200
 local PLAYER_LINEAR_DAMPING = 7
 
 ---Build the 8-directional animation set from the player sprite sheet.
@@ -179,16 +179,17 @@ function Player:canTakeDamage()
 	return self.damagedTimer <= 0
 end
 
----Apply damage, knock the player away from the source, and enter the hurt state.
----@param source collider
+---Apply damage, knock the player away from the hit source, and enter the hurt state.
+---@param hit DamageHit
 ---@return nil
-function Player:hurt(source)
+function Player:hurt(hit)
 	if self.damagedTimer > 0 then
 		return
 	end
 
-	local srcX, srcY = source:getPosition()
-	local damage = source.damage or 1 -- TODO: make damage part of the entity (soul or husk) not the collider
+	local srcX, srcY = hit.x, hit.y
+	local damage = hit.damage
+	local knockbackSpeed = hit.knockbackSpeed or DEFAULT_KNOCKBACK_SPEED
 
 	Lens.shake()
 
@@ -200,7 +201,7 @@ function Player:hurt(source)
 	else
 		dx, dy = 0, -1
 	end
-	self.vessel:setLinearVelocity(dx * KNOCKBACK_SPEED, dy * KNOCKBACK_SPEED)
+	self.vessel:setLinearVelocity(dx * knockbackSpeed, dy * knockbackSpeed)
 
 	self.stunTimer = STUN_DURATION
 	self.damagedTimer = INVINCIBLE_DURATION

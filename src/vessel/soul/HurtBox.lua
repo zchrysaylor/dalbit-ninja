@@ -1,3 +1,12 @@
+---@class DamageHit
+---@field source Soul|Husk Entity that dealt the damage.
+---@field collider collider Collider found by the hurtbox query.
+---@field damage number Damage amount.
+---@field knockbackSpeed? number Knockback speed applied by the damage source.
+---@field x number Source X position.
+---@field y number Source Y position.
+---@field tags string[] Source damage tags.
+
 ---@class HurtBox
 ---@field owner Soul Owning soul.
 ---@field radius number Hurt radius in pixels.
@@ -30,25 +39,58 @@ local function assertValidDamageTag(tag)
 	assert(VALID_DAMAGE_TAGS[tag], "Invalid hurtbox damage tag: " .. tostring(tag))
 end
 
----Query damaging colliders overlapping this hurtbox.
----@return collider[]
-function HurtBox:query()
-	local world = self.owner.collider.body:getWorld()
-	local px, py = self.owner:getPosition()
-
-	return Collision.queryCircleArea(world, px + self.offsetX, py + self.offsetY, self.radius, function(c)
-		if c.owner == self.owner then
-			return false
-		end
-
-		for _, tag in ipairs(self.damageTags) do
-			if c:hasTag(tag) then
+---@param source Soul|Husk
+---@return boolean
+function HurtBox:acceptsDamageFrom(source)
+	for _, acceptedTag in ipairs(self.damageTags) do
+		for _, sourceTag in ipairs(source.damageTags or {}) do
+			if sourceTag == acceptedTag then
 				return true
 			end
 		end
+	end
 
-		return false
+	return false
+end
+
+---@param source Soul|Husk
+---@param collider collider
+---@return DamageHit
+local function makeDamageHit(source, collider)
+	local x, y = source:getPosition()
+
+	return {
+		source = source,
+		collider = collider,
+		damage = source.damage or 1,
+		knockbackSpeed = source.knockbackSpeed,
+		x = x,
+		y = y,
+		tags = source.damageTags or {},
+	}
+end
+
+---Query damage hits overlapping this hurtbox.
+---@return DamageHit[]
+function HurtBox:query()
+	local world = self.owner.collider.body:getWorld()
+	local px, py = self.owner:getPosition()
+	local hits = {}
+
+	local colliders = Collision.queryCircleArea(world, px + self.offsetX, py + self.offsetY, self.radius, function(c)
+		local source = c.owner
+		if source == self.owner or not source then
+			return false
+		end
+
+		return self:acceptsDamageFrom(source)
 	end, 1)
+
+	for _, collider in ipairs(colliders) do
+		table.insert(hits, makeDamageHit(collider.owner, collider))
+	end
+
+	return hits
 end
 
 ---Create a new hurtbox for a Soul.
