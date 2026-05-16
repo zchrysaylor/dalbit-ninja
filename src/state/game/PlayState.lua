@@ -29,6 +29,8 @@ function PlayState:enterState(opts)
 	self.heraldGroup:hearken(Events.STATE_INPUT_PREFIX .. self.stateName, function(action)
 		if action == "interact" then
 			self.realm.player:interact()
+		elseif action == "shuriken" then
+			self.realm.player:throwShuriken()
 		elseif action == "toggle_menu" then
 			GStateStack:push(MenuState.new())
 		elseif action == "toggle_pause" then

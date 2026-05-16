@@ -7,6 +7,7 @@
 ---@field warps collider[] Warp-trigger colliders for the current map
 ---@field souls Soul[] NPC entities spawned from the current map's entity layer
 ---@field husks Husk[] NPC entities spawned from the current map's husk layer
+---@field projectiles any[] Active projectiles in the current realm
 ---@field player Player The player entity (persists across map loads)
 local Realm = {}
 Realm.__index = Realm
@@ -82,6 +83,15 @@ function Realm:update(dt)
         soul:update(dt)
     end
 
+    -- Update projectiles and remove destroyed ones
+    for i = #self.projectiles, 1, -1 do
+        local p = self.projectiles[i]
+        p:update(dt)
+        if p.destroyed then
+            table.remove(self.projectiles, i)
+        end
+    end
+
     self.world:update(dt)
 
     self.player:syncPosition()
@@ -130,6 +140,10 @@ function Realm:draw()
         soul:draw()
     end
 
+    for _, p in pairs(self.projectiles) do
+        p:draw()
+    end
+
     -- draw collision borders for debugging
     if Debug.showColliders then
         Debug.drawAll(self.world, 0.7)
@@ -162,6 +176,9 @@ function Realm:destroyAll()
     HuskSpawner.destroyAll(self.husks)
     self.husks = {}
 
+    ProjectileSpawner.destroyAll(self.projectiles)
+    self.projectiles = {}
+
     self.map = {}
 end
 
@@ -179,6 +196,7 @@ function Realm.new()
     self.warps = {}
     self.souls = {}
     self.husks = {}
+    self.projectiles = {}
 
     self.player = Player.new({
         x = 152,
@@ -194,6 +212,9 @@ function Realm.new()
             damageTags = { Damage.TYPES.ENEMY_ATTACK, Damage.TYPES.ENVIRONMENT },
         },
     })
+
+    -- Provide global access to current realm for projectiles to register themselves
+    Realm.current = self
 
     return self
 end

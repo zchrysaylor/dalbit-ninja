@@ -171,6 +171,34 @@ function Player:interact()
     end
 end
 
+---Throw a shuriken in the facing direction.
+---@return Shuriken?
+function Player:throwShuriken()
+    local px, py = self:getPosition()
+    local facing = INTERACT_FACING_OFFSETS[self.direction or "down"] or INTERACT_FACING_OFFSETS.down
+    
+    -- Ensure we use the correct physics instance from the current realm
+    local physics = Realm.current and Realm.current.physics
+    if not physics then return nil end
+
+    -- Spawn shuriken slightly in front of player
+    local shuriken = Shuriken.new({
+        x = px + facing.x * 12,
+        y = py + facing.y * 12,
+        dirX = facing.x,
+        dirY = facing.y,
+        physics = physics,
+        owner = self
+    })
+
+    -- Add to current realm projectiles
+    if Realm.current.projectiles then
+        table.insert(Realm.current.projectiles, shuriken)
+    end
+
+    return shuriken
+end
+
 ---Return whether the player can currently take damage.
 ---@return boolean
 function Player:canTakeDamage()

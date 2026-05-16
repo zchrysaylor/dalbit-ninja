@@ -16,6 +16,7 @@ KEY_DEBUG_MENU = ","
 KEY_INTERACT = "e"
 KEY_MENU = "tab"
 KEY_PAUSE = "p"
+KEY_SHURIKEN = "q"
 
 -- rate in seconds of the start screen fade duration
 FADE_RATE = 0.6

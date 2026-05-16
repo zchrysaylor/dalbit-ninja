@@ -38,6 +38,7 @@ NineSlice = require("src.graphics.nineSlice")
 -- vessel-related requires
 Damage = require("src.vessel.damage")
 Vessel = require("src.vessel.Vessel")
+Shuriken = require("src.vessel.projectile.Shuriken")
 Husk = require("src.vessel.husk.Husk")
 Soul = require("src.vessel.soul.Soul")
 HurtBox = require("src.vessel.soul.HurtBox")
@@ -51,6 +52,7 @@ WallSpawner = require("src.realm.WallSpawner")
 WarpSpawner = require("src.realm.WarpSpawner")
 SoulSpawner = require("src.realm.SoulSpawner")
 HuskSpawner = require("src.realm.HuskSpawner")
+ProjectileSpawner = require("src.realm.ProjectileSpawner")
 
 -- state machine-related requires
 StateStack = require("src.state.StateStack")
@@ -74,6 +76,7 @@ GArt = {
     ["sprite-player"] = love.graphics.newImage("art/sprite-player.png"),
     ["panel-wood"] = love.graphics.newImage("art/ninja-theme-wood-panel.png"),
     ["panel-wood-interior"] = love.graphics.newImage("art/ninja-theme-wood-panel-interior.png"),
+    ["shuriken"] = love.graphics.newImage("art/Shuriken.png"),
 }
 
 ---@type table<string, love.Font> Global font table.
