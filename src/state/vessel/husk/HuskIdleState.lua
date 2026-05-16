@@ -14,21 +14,21 @@ HuskIdleState.STATE_NAME = "idle"
 ---@param opts? table Optional options.
 ---@return nil
 function HuskIdleState:enterState(opts)
-	if self.husk.animations and self.husk.animations.current then
-		if self.husk.animOpts and self.husk.animOpts.paused ~= false then
-			self.husk.animations.current:pauseAtStart()
-		end
-	end
+    if self.husk.animations and self.husk.animations.current then
+        if self.husk.animOpts and self.husk.animOpts.paused ~= false then
+            self.husk.animations.current:pauseAtStart()
+        end
+    end
 end
 
 ---Create a new HuskIdleState
 ---@param husk Husk
 ---@return HuskIdleState
 function HuskIdleState.new(husk)
-	local self = BaseState.new(HuskIdleState)
-	self.stateName = HuskIdleState.STATE_NAME
-	self.husk = husk
-	return self
+    local self = BaseState.new(HuskIdleState)
+    self.stateName = HuskIdleState.STATE_NAME
+    self.husk = husk
+    return self
 end
 
 return HuskIdleState

@@ -20,19 +20,19 @@ local theme = {}
 
 ---@type ThemePanels
 theme.panels = {
-	wood = NineSlice.new(GArt["panel-wood"], 6, 5, 6, 5),
-	woodInterior = NineSlice.new(GArt["panel-wood-interior"], 5, 5, 5, 5),
+    wood = NineSlice.new(GArt["panel-wood"], 6, 5, 6, 5),
+    woodInterior = NineSlice.new(GArt["panel-wood-interior"], 5, 5, 5, 5),
 }
 
 ---@type ThemeFonts
 theme.fonts = {
-	title = GFonts["ninjaMedium"],
-	body = GFonts["ninjaSmall"],
+    title = GFonts["ninjaMedium"],
+    body = GFonts["ninjaSmall"],
 }
 
 ---@type ThemeColors
 theme.colors = {
-	text = { 1, 1, 1, 1 },
+    text = { 1, 1, 1, 1 },
 }
 
 -- TODO: consider refactoring to factory `theme.new(art, fonts)` to reduce global coupling

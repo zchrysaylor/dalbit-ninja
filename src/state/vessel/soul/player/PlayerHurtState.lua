@@ -13,24 +13,24 @@ PlayerHurtState.STATE_NAME = "hurt"
 ---@param dt number Delta time in seconds
 ---@return nil
 function PlayerHurtState:update(dt)
-	if self.player.stunTimer <= 0 then
-		if self.player:applyInputDirection() then
-			self.player:changeState(PlayerWalkState.STATE_NAME)
-			return
-		end
+    if self.player.stunTimer <= 0 then
+        if self.player:applyInputDirection() then
+            self.player:changeState(PlayerWalkState.STATE_NAME)
+            return
+        end
 
-		self.player:changeState(PlayerIdleState.STATE_NAME)
-	end
+        self.player:changeState(PlayerIdleState.STATE_NAME)
+    end
 end
 
 ---Create a new PlayerHurtState
 ---@param player Player
 ---@return PlayerHurtState
 function PlayerHurtState.new(player)
-	local self = BaseState.new(PlayerHurtState)
-	self.stateName = PlayerHurtState.STATE_NAME
-	self.player = player
-	return self
+    local self = BaseState.new(PlayerHurtState)
+    self.stateName = PlayerHurtState.STATE_NAME
+    self.player = player
+    return self
 end
 
 return PlayerHurtState

@@ -12,67 +12,67 @@ StateStack.__index = StateStack
 ---@param opts? table Optional options.
 ---@return nil
 function StateStack:push(state, opts)
-	table.insert(self.states, state)
-	state:enterState(opts)
+    table.insert(self.states, state)
+    state:enterState(opts)
 end
 
 ---Exit and remove the top state from the stack.
 ---@return nil
 function StateStack:pop()
-	if #self.states == 0 then
-		return
-	end
-	self.states[#self.states]:exitState()
-	table.remove(self.states)
+    if #self.states == 0 then
+        return
+    end
+    self.states[#self.states]:exitState()
+    table.remove(self.states)
 end
 
 ---Peek at the top-most state without removing it.
 ---@return BaseState|nil
 function StateStack:peek()
-	return self.states[#self.states]
+    return self.states[#self.states]
 end
 
 ---Check whether the top-most state matches the given state name.
 ---@param stateName string
 ---@return boolean
 function StateStack:isTop(stateName)
-	local topState = self.states[#self.states]
-	if topState and topState.stateName == stateName then
-		return true
-	end
-	return false
+    local topState = self.states[#self.states]
+    if topState and topState.stateName == stateName then
+        return true
+    end
+    return false
 end
 
 ---Update only the top-most active state.
 ---@param dt number Delta time in seconds
 ---@return nil
 function StateStack:update(dt)
-	if #self.states == 0 then
-		return
-	end
-	self.states[#self.states]:update(dt)
+    if #self.states == 0 then
+        return
+    end
+    self.states[#self.states]:update(dt)
 end
 
 ---Draw all active states from bottom to top.
 ---@return nil
 function StateStack:draw()
-	for _, state in ipairs(self.states) do
-		state:draw()
-	end
+    for _, state in ipairs(self.states) do
+        state:draw()
+    end
 end
 
 ---Remove all states from the stack without calling `exitState`.
 ---@return nil
 function StateStack:clear()
-	self.states = {}
+    self.states = {}
 end
 
 ---Create a new StateStack.
 ---@return StateStack
 function StateStack.new()
-	local self = setmetatable({}, StateStack)
-	self.states = {}
-	return self
+    local self = setmetatable({}, StateStack)
+    self.states = {}
+    return self
 end
 
 return StateStack

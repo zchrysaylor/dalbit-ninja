@@ -32,7 +32,7 @@ function BaseState:draw() end
 ---@param subclass? T Metatable to use (defaults to BaseState)
 ---@return T
 function BaseState.new(subclass)
-	return setmetatable({}, subclass or BaseState)
+    return setmetatable({}, subclass or BaseState)
 end
 
 return BaseState

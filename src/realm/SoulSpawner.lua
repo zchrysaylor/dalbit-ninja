@@ -9,15 +9,15 @@ local SoulSpawner = {}
 ---@param obj SoulMapObject Tiled map object with at minimum `name`, `x`, and `y` fields
 ---@return Soul|nil soul The spawned Soul, or nil if the object type is unrecognized
 function SoulSpawner.spawn(physics, player, obj)
-	local archetype = SoulRegistry[obj.name]
-	if not archetype then
-		return nil
-	end
+    local archetype = SoulRegistry[obj.name]
+    if not archetype then
+        return nil
+    end
 
-	return archetype.spawn({
-		physics = physics,
-		player = player,
-	}, obj)
+    return archetype.spawn({
+        physics = physics,
+        player = player,
+    }, obj)
 end
 
 ---Destroy the physics bodies of all provided Soul entities.
@@ -25,9 +25,9 @@ end
 ---@param souls Soul[] Array of Soul entities to destroy
 ---@return nil
 function SoulSpawner.destroyAll(souls)
-	for _, soul in ipairs(souls) do
-		soul:destroy()
-	end
+    for _, soul in ipairs(souls) do
+        soul:destroy()
+    end
 end
 
 return SoulSpawner
