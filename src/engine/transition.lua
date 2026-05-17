@@ -16,32 +16,32 @@ transition.isActive = false
 ---@param onCompleteFn? fun() Called when fade-in finishes
 ---@return nil
 function transition.fade(duration, onMidpointFn, onCompleteFn)
-	if transition.isActive then
-		return
-	end
-	transition.isActive = true
+    if transition.isActive then
+        return
+    end
+    transition.isActive = true
 
-	Flux.to(transition, duration, { alpha = 1 }):ease("quadin"):oncomplete(function()
-		onMidpointFn()
+    Flux.to(transition, duration, { alpha = 1 }):ease("quadin"):oncomplete(function()
+        onMidpointFn()
 
-		Flux.to(transition, duration, { alpha = 0 }):ease("quadout"):oncomplete(function()
-			transition.isActive = false
-			if onCompleteFn then
-				onCompleteFn()
-			end
-		end)
-	end)
+        Flux.to(transition, duration, { alpha = 0 }):ease("quadout"):oncomplete(function()
+            transition.isActive = false
+            if onCompleteFn then
+                onCompleteFn()
+            end
+        end)
+    end)
 end
 
 ---Draw the black overlay. Call every frame from the draw pipeline.
 ---@return nil
 function transition.draw()
-	if transition.isActive then
-		Util.safeDraw(function()
-			love.graphics.setColor(0, 0, 0, transition.alpha)
-			love.graphics.rectangle("fill", 0, 0, View.getWidth(), View.getHeight())
-		end)
-	end
+    if transition.isActive then
+        Util.safeDraw(function()
+            love.graphics.setColor(0, 0, 0, transition.alpha)
+            love.graphics.rectangle("fill", 0, 0, View.getWidth(), View.getHeight())
+        end)
+    end
 end
 
 return transition

@@ -9,5 +9,5 @@
 
 ---@type table<string, SoulArchetype>
 return {
-	pointCamoRed = require("src.vessel.soul.archetypes.ArchetypeCamoRed"),
+    pointCamoRed = require("src.vessel.soul.archetypes.ArchetypeCamoRed"),
 }

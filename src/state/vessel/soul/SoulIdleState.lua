@@ -15,46 +15,46 @@ SoulIdleState.STATE_NAME = "idle"
 ---@param opts? table Optional options.
 ---@return nil
 function SoulIdleState:enterState(opts)
-	self.soul.vessel:setLinearVelocity(0, 0)
-	self.soul:setIsAnimating(false)
-	self.soul:refreshAnimation()
+    self.soul.vessel:setLinearVelocity(0, 0)
+    self.soul:setIsAnimating(false)
+    self.soul:refreshAnimation()
 
-	if not self.soul:isAI() then
-		return
-	end
+    if not self.soul:isAI() then
+        return
+    end
 
-	self.idleTimer = self.soul:getRandomIdleDuration()
+    self.idleTimer = self.soul:getRandomIdleDuration()
 end
 
 ---Advance idle timing and transition AI souls into chase or wander.
 ---@param dt number Delta time in seconds
 ---@return nil
 function SoulIdleState:update(dt)
-	if not self.soul:isAI() then
-		return
-	end
+    if not self.soul:isAI() then
+        return
+    end
 
-	if self.soul:tryChangeToAIChaseState() then
-		return
-	end
+    if self.soul:tryChangeToAIChaseState() then
+        return
+    end
 
-	if self.idleTimer > 0 then
-		self.idleTimer = self.idleTimer - dt
-	else
-		self.soul:changeState(SoulWanderState.STATE_NAME)
-		return
-	end
+    if self.idleTimer > 0 then
+        self.idleTimer = self.idleTimer - dt
+    else
+        self.soul:changeState(SoulWanderState.STATE_NAME)
+        return
+    end
 end
 
 ---Create a new SoulIdleState
 ---@param soul Soul
 ---@return SoulIdleState
 function SoulIdleState.new(soul)
-	local self = BaseState.new(SoulIdleState)
-	self.stateName = SoulIdleState.STATE_NAME
-	self.soul = soul
-	self.idleTimer = 0
-	return self
+    local self = BaseState.new(SoulIdleState)
+    self.stateName = SoulIdleState.STATE_NAME
+    self.soul = soul
+    self.idleTimer = 0
+    return self
 end
 
 return SoulIdleState

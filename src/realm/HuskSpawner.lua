@@ -8,29 +8,29 @@ local HuskSpawner = {}
 ---@param obj table Tiled map object with at minimum `name`, `x`, and `y` fields
 ---@return Husk|nil husk The spawned Husk, or nil if the object type is unrecognized
 function HuskSpawner.spawn(physics, obj)
-	if obj.name == "pointChest" then
-		local chest = Husk.new({
-			x = obj.x,
-			y = obj.y,
-			width = 16,
-			height = 16,
-			spriteSheet = GArt["chest-little-blue"],
-			animOpts = { frames = "1-2", row = 1, interval = 0.1, paused = true },
-			physics = physics,
-			tags = { "husk", "interactable" },
-		})
-		chest.opened = false
-		---@return nil
-		function chest:interact()
-			self.opened = not self.opened
-			if self.opened then
-				self.animations.current:gotoFrame(2)
-			else
-				self.animations.current:gotoFrame(1)
-			end
-		end
-		return chest
-	end
+    if obj.name == "pointChest" then
+        local chest = Husk.new({
+            x = obj.x,
+            y = obj.y,
+            width = 16,
+            height = 16,
+            spriteSheet = GArt["chest-little-blue"],
+            animOpts = { frames = "1-2", row = 1, interval = 0.1, paused = true },
+            physics = physics,
+            tags = { "husk", "interactable" },
+        })
+        chest.opened = false
+        ---@return nil
+        function chest:interact()
+            self.opened = not self.opened
+            if self.opened then
+                self.animations.current:gotoFrame(2)
+            else
+                self.animations.current:gotoFrame(1)
+            end
+        end
+        return chest
+    end
 end
 
 ---Destroy the physics bodies of all provided Husk entities.
@@ -38,9 +38,9 @@ end
 ---@param husks Husk[] Array of Husk entities to destroy
 ---@return nil
 function HuskSpawner.destroyAll(husks)
-	for _, husk in ipairs(husks) do
-		husk:destroy()
-	end
+    for _, husk in ipairs(husks) do
+        husk:destroy()
+    end
 end
 
 return HuskSpawner

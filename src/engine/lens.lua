@@ -16,14 +16,14 @@ local cam = HumpCamera()
 cam.smoother = HumpCamera.smooth.damped(CAMERA_STIFFNESS)
 
 local shake = {
-	time = 0,
-	intensity = 0,
-	speed = 0,
-	speedTimer = 0,
-	fade = true,
-	fadeSpeed = SHAKE_FADE_SPEED,
-	dir = 1,
-	offsetX = 0,
+    time = 0,
+    intensity = 0,
+    speed = 0,
+    speedTimer = 0,
+    fade = true,
+    fadeSpeed = SHAKE_FADE_SPEED,
+    dir = 1,
+    offsetX = 0,
 }
 
 ---Snap a world-space camera coordinate to the nearest screen pixel.
@@ -31,19 +31,19 @@ local shake = {
 ---@param scale number Current camera scale
 ---@return number snappedValue
 local function snapToScreenPixel(value, scale)
-	return math.floor(value * scale + 0.5) / scale
+    return math.floor(value * scale + 0.5) / scale
 end
 
 ---Return whether the player's physics velocity is below the camera settle threshold.
 ---@param player Soul Entity with an optional vessel field
 ---@return boolean stopped
 local function isPlayerStopped(player)
-	if not player.vessel then
-		return false
-	end
+    if not player.vessel then
+        return false
+    end
 
-	local vx, vy = player.vessel:getLinearVelocity()
-	return vx * vx + vy * vy <= CAMERA_STOPPED_SPEED * CAMERA_STOPPED_SPEED
+    local vx, vy = player.vessel:getLinearVelocity()
+    return vx * vx + vy * vy <= CAMERA_STOPPED_SPEED * CAMERA_STOPPED_SPEED
 end
 
 ---Clamp a camera center point so the viewport never exceeds map bounds.
@@ -53,30 +53,30 @@ end
 ---@return number clampedX
 ---@return number clampedY
 local function clampToMap(x, y, map)
-	local mapWidth = map.width * map.tilewidth
-	local mapHeight = map.height * map.tileheight
-	local halfViewW = love.graphics.getWidth() / (2 * cam.scale)
-	local halfViewH = love.graphics.getHeight() / (2 * cam.scale)
-	local minX = halfViewW
-	local maxX = mapWidth - halfViewW
-	local minY = halfViewH
-	local maxY = mapHeight - halfViewH
-	local clampedX = x
-	local clampedY = y
+    local mapWidth = map.width * map.tilewidth
+    local mapHeight = map.height * map.tileheight
+    local halfViewW = love.graphics.getWidth() / (2 * cam.scale)
+    local halfViewH = love.graphics.getHeight() / (2 * cam.scale)
+    local minX = halfViewW
+    local maxX = mapWidth - halfViewW
+    local minY = halfViewH
+    local maxY = mapHeight - halfViewH
+    local clampedX = x
+    local clampedY = y
 
-	if minX > maxX then
-		clampedX = mapWidth / 2
-	else
-		clampedX = math.max(minX, math.min(maxX, clampedX))
-	end
+    if minX > maxX then
+        clampedX = mapWidth / 2
+    else
+        clampedX = math.max(minX, math.min(maxX, clampedX))
+    end
 
-	if minY > maxY then
-		clampedY = mapHeight / 2
-	else
-		clampedY = math.max(minY, math.min(maxY, clampedY))
-	end
+    if minY > maxY then
+        clampedY = mapHeight / 2
+    else
+        clampedY = math.max(minY, math.min(maxY, clampedY))
+    end
 
-	return clampedX, clampedY
+    return clampedX, clampedY
 end
 
 ---Compute the clamped target camera center for the current map bounds.
@@ -85,7 +85,7 @@ end
 ---@return number targetX
 ---@return number targetY
 local function getFollowTarget(player, map)
-	return clampToMap(player.x, player.y, map)
+    return clampToMap(player.x, player.y, map)
 end
 
 ---Begin rendering through the camera viewport. All draw calls made between
@@ -97,19 +97,19 @@ end
 ---@param noclip? boolean If true, disables scissor clipping (default false)
 ---@return nil
 function lens.attach(x, y, w, h, noclip)
-	local camX, camY = cam.x, cam.y
-	local scale = cam.scale
-	local drawX, drawY = cam.x + shake.offsetX, cam.y
-	cam.x = snapToScreenPixel(drawX, scale)
-	cam.y = snapToScreenPixel(drawY, scale)
-	cam:attach(x, y, w, h, noclip)
-	cam.x, cam.y = camX, camY
+    local camX, camY = cam.x, cam.y
+    local scale = cam.scale
+    local drawX, drawY = cam.x + shake.offsetX, cam.y
+    cam.x = snapToScreenPixel(drawX, scale)
+    cam.y = snapToScreenPixel(drawY, scale)
+    cam:attach(x, y, w, h, noclip)
+    cam.x, cam.y = camX, camY
 end
 
 ---End rendering through the camera viewport.
 ---@return nil
 function lens.detach()
-	cam:detach()
+    cam:detach()
 end
 
 ---Center the camera on the player and clamp so the viewport never exceeds map bounds.
@@ -119,16 +119,16 @@ end
 ---@param map {width: number, height: number, tilewidth: number, tileheight: number} STI map bounds
 ---@return nil
 function lens.follow(player, map)
-	local targetX, targetY = getFollowTarget(player, map)
-	local dx = targetX - cam.x
-	local dy = targetY - cam.y
-	local settleDistance = CAMERA_SETTLE_SCREEN_PIXELS / cam.scale
+    local targetX, targetY = getFollowTarget(player, map)
+    local dx = targetX - cam.x
+    local dy = targetY - cam.y
+    local settleDistance = CAMERA_SETTLE_SCREEN_PIXELS / cam.scale
 
-	if isPlayerStopped(player) and dx * dx + dy * dy <= settleDistance * settleDistance then
-		return
-	end
+    if isPlayerStopped(player) and dx * dx + dy * dy <= settleDistance * settleDistance then
+        return
+    end
 
-	cam:lockPosition(targetX, targetY)
+    cam:lockPosition(targetX, targetY)
 end
 
 ---Snap the camera immediately to the clamped target position.
@@ -136,8 +136,8 @@ end
 ---@param map {width: number, height: number, tilewidth: number, tileheight: number} STI map bounds
 ---@return nil
 function lens.snapTo(player, map)
-	local targetX, targetY = getFollowTarget(player, map)
-	cam:lookAt(targetX, targetY)
+    local targetX, targetY = getFollowTarget(player, map)
+    cam:lookAt(targetX, targetY)
 end
 
 ---Start a short horizontal camera shake.
@@ -148,43 +148,43 @@ end
 ---@param fadeSpeed? number Intensity fade speed in pixels per second
 ---@return nil
 function lens.shake(duration, intensity, speed, fade, fadeSpeed)
-	shake.time = duration or SHAKE_DURATION
-	shake.intensity = intensity or SHAKE_INTENSITY
-	shake.speed = speed or SHAKE_SPEED
-	shake.speedTimer = shake.speed
-	shake.fade = fade ~= false
-	shake.fadeSpeed = fadeSpeed or SHAKE_FADE_SPEED
-	shake.dir = 1
-	shake.offsetX = shake.intensity * shake.dir
+    shake.time = duration or SHAKE_DURATION
+    shake.intensity = intensity or SHAKE_INTENSITY
+    shake.speed = speed or SHAKE_SPEED
+    shake.speedTimer = shake.speed
+    shake.fade = fade ~= false
+    shake.fadeSpeed = fadeSpeed or SHAKE_FADE_SPEED
+    shake.dir = 1
+    shake.offsetX = shake.intensity * shake.dir
 end
 
 ---Advance the active camera shake. Call after normal follow logic.
 ---@param dt number Delta time in seconds
 ---@return nil
 function lens.update(dt)
-	if shake.time > 0 then
-		shake.time = math.max(0, shake.time - dt)
-	end
+    if shake.time > 0 then
+        shake.time = math.max(0, shake.time - dt)
+    end
 
-	if shake.time > 0 or (shake.fade and shake.intensity > 0) then
-		shake.offsetX = shake.intensity * shake.dir
+    if shake.time > 0 or (shake.fade and shake.intensity > 0) then
+        shake.offsetX = shake.intensity * shake.dir
 
-		if shake.speedTimer <= 0 then
-			shake.dir = shake.dir * -1
-			shake.speedTimer = shake.speed
-		else
-			shake.speedTimer = math.max(0, shake.speedTimer - dt)
-		end
+        if shake.speedTimer <= 0 then
+            shake.dir = shake.dir * -1
+            shake.speedTimer = shake.speed
+        else
+            shake.speedTimer = math.max(0, shake.speedTimer - dt)
+        end
 
-		if shake.time <= 0 and shake.fade and shake.intensity > 0 then
-			shake.intensity = math.max(0, shake.intensity - dt * shake.fadeSpeed)
-			if shake.intensity <= 0 then
-				shake.offsetX = 0
-			end
-		end
-	else
-		shake.offsetX = 0
-	end
+        if shake.time <= 0 and shake.fade and shake.intensity > 0 then
+            shake.intensity = math.max(0, shake.intensity - dt * shake.fadeSpeed)
+            if shake.intensity <= 0 then
+                shake.offsetX = 0
+            end
+        end
+    else
+        shake.offsetX = 0
+    end
 end
 
 ---Set the camera zoom level. Values greater than 1 zoom in; less than 1 zoom out.
@@ -192,7 +192,7 @@ end
 ---@param zoom number Zoom scale factor (e.g. 1 = default, 2 = 2x zoom in)
 ---@return nil
 function lens.setZoom(zoom)
-	cam.scale = zoom
+    cam.scale = zoom
 end
 
 return lens

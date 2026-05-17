@@ -10,9 +10,9 @@ local util = {}
 ---@param fn fun() Drawing callback to execute in isolation
 ---@return nil
 function util.safeDraw(fn)
-	love.graphics.push("all")
-	fn()
-	love.graphics.pop()
+    love.graphics.push("all")
+    fn()
+    love.graphics.pop()
 end
 
 ---Return the squared distance between two points.
@@ -23,9 +23,9 @@ end
 ---@param y2 number
 ---@return number
 function util.distanceSquared(x1, y1, x2, y2)
-	local dx = x1 - x2
-	local dy = y1 - y2
-	return dx * dx + dy * dy
+    local dx = x1 - x2
+    local dy = y1 - y2
+    return dx * dx + dy * dy
 end
 
 ---Return a shallow copy of a table.
@@ -33,11 +33,11 @@ end
 ---@param source T Table to copy.
 ---@return T copy Copied table with the same first-level keys and values.
 function util.shallowCopy(source)
-	local copy = {}
-	for key, value in pairs(source) do
-		copy[key] = value
-	end
-	return copy
+    local copy = {}
+    for key, value in pairs(source) do
+        copy[key] = value
+    end
+    return copy
 end
 
 return util

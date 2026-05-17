@@ -17,13 +17,13 @@ PlayState.STATE_NAME = "play"
 ---@param opts? table Optional options.
 ---@return nil
 function PlayState:enterState(opts)
-	self.heraldGroup = Herald.muster()
+    self.heraldGroup = Herald.muster()
 
-	self.heraldGroup:hearken(Events.REALM_WARP_TRIGGERED, function(warp)
-		Transition.fade(FADE_RATE, function()
-			self.realm:loadMap(warp.mapName, warp.destX, warp.destY)
-		end)
-	end)
+    self.heraldGroup:hearken(Events.REALM_WARP_TRIGGERED, function(warp)
+        Transition.fade(FADE_RATE, function()
+            self.realm:loadMap(warp.mapName, warp.destX, warp.destY)
+        end)
+    end)
 
 	---@param action StateInputAction
 	self.heraldGroup:hearken(Events.STATE_INPUT_PREFIX .. self.stateName, function(action)
@@ -42,57 +42,57 @@ end
 ---Called when this state is deactivated.
 ---@return nil
 function PlayState:exitState()
-	if self.heraldGroup then
-		self.heraldGroup:unhearkenAll()
-		self.heraldGroup = nil
-	end
+    if self.heraldGroup then
+        self.heraldGroup:unhearkenAll()
+        self.heraldGroup = nil
+    end
 
-	self.realm:destroyAll()
-	self.realm.player:destroy()
+    self.realm:destroyAll()
+    self.realm.player:destroy()
 end
 
 ---@param dt number Delta time in seconds
 ---@return nil
 function PlayState:update(dt)
-	if not Transition.isActive and not self.isPaused then
-		self.realm:update(dt)
-	end
+    if not Transition.isActive and not self.isPaused then
+        self.realm:update(dt)
+    end
 end
 
 ---Render the active realm and pause/transition overlays.
 ---@return nil
 function PlayState:draw()
-	self.realm:draw()
-	Transition.draw() -- must be drawn after realm's draw to take effect
+    self.realm:draw()
+    Transition.draw() -- must be drawn after realm's draw to take effect
 
-	if self.isPaused then
-		-- TODO: Make normal size again
-		Util.safeDraw(function()
-			love.graphics.setColor(love.math.colorFromBytes(218, 206, 211))
-			love.graphics.setFont(GFonts["ninjaMedium"])
-			love.graphics.printf(
-				"Game Paused. Press 'p' to resume.",
-				0,
-				View.getHeight() / 2,
-				View.getWidth(),
-				"center"
-			)
-		end)
-	end
+    if self.isPaused then
+        -- TODO: Make normal size again
+        Util.safeDraw(function()
+            love.graphics.setColor(love.math.colorFromBytes(218, 206, 211))
+            love.graphics.setFont(GFonts["ninjaMedium"])
+            love.graphics.printf(
+                "Game Paused. Press 'p' to resume.",
+                0,
+                View.getHeight() / 2,
+                View.getWidth(),
+                "center"
+            )
+        end)
+    end
 end
 
 ---Create a new PlayState
 ---@return PlayState
 function PlayState.new()
-	local self = BaseState.new(PlayState)
-	self.stateName = PlayState.STATE_NAME
+    local self = BaseState.new(PlayState)
+    self.stateName = PlayState.STATE_NAME
 
-	self.realm = Realm.new()
-	self.realm:loadMap("map-start", self.realm.player.x, self.realm.player.y)
+    self.realm = Realm.new()
+    self.realm:loadMap("map-start", self.realm.player.x, self.realm.player.y)
 
-	self.isPaused = false
+    self.isPaused = false
 
-	return self
+    return self
 end
 
 return PlayState

@@ -14,41 +14,41 @@ StateMachine.__index = StateMachine
 ---@param opts? table Optional options.
 ---@return nil
 function StateMachine:changeState(state, opts)
-	assert(self.states[state])
-	self.currentState:exitState()
-	self.currentState = self.states[state]()
-	self.currentState:enterState(opts)
+    assert(self.states[state])
+    self.currentState:exitState()
+    self.currentState = self.states[state]()
+    self.currentState:enterState(opts)
 end
 
 ---Delegate update to the active state.
 ---@param dt number Delta time in seconds
 ---@return nil
 function StateMachine:update(dt)
-	self.currentState:update(dt)
+    self.currentState:update(dt)
 end
 
 ---Delegate post-physics update to the active state.
 ---@param dt number Delta time in seconds
 ---@return nil
 function StateMachine:postPhysicsUpdate(dt)
-	self.currentState:postPhysicsUpdate(dt)
+    self.currentState:postPhysicsUpdate(dt)
 end
 
 ---Delegate draw to the active state.
 ---@return nil
 function StateMachine:draw()
-	self.currentState:draw()
+    self.currentState:draw()
 end
 
 ---Create a new StateMachine
 ---@param states? table<string, fun(): BaseState> Map of state key -> state factory
 ---@return StateMachine
 function StateMachine.new(states)
-	local self = setmetatable({}, StateMachine)
-	self.states = states or {}
-	self.emptyState = BaseState.new()
-	self.currentState = self.emptyState
-	return self
+    local self = setmetatable({}, StateMachine)
+    self.states = states or {}
+    self.emptyState = BaseState.new()
+    self.currentState = self.emptyState
+    return self
 end
 
 return StateMachine

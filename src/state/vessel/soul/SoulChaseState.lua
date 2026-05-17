@@ -14,41 +14,41 @@ SoulChaseState.STATE_NAME = "chase"
 ---@param opts? table Optional options.
 ---@return nil
 function SoulChaseState:enterState(opts)
-	self.soul:setIsAnimating(true)
-	self.soul:refreshAnimation()
+    self.soul:setIsAnimating(true)
+    self.soul:refreshAnimation()
 end
 
 ---Advance movement while this state is active.
 ---@param dt number Delta time in seconds
 ---@return nil
 function SoulChaseState:update(dt)
-	if self.soul:canDetectAIChaseTarget() then
-		self.soul:updateAIChaseVector()
-	else
-		self.soul:changeState(SoulReturnState.STATE_NAME)
-		return
-	end
+    if self.soul:canDetectAIChaseTarget() then
+        self.soul:updateAIChaseVector()
+    else
+        self.soul:changeState(SoulReturnState.STATE_NAME)
+        return
+    end
 
-	local vx, vy = self.soul.vessel:getLinearVelocity()
-	local currentSpeed = math.sqrt(vx * vx + vy * vy)
-	local maxSpeed = self.soul.speed
+    local vx, vy = self.soul.vessel:getLinearVelocity()
+    local currentSpeed = math.sqrt(vx * vx + vy * vy)
+    local maxSpeed = self.soul.speed
 
-	if currentSpeed < maxSpeed then
-		local force = self.soul.ai.chaseForce or 80
-		local fx = self.soul.ai.moveDirX * force
-		local fy = self.soul.ai.moveDirY * force
-		self.soul.collider.body:applyForce(fx, fy)
-	end
+    if currentSpeed < maxSpeed then
+        local force = self.soul.ai.chaseForce or 80
+        local fx = self.soul.ai.moveDirX * force
+        local fy = self.soul.ai.moveDirY * force
+        self.soul.collider.body:applyForce(fx, fy)
+    end
 end
 
 ---Create a new SoulChaseState
 ---@param soul Soul
 ---@return SoulChaseState
 function SoulChaseState.new(soul)
-	local self = BaseState.new(SoulChaseState)
-	self.stateName = SoulChaseState.STATE_NAME
-	self.soul = soul
-	return self
+    local self = BaseState.new(SoulChaseState)
+    self.stateName = SoulChaseState.STATE_NAME
+    self.soul = soul
+    return self
 end
 
 return SoulChaseState

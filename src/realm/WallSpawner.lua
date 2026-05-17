@@ -7,23 +7,23 @@ local WallSpawner = {}
 ---@param obj table Tiled map object with `x`, `y`, `width`, and `height` fields
 ---@return collider wall The resulting static collider
 function WallSpawner.spawn(physics, obj)
-	local centerX = obj.x + obj.width / 2
-	local centerY = obj.y + obj.height / 2
-	local wall = physics:collider(centerX, centerY, {
-		width = obj.width,
-		height = obj.height,
-		bodyType = "static",
-	})
-	return wall
+    local centerX = obj.x + obj.width / 2
+    local centerY = obj.y + obj.height / 2
+    local wall = physics:collider(centerX, centerY, {
+        width = obj.width,
+        height = obj.height,
+        bodyType = "static",
+    })
+    return wall
 end
 
 ---Destroy all wall physics bodies in the provided array.
 ---@param walls collider[] Array of wall colliders to destroy
 ---@return nil
 function WallSpawner.destroyAll(walls)
-	for _, wall in ipairs(walls) do
-		wall:destroy()
-	end
+    for _, wall in ipairs(walls) do
+        wall:destroy()
+    end
 end
 
 return WallSpawner

@@ -7,22 +7,22 @@ local WarpSpawner = {}
 ---@param obj table Tiled map object with `name`, `x`, `y`, `width`, and `height` fields
 ---@return collider warp The resulting static collider tagged as a warp
 function WarpSpawner.spawn(physics, obj)
-	local centerX = obj.x + obj.width / 2
-	local centerY = obj.y + obj.height / 2
-	local warp = physics:collider(centerX, centerY, {
-		width = obj.width,
-		height = obj.height,
-		bodyType = "static",
-	})
+    local centerX = obj.x + obj.width / 2
+    local centerY = obj.y + obj.height / 2
+    local warp = physics:collider(centerX, centerY, {
+        width = obj.width,
+        height = obj.height,
+        bodyType = "static",
+    })
 
-	-- TODO: refactor to use custom tags (can also control bodyType by tag?)
-	-- store metadata on love.physics body
-	warp:setUserData({
-		name = obj.name,
-		isWarp = true,
-	})
+    -- TODO: refactor to use custom tags (can also control bodyType by tag?)
+    -- store metadata on love.physics body
+    warp:setUserData({
+        name = obj.name,
+        isWarp = true,
+    })
 
-	return warp
+    return warp
 end
 
 ---Check if the player collider is touching any warp; if so, return its destination.
@@ -30,25 +30,25 @@ end
 ---@param warps collider[] Array of warps
 ---@return WarpDestination|nil destination The map transition data, or nil if no warp is triggered
 function WarpSpawner.check(playerCollider, warps)
-	-- Check all warp bodies for collision with player
-	for _, warp in ipairs(warps) do
-		if Collision.isColliding(playerCollider, warp) then
-			local data = warp:getUserData()
-			if data and data.isWarp then
-				return MapTransitions[data.name]
-			end
-		end
-	end
-	return nil
+    -- Check all warp bodies for collision with player
+    for _, warp in ipairs(warps) do
+        if Collision.isColliding(playerCollider, warp) then
+            local data = warp:getUserData()
+            if data and data.isWarp then
+                return MapTransitions[data.name]
+            end
+        end
+    end
+    return nil
 end
 
 ---Destroy all warps in the provided array.
 ---@param warps collider[] Array of warps to destroy
 ---@return nil
 function WarpSpawner.destroyAll(warps)
-	for _, warp in ipairs(warps) do
-		warp:destroy()
-	end
+    for _, warp in ipairs(warps) do
+        warp:destroy()
+    end
 end
 
 return WarpSpawner
