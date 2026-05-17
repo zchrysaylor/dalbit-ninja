@@ -5,6 +5,7 @@ local BaseState = require("src.state.BaseState")
 ---@field stateName string
 ---@field realm Realm The active world/level controller
 ---@field isPaused boolean True while the game is paused
+---@field currentFloor number The current dungeon floor (0 if in village)
 ---@field heraldGroup HeraldMuster?
 local PlayState = {}
 PlayState.__index = PlayState
@@ -21,7 +22,18 @@ function PlayState:enterState(opts)
 
     self.heraldGroup:hearken(Events.REALM_WARP_TRIGGERED, function(warp)
         Transition.fade(FADE_RATE, function()
-            self.realm:loadMap(warp.mapName, warp.destX, warp.destY)
+            if warp.mapName == "map-dungeon" then
+                self.currentFloor = 1
+                local floorData, spawnX, spawnY = DungeonGenerator.generate(self.currentFloor)
+                self.realm:loadMap(floorData, spawnX, spawnY)
+            elseif warp.mapName == "procedural" then
+                self.currentFloor = self.currentFloor + 1
+                local floorData, spawnX, spawnY = DungeonGenerator.generate(self.currentFloor)
+                self.realm:loadMap(floorData, spawnX, spawnY)
+            else
+                self.currentFloor = 0
+                self.realm:loadMap(warp.mapName, warp.destX, warp.destY)
+            end
         end)
     end)
 
@@ -77,6 +89,15 @@ function PlayState:draw()
             )
         end)
     end
+
+    -- draw floor number if in dungeon
+    if self.currentFloor > 0 then
+        Util.safeDraw(function()
+            love.graphics.setColor(1, 1, 1, 1)
+            love.graphics.setFont(GFonts["ninjaMedium"])
+            love.graphics.print("FLOOR " .. self.currentFloor, 10, 10)
+        end)
+    end
 end
 
 ---Create a new PlayState
@@ -89,6 +110,7 @@ function PlayState.new()
     self.realm:loadMap("map-start", self.realm.player.x, self.realm.player.y)
 
     self.isPaused = false
+    self.currentFloor = 0
 
     return self
 end

@@ -10,7 +10,7 @@ return {
   tilewidth = 16,
   tileheight = 16,
   nextlayerid = 13,
-  nextobjectid = 29,
+  nextobjectid = 30,
   properties = {},
   tilesets = {
     {
@@ -306,6 +306,21 @@ return {
           rotation = 0,
           visible = true,
           properties = {}
+        },
+        {
+          id = 29,
+          name = "warpToDungeon",
+          type = "",
+          shape = "rectangle",
+          x = 300,
+          y = 70,
+          width = 16,
+          height = 16,
+          rotation = 0,
+          visible = true,
+          properties = {
+            isPortal = true
+          }
         }
       }
     },

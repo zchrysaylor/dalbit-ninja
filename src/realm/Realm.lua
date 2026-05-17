@@ -8,23 +8,28 @@
 ---@field souls Soul[] NPC entities spawned from the current map's entity layer
 ---@field husks Husk[] NPC entities spawned from the current map's husk layer
 ---@field player Player The player entity (persists across map loads)
+---@field portalAnim table Animated portal using anim8
 local Realm = {}
 Realm.__index = Realm
 
----Load a Tiled map by name, destroying all existing map entities first.
+---Load a Tiled map by name or table, destroying all existing map entities first.
 ---Spawns walls, warps, and soul entities from the map's object layers.
 ---If destination coordinates are provided, teleports the player's physics body to that position.
----@param mapName string Filename stem under maps/ (e.g. "map-start")
+---@param mapSource string|table Filename stem under maps/ or a full map data table
 ---@param destX? number Player spawn X in pixels (optional)
 ---@param destY? number Player spawn Y in pixels (optional)
 ---@return nil
-function Realm:loadMap(mapName, destX, destY)
+function Realm:loadMap(mapSource, destX, destY)
     self:destroyAll()
 
     -- TODO: capture loaded map for save state
     -- loadedMap = mapName
 
-    self.map = Tiled("maps/" .. mapName .. ".lua")
+    if type(mapSource) == "string" then
+        self.map = Tiled("maps/" .. mapSource .. ".lua")
+    else
+        self.map = Tiled(mapSource)
+    end
 
     if self.map.layers["wall"] then
         for _, obj in pairs(self.map.layers["wall"].objects) do
@@ -100,6 +105,8 @@ function Realm:update(dt)
     for _, husk in pairs(self.husks) do
         husk:update(dt)
     end
+
+    self.portalAnim:update(dt)
 end
 
 ---Render the current map layers, all soul entities, the player, and optionally collision shapes.
@@ -118,6 +125,16 @@ function Realm:draw()
     end
     if self.map.layers["building"] then
         self.map:drawLayer(self.map.layers["building"])
+    end
+
+    -- draw animated portals
+    for _, warp in ipairs(self.warps) do
+        local data = warp:getUserData()
+        if data and data.isWarp and data.isPortal then
+            local x, y = warp:getPosition()
+            -- draw animation centered (assuming 32x32 frames)
+            self.portalAnim:draw(GArt["ninja-portal"], x, y, 0, 1, 1, 16, 16)
+        end
     end
 
     for _, husk in pairs(self.husks) do
@@ -179,6 +196,10 @@ function Realm.new()
     self.warps = {}
     self.souls = {}
     self.husks = {}
+
+    -- Setup portal animation
+    local g = Anim8.newGrid(32, 32, GArt["ninja-portal"]:getDimensions())
+    self.portalAnim = Anim8.newAnimation(g('1-3', 1, '1-3', 2), 0.1)
 
     self.player = Player.new({
         x = 152,
