@@ -13,13 +13,23 @@ function WarpSpawner.spawn(physics, obj)
         width = obj.width,
         height = obj.height,
         bodyType = "static",
+        isSensor = true,
     })
 
     -- TODO: refactor to use custom tags (can also control bodyType by tag?)
     -- store metadata on love.physics body
+
+    -- Read 'isPortal' from Tiled custom properties or default to false
+    local isPortal = false
+    if obj.properties and obj.properties.isPortal then
+        isPortal = true
+    end
+
+    -- Store metadata and original visual dimensions
     warp:setUserData({
         name = obj.name,
         isWarp = true,
+        isPortal = isPortal,
     })
 
     return warp

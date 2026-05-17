@@ -47,6 +47,7 @@ SoulRegistry = require("src.vessel.soul.soulRegistry")
 -- realm-related requires
 Realm = require("src.realm.Realm")
 MapTransitions = require("src.realm.mapTransitions")
+DungeonGenerator = require("src.realm.DungeonGenerator")
 WallSpawner = require("src.realm.WallSpawner")
 WarpSpawner = require("src.realm.WarpSpawner")
 SoulSpawner = require("src.realm.SoulSpawner")
@@ -72,6 +73,7 @@ GArt = {
     ["chest-little-blue"] = love.graphics.newImage("art/husk-chest-little-blue.png"),
     ["sprite-camo-red"] = love.graphics.newImage("art/sprite-camo-red.png"),
     ["sprite-player"] = love.graphics.newImage("art/sprite-player.png"),
+    ["ninja-portal"] = love.graphics.newImage("art/ninja_portal.png"),
     ["panel-wood"] = love.graphics.newImage("art/ninja-theme-wood-panel.png"),
     ["panel-wood-interior"] = love.graphics.newImage("art/ninja-theme-wood-panel-interior.png"),
 }
