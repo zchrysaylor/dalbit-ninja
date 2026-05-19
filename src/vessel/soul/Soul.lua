@@ -32,6 +32,7 @@
 ---@field linearDamping? number Body drag amount.
 ---@field hurtbox? HurtBoxConfig Optional damage receiver.
 ---@field damageSource? DamageSourceConfig Damage dealt by this Soul when overlapping a matching hurtbox.
+---@field health? number Initial health points.
 ---@field tags? string[] Collider tag names.
 
 ---@class Soul
@@ -51,6 +52,7 @@
 ---@field linearDamping? number Body drag amount.
 ---@field hurtbox? HurtBox Optional damage receiver.
 ---@field damageSource? DamageSource Damage dealt by this Soul when overlapping a matching hurtbox.
+---@field health number Current health points.
 ---@field previousX number Previous frame X position.
 ---@field previousY number Previous frame Y position.
 ---@field isAnimating boolean Whether animation is playing.
@@ -376,13 +378,25 @@ function Soul:checkDamage()
     self:hurt(hits[1])
 end
 
----Apply a damage hit.
----Base Souls currently ignore damage.
+---Apply damage and knock this Soul away from the hit source.
 ---@param hit DamageHit
 ---@return nil
 function Soul:hurt(hit)
-    -- TODO: implement hurt for non-player souls
-    return
+    local srcX, srcY = hit.x, hit.y
+    local damage = hit.damage
+    local knockbackSpeed = hit.knockbackSpeed
+
+    local px, py = self:getPosition()
+    local dx, dy = px - srcX, py - srcY
+    local len = math.sqrt(dx * dx + dy * dy)
+    if len > 0 then
+        dx, dy = dx / len, dy / len
+    else
+        dx, dy = 0, -1
+    end
+    self.vessel:setLinearVelocity(dx * knockbackSpeed, dy * knockbackSpeed)
+
+    self.health = self.health - damage
 end
 
 ---Destroy the underlying Vessel (and its physics body).
@@ -434,6 +448,7 @@ function Soul.new(def, subclass)
     self.direction = def.direction
     self.spriteSheet = def.spriteSheet
     self.damageSource = Damage.normalizeSource(def.damageSource)
+    self.health = def.health or 1
 
     self.ai = def.ai
     if self.ai then
