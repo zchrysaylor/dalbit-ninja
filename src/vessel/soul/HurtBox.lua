@@ -2,7 +2,7 @@
 ---@field source Soul|Husk Entity that dealt the damage.
 ---@field collider collider Collider found by the hurtbox query.
 ---@field damage number Damage amount.
----@field knockbackSpeed? number Knockback speed applied by the damage source.
+---@field knockbackSpeed number Knockback speed applied by the damage source.
 ---@field x number Source X position.
 ---@field y number Source Y position.
 ---@field damageType string Source damage type.

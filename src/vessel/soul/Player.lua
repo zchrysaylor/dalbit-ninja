@@ -14,6 +14,7 @@ local Soul = require("src.vessel.soul.Soul")
 ---@alias PlayerDirection "up"|"down"|"left"|"right"|"upLeft"|"upRight"|"downLeft"|"downRight"
 
 ---@class PlayerDef : SoulDef
+---@field health? number Initial health points.
 ---@field dirX? number Initial X move direction.
 ---@field dirY? number Initial Y move direction.
 
@@ -285,7 +286,7 @@ function Player.new(def)
 
     self.collider.owner = self
 
-    self.health = 4
+    self.health = def.health or 4
     self.damagedTimer = 0
     self.damagedFlashTimer = 0
     self.damagedFlashVisible = true

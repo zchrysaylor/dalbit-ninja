@@ -6,7 +6,7 @@
 ---@class DamageSource
 ---@field type string Damage type this source deals.
 ---@field amount number Damage amount dealt.
----@field knockbackSpeed? number Knockback speed applied by this damage source.
+---@field knockbackSpeed number Knockback speed applied by this damage source.
 
 ---@class damage
 local damage = {}

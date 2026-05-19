@@ -103,7 +103,11 @@ function Realm:update(dt)
     Lens.follow(self.player, self.map)
     Lens.update(dt)
 
-    self.player:checkDamage() -- should be checked after player and soul positions are synced
+    -- Damage should be checked after player and soul positions are synced.
+    self.player:checkDamage()
+    for _, soul in pairs(self.souls) do
+        soul:checkDamage()
+    end
 
     self:checkWarps()
 
