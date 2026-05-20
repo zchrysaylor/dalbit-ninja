@@ -18,6 +18,9 @@ local Soul = require("src.vessel.soul.Soul")
 ---@field dirX? number Initial X move direction.
 ---@field dirY? number Initial Y move direction.
 
+---@class PlayerInventory
+---@field equippedRangedWeapon? string Registry name for the equipped ranged weapon.
+
 ---@class Player : Soul
 ---@field dirX number Current X move direction.
 ---@field dirY number Current Y move direction.
@@ -28,6 +31,7 @@ local Soul = require("src.vessel.soul.Soul")
 ---@field damagedFlashTimer number Flash interval time left.
 ---@field damagedFlashVisible boolean Whether flash is visible.
 ---@field stunTimer number Stun time left.
+---@field inventory PlayerInventory Equipped items and weapons.
 local Player = {}
 Player.__index = Player
 setmetatable(Player, { __index = Soul })
@@ -172,32 +176,34 @@ function Player:interact()
     end
 end
 
----Throw a shuriken in the facing direction.
----@return Shuriken?
-function Player:throwShuriken()
-    local px, py = self:getPosition()
-    local facing = INTERACT_FACING_OFFSETS[self.direction or "down"] or INTERACT_FACING_OFFSETS.down
-    
-    -- Ensure we use the correct physics instance from the current realm
-    local physics = Realm.current and Realm.current.physics
-    if not physics then return nil end
-
-    -- Spawn shuriken slightly in front of player
-    local shuriken = Shuriken.new({
-        x = px + facing.x * 12,
-        y = py + facing.y * 12,
-        dirX = facing.x,
-        dirY = facing.y,
-        physics = physics,
-        owner = self
-    })
-
-    -- Add to current realm projectiles
-    if Realm.current.projectiles then
-        table.insert(Realm.current.projectiles, shuriken)
+---Request firing the currently equipped ranged weapon in the facing direction.
+---@return nil
+function Player:fireProjectile()
+    local weaponName = self.inventory.equippedRangedWeapon
+    if not weaponName then
+        return
     end
 
-    return shuriken
+    local weapon = WeaponRegistry.ranged[weaponName]
+    if not weapon then
+        return
+    end
+
+    local px, py = self:getPosition()
+    local facing = INTERACT_FACING_OFFSETS[self.direction or "down"] or INTERACT_FACING_OFFSETS.down
+
+    ---@type ProjectileSpawnDef
+    local projectileDef = {
+        weaponName = weaponName,
+        x = px,
+        y = py,
+        dirX = facing.x,
+        dirY = facing.y,
+        offset = weapon.spawnOffset,
+        owner = self,
+    }
+
+    Herald.decree(Events.REALM_FIRE_PROJECTILE, projectileDef)
 end
 
 ---Return whether the player can currently take damage.
@@ -291,6 +297,12 @@ function Player.new(def)
     self.damagedFlashTimer = 0
     self.damagedFlashVisible = true
     self.stunTimer = 0
+
+    -- TODO: refactor into more robust weapon management system
+    -- And we shouldn't hardcode shuriken here, we should pass in the def
+    self.inventory = {
+        equippedRangedWeapon = WeaponRegistry.ranged.shuriken.name,
+    }
 
     self.dirX = def.dirX or 0
     self.dirY = def.dirY or 1

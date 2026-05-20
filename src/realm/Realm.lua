@@ -7,8 +7,9 @@
 ---@field warps collider[] Warp-trigger colliders for the current map
 ---@field souls Soul[] NPC entities spawned from the current map's entity layer
 ---@field husks Husk[] NPC entities spawned from the current map's husk layer
----@field projectiles any[] Active projectiles in the current realm
+---@field projectiles Projectile[] Active projectiles in the current realm
 ---@field player Player The player entity (persists across map loads)
+---@field heraldGroup HeraldMuster Realm-scoped event subscriptions.
 local Realm = {}
 Realm.__index = Realm
 
@@ -53,7 +54,9 @@ function Realm:loadMap(mapName, destX, destY)
     if self.map.layers["husk"] then
         for _, obj in pairs(self.map.layers["husk"].objects) do
             local husk = HuskSpawner.spawn(self.physics, obj)
-            table.insert(self.husks, husk)
+            if husk then
+                table.insert(self.husks, husk)
+            end
         end
     end
 
@@ -68,28 +71,55 @@ function Realm:loadMap(mapName, destX, destY)
     Lens.snapTo(self.player, self.map)
 end
 
+---@return nil
+function Realm:flushRemovedSouls()
+    for i = #self.souls, 1, -1 do
+        local soul = self.souls[i]
+        if soul.pendingRemoval then
+            soul:destroy()
+            table.remove(self.souls, i)
+        end
+    end
+end
+
+---@param projectileDef ProjectileSpawnDef
+---@return nil
+function Realm:fireProjectile(projectileDef)
+    local spawnedProjectile = ProjectileSpawner.spawn(self.physics, projectileDef)
+    if spawnedProjectile then
+        table.insert(self.projectiles, spawnedProjectile)
+    end
+end
+
+---@return nil
+function Realm:flushRemovedProjectiles()
+    for i = #self.projectiles, 1, -1 do
+        local projectile = self.projectiles[i]
+        if projectile.pendingRemoval then
+            projectile:destroy()
+            table.remove(self.projectiles, i)
+        end
+    end
+end
+
 ---Advance camera follow, entities, physics, and warp handling.
 ---@param dt number Delta time in seconds
 ---@return nil
 function Realm:update(dt)
-    for _, soul in pairs(self.souls) do
-        soul:capturePreviousPosition()
-    end
-
     self.player:update(dt)
     self.player:updateDamageTimers(dt)
 
     for _, soul in pairs(self.souls) do
+        soul:capturePreviousPosition()
         soul:update(dt)
     end
 
-    -- Update projectiles and remove destroyed ones
-    for i = #self.projectiles, 1, -1 do
-        local p = self.projectiles[i]
-        p:update(dt)
-        if p.destroyed then
-            table.remove(self.projectiles, i)
-        end
+    for _, husk in pairs(self.husks) do
+        husk:update(dt)
+    end
+
+    for _, projectile in pairs(self.projectiles) do
+        projectile:update(dt)
     end
 
     self.world:update(dt)
@@ -111,9 +141,8 @@ function Realm:update(dt)
 
     self:checkWarps()
 
-    for _, husk in pairs(self.husks) do
-        husk:update(dt)
-    end
+    self:flushRemovedSouls()
+    self:flushRemovedProjectiles()
 end
 
 ---Render the current map layers, all soul entities, the player, and optionally collision shapes.
@@ -144,8 +173,8 @@ function Realm:draw()
         soul:draw()
     end
 
-    for _, p in pairs(self.projectiles) do
-        p:draw()
+    for _, projectile in pairs(self.projectiles) do
+        projectile:draw()
     end
 
     -- draw collision borders for debugging
@@ -156,6 +185,7 @@ function Realm:draw()
     Lens.detach()
 end
 
+-- TODO: move above update()
 ---Check all warp colliders and trigger a map transition event when needed.
 ---@return nil
 function Realm:checkWarps()
@@ -186,6 +216,19 @@ function Realm:destroyAll()
     self.map = {}
 end
 
+---Destroy realm-owned entities and event subscriptions.
+---@return nil
+function Realm:destroy()
+    self:destroyAll()
+
+    if self.heraldGroup then
+        self.heraldGroup:unhearkenAll()
+        self.heraldGroup = nil
+    end
+
+    self.player:destroy()
+end
+
 ---Create a new Realm
 ---@return Realm
 function Realm.new()
@@ -202,6 +245,11 @@ function Realm.new()
     self.husks = {}
     self.projectiles = {}
 
+    self.heraldGroup = Herald.muster()
+    self.heraldGroup:hearken(Events.REALM_FIRE_PROJECTILE, function(projectileDef)
+        self:fireProjectile(projectileDef)
+    end)
+
     self.player = Player.new({
         x = 152,
         y = 136,
@@ -216,9 +264,6 @@ function Realm.new()
             damageTags = { Damage.TYPES.ENEMY_ATTACK, Damage.TYPES.ENVIRONMENT },
         },
     })
-
-    -- Provide global access to current realm for projectiles to register themselves
-    Realm.current = self
 
     return self
 end

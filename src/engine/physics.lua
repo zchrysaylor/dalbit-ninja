@@ -104,6 +104,12 @@ function collider:removeTags(...)
     end
 end
 
+---Remove all tags from this collider.
+---@return nil
+function collider:removeAllTags()
+    self.tags = {}
+end
+
 ---Return true if this collider has the given tag.
 ---@param tag string
 ---@return boolean

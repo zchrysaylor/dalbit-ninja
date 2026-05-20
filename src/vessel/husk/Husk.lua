@@ -5,6 +5,7 @@
 ---@field height number Sprite and body height.
 ---@field spriteSheet love.Image Sprite sheet image.
 ---@field physics physics Physics world wrapper.
+---@field bodyType? love.BodyType Physics body type. Defaults to "static".
 ---@field animOpts? {frames: string, row: integer, interval: number, paused?: boolean} Optional animation config.
 ---@field damageSource? DamageSourceConfig Damage dealt by this Husk when overlapping a matching hurtbox.
 ---@field tags? string[] Collider tag names.
@@ -124,7 +125,7 @@ function Husk.new(def, subclass)
         height = def.height,
         physics = def.physics,
         shape = "rectangle",
-        bodyType = "static",
+        bodyType = def.bodyType or "static",
         tags = def.tags or { "husk" },
     }
     self.vessel = Vessel.new(vesselOpts)

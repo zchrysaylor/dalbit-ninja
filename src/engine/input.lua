@@ -34,16 +34,16 @@ function input:keyPressed(key)
         return
     end
 
-	local stateInputEvent = Events.STATE_INPUT_PREFIX .. topState.stateName
-	if key == KEY_INTERACT then
-		Herald.decree(stateInputEvent, "interact")
-	elseif key == KEY_MENU then
-		Herald.decree(stateInputEvent, "toggle_menu")
-	elseif key == KEY_PAUSE then
-		Herald.decree(stateInputEvent, "toggle_pause")
-	elseif key == KEY_SHURIKEN then
-		Herald.decree(stateInputEvent, "shuriken")
-	end
+    local stateInputEvent = Events.STATE_INPUT_PREFIX .. topState.stateName
+    if key == KEY_INTERACT then
+        Herald.decree(stateInputEvent, "interact")
+    elseif key == KEY_MENU then
+        Herald.decree(stateInputEvent, "toggle_menu")
+    elseif key == KEY_PAUSE then
+        Herald.decree(stateInputEvent, "toggle_pause")
+    elseif key == KEY_FIRE_PROJECTILE then
+        Herald.decree(stateInputEvent, "fire_projectile")
+    end
 end
 
 ---Record printable text input for global command sequences.

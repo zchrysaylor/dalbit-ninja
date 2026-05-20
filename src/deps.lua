@@ -38,11 +38,13 @@ NineSlice = require("src.graphics.nineSlice")
 -- vessel-related requires
 Damage = require("src.vessel.damage")
 Vessel = require("src.vessel.Vessel")
-Shuriken = require("src.vessel.projectile.Shuriken")
 Husk = require("src.vessel.husk.Husk")
+Projectile = require("src.vessel.husk.Projectile")
+WeaponRegistry = require("src.vessel.husk.weapon.weaponRegistry")
 Soul = require("src.vessel.soul.Soul")
 HurtBox = require("src.vessel.soul.HurtBox")
 Player = require("src.vessel.soul.Player")
+HuskRegistry = require("src.vessel.husk.huskRegistry")
 SoulRegistry = require("src.vessel.soul.soulRegistry")
 
 -- realm-related requires

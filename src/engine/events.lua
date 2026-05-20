@@ -6,11 +6,13 @@ events.GAME_DEBUG_COLLIDERS = "game:debug_colliders"
 events.GAME_DEBUG_TOGGLED = "game:debug_toggled"
 
 events.REALM_WARP_TRIGGERED = "realm:warp_triggered"
+events.REALM_FIRE_PROJECTILE = "realm:fire_projectile"
 
 ---@alias StateInputAction
 ---| "interact"
 ---| "toggle_menu"
 ---| "toggle_pause"
-events.STATE_INPUT_PREFIX = "state:input:"
+---| "fire_projectile"
+events.STATE_INPUT_PREFIX = "state:input:" -- TODO: make possible states constants
 
 return events
