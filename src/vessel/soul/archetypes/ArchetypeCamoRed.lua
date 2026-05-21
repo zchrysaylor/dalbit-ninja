@@ -27,6 +27,10 @@ function ArchetypeCamoRed.spawn(ctx, obj)
             chaseForce = 80,
         },
         linearDamping = 2,
+        hurtbox = {
+            radius = 5,
+            damageTags = { Damage.TYPES.PLAYER_ATTACK },
+        },
         damageSource = {
             type = Damage.TYPES.ENEMY_ATTACK,
             amount = 1,

@@ -11,7 +11,6 @@ local Husk = require("src.vessel.husk.Husk")
 ---@field rotationSpeed? number Draw rotation speed in radians per second.
 ---@field visualScale? number Draw scale for static sprite mode.
 ---@field hitRadius? number Radius used for hit detection around the projectile center.
----@field hitTags? string[] Collider tags this projectile can hit.
 ---@field hitStaticBodies? boolean Whether static bodies such as walls stop the projectile.
 ---@field destroyOnHit? boolean Whether this projectile destroys itself after a hit.
 ---@field linearDamping? number Body drag amount.
@@ -25,7 +24,6 @@ local Husk = require("src.vessel.husk.Husk")
 ---@field rotationSpeed number Draw rotation speed in radians per second.
 ---@field visualScale number Draw scale for static sprite mode.
 ---@field hitRadius number Radius used for hit detection around the projectile center.
----@field hitTags string[] Collider tags this projectile can hit.
 ---@field hitStaticBodies boolean Whether static bodies such as walls stop the projectile.
 ---@field destroyOnHit boolean Whether this projectile destroys itself after a hit.
 ---@field pendingRemoval boolean Whether this projectile is hidden and waiting for cleanup.
@@ -42,6 +40,27 @@ function Projectile:isRemoved()
     return self.pendingRemoval or self.destroyed
 end
 
+function Projectile:isStaticHitCollider(collider)
+    return self.hitStaticBodies and collider.body:getType() == "static"
+end
+
+function Projectile:isDamageHitCollider(collider)
+    local target = collider.owner
+    if target == self or target == self.owner or not target then
+        return false
+    end
+
+    if not self.damageSource or not target.hurt or not target.hurtbox then
+        return false
+    end
+
+    if target.canTakeDamage and not target:canTakeDamage() then
+        return false
+    end
+
+    return target.hurtbox:acceptsDamageFrom(self)
+end
+
 ---Return whether a collider is a valid projectile hit.
 ---@param collider collider
 ---@return boolean
@@ -50,34 +69,26 @@ function Projectile:isHitCollider(collider)
         return false
     end
 
-    if collider.owner == self.owner then
-        return false
-    end
-
-    for _, tag in ipairs(self.hitTags) do
-        if collider:hasTag(tag) then
-            return true
-        end
-    end
-
-    return self.hitStaticBodies and collider.body:getType() == "static"
+    return self:isStaticHitCollider(collider) or self:isDamageHitCollider(collider)
 end
 
 ---Apply this projectile's damage to a hit target when possible.
 ---@param hitCollider collider
 ---@return nil
-function Projectile:applyHit(hitCollider)
+function Projectile:applyDamage(hitCollider)
     local target = hitCollider.owner
-    if not target or not self.damageSource or not target.hurt then
+    if not target or not target.hurt then
         return
     end
 
     target:hurt({
+        source = self,
+        collider = hitCollider,
         x = self.x,
         y = self.y,
         damage = self.damageSource.amount,
         knockbackSpeed = self.damageSource.knockbackSpeed,
-        type = self.damageSource.type,
+        damageType = self.damageSource.type,
     })
 end
 
@@ -97,7 +108,7 @@ function Projectile:checkHits()
         return
     end
 
-    self:applyHit(hits[1])
+    self:applyDamage(hits[1])
 
     if self.destroyOnHit then
         self:markForRemoval()
@@ -208,7 +219,6 @@ function Projectile.new(def)
     self.rotationSpeed = def.rotationSpeed or 0
     self.visualScale = def.visualScale or 1
     self.hitRadius = def.hitRadius or math.max(def.width, def.height) / 2
-    self.hitTags = def.hitTags or { "soul", "husk" }
     self.hitStaticBodies = def.hitStaticBodies ~= false
     self.destroyOnHit = def.destroyOnHit ~= false
     self.pendingRemoval = false

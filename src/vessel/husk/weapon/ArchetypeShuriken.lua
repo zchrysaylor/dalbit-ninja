@@ -46,7 +46,6 @@ function ArchetypeShuriken.spawn(ctx, opts)
         hitRadius = SHURIKEN_HIT_RADIUS,
         linearDamping = SHURIKEN_LINEAR_DAMPING,
         tags = { "projectile", "playerAttack" },
-        hitTags = { "hostile", "soul", "husk" }, -- TODO: do we need hitTags?
         damageSource = {
             type = Damage.TYPES.PLAYER_ATTACK,
             amount = 1,
