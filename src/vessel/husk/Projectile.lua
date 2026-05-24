@@ -7,9 +7,7 @@ local Husk = require("src.vessel.husk.Husk")
 ---@field dirY number Launch direction Y component.
 ---@field speed number Launch speed in pixels per second.
 ---@field lifetime? number Lifetime in seconds before self-destruction.
----@field rotation? number Initial draw rotation in radians.
 ---@field rotationSpeed? number Draw rotation speed in radians per second.
----@field visualScale? number Draw scale for static sprite mode.
 ---@field hitRadius? number Radius used for hit detection around the projectile center.
 ---@field hitStaticBodies? boolean Whether static bodies such as walls stop the projectile.
 ---@field destroyOnHit? boolean Whether this projectile destroys itself after a hit.
@@ -20,9 +18,7 @@ local Husk = require("src.vessel.husk.Husk")
 ---@field owner? any Entity that fired the projectile.
 ---@field speed number Launch speed in pixels per second.
 ---@field lifetime number Lifetime in seconds before self-destruction.
----@field rotation number Current draw rotation in radians.
 ---@field rotationSpeed number Draw rotation speed in radians per second.
----@field visualScale number Draw scale for static sprite mode.
 ---@field hitRadius number Radius used for hit detection around the projectile center.
 ---@field hitStaticBodies boolean Whether static bodies such as walls stop the projectile.
 ---@field destroyOnHit boolean Whether this projectile destroys itself after a hit.
@@ -32,18 +28,22 @@ local Projectile = {}
 Projectile.__index = Projectile
 setmetatable(Projectile, { __index = Husk })
 
--- TODO: check if can refactor Projectile methods
-
 ---Return whether this Projectile is no longer participating in gameplay.
 ---@return boolean
 function Projectile:isRemoved()
     return self.pendingRemoval or self.destroyed
 end
 
+---Return whether the collider is world geometry that should stop this projectile.
+---@param collider collider
+---@return boolean
 function Projectile:isStaticHitCollider(collider)
     return self.hitStaticBodies and collider.body:getType() == "static"
 end
 
+---Return whether the collider belongs to a damageable target this projectile can hurt.
+---@param collider collider
+---@return boolean
 function Projectile:isDamageHitCollider(collider)
     local target = collider.owner
     if target == self or target == self.owner or not target then
@@ -145,40 +145,17 @@ function Projectile:update(dt)
     self:checkHits()
 end
 
+---Draw this projectile through Husk rendering when it is still active.
 ---@return nil
 function Projectile:draw()
     if self:isRemoved() then
         return
     end
 
-    if self.animations and self.animations.current then
-        self.animations.current:draw(
-            self.spriteSheet,
-            self.x,
-            self.y,
-            self.rotation,
-            self.visualScale,
-            self.visualScale,
-            self.width / 2,
-            self.height / 2
-        )
-        return
-    end
-
-    local originX = self.spriteSheet:getWidth() / 2
-    local originY = self.spriteSheet:getHeight() / 2
-    love.graphics.draw(
-        self.spriteSheet,
-        self.x,
-        self.y,
-        self.rotation,
-        self.visualScale,
-        self.visualScale,
-        originX,
-        originY
-    )
+    Husk.draw(self)
 end
 
+---Disable gameplay participation until the owning Realm removes and destroys this projectile.
 ---@return nil
 function Projectile:markForRemoval()
     if self:isRemoved() then
@@ -191,6 +168,7 @@ function Projectile:markForRemoval()
     self.collider.body:setActive(false)
 end
 
+---Destroy the underlying Vessel (and its physics body).
 ---@return nil
 function Projectile:destroy()
     if self.destroyed then
@@ -215,9 +193,7 @@ function Projectile.new(def)
     self.owner = def.owner
     self.speed = def.speed
     self.lifetime = def.lifetime or 1
-    self.rotation = def.rotation or 0
     self.rotationSpeed = def.rotationSpeed or 0
-    self.visualScale = def.visualScale or 1
     self.hitRadius = def.hitRadius or math.max(def.width, def.height) / 2
     self.hitStaticBodies = def.hitStaticBodies ~= false
     self.destroyOnHit = def.destroyOnHit ~= false

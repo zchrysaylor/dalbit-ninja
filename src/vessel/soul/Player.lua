@@ -14,7 +14,6 @@ local Soul = require("src.vessel.soul.Soul")
 ---@alias PlayerDirection "up"|"down"|"left"|"right"|"upLeft"|"upRight"|"downLeft"|"downRight"
 
 ---@class PlayerDef : SoulDef
----@field health? number Initial health points.
 ---@field dirX? number Initial X move direction.
 ---@field dirY? number Initial Y move direction.
 
@@ -26,7 +25,6 @@ local Soul = require("src.vessel.soul.Soul")
 ---@field dirY number Current Y move direction.
 ---@field direction? PlayerDirection Persisted facing direction.
 ---@field animations PlayerAnimations Player animation set.
----@field health number Current health points.
 ---@field damagedTimer number Invincibility time left.
 ---@field damagedFlashTimer number Flash interval time left.
 ---@field damagedFlashVisible boolean Whether flash is visible.

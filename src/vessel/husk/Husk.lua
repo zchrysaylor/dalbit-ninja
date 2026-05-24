@@ -9,6 +9,8 @@
 ---@field animOpts? {frames: string, row: integer, interval: number, paused?: boolean} Optional animation config.
 ---@field damageSource? DamageSourceConfig Damage dealt by this Husk when overlapping a matching hurtbox.
 ---@field tags? string[] Collider tag names.
+---@field rotation? number Draw rotation in radians.
+---@field scale? number Draw scale.
 
 ---@class Husk
 ---@field vessel Vessel
@@ -23,6 +25,8 @@
 ---@field grid? any Only set when animOpts is provided
 ---@field stateMachine StateMachine
 ---@field damageSource? DamageSource Damage dealt by this Husk when overlapping a matching hurtbox.
+---@field rotation number Draw rotation in radians.
+---@field scale number Draw scale.
 local Husk = {}
 Husk.__index = Husk
 
@@ -83,7 +87,7 @@ function Husk:update(dt)
     self.stateMachine:update(dt)
 end
 
----Draw the current animation frame centered at (x, y).
+---Draw this Husk centered at (x, y), using its current animation frame when available.
 ---@return nil
 function Husk:draw()
     if self.animations and self.animations.current then
@@ -91,15 +95,25 @@ function Husk:draw()
             self.spriteSheet,
             self.x,
             self.y, -- body center position
-            nil, -- rotation
-            1, -- scaleX
-            nil, -- scaleY (defaults to scaleX)
+            self.rotation,
+            self.scale, -- scaleX
+            self.scale, -- scaleY
             self.width / 2, -- originX: centered (half of sprite width)
             self.height / 2 -- originY: centered (half of sprite height)
         )
-    else
-        love.graphics.draw(self.spriteSheet, self.x, self.y, nil, 1, nil, self.width / 2, self.height / 2)
+        return
     end
+
+    love.graphics.draw(
+        self.spriteSheet,
+        self.x,
+        self.y,
+        self.rotation,
+        self.scale,
+        self.scale,
+        self.spriteSheet:getWidth() / 2,
+        self.spriteSheet:getHeight() / 2
+    )
 end
 
 ---Create a new Husk.
@@ -116,6 +130,8 @@ function Husk.new(def, subclass)
     self.width = def.width
     self.height = def.height
     self.spriteSheet = def.spriteSheet
+    self.rotation = def.rotation or 0
+    self.scale = def.scale or 1
     self.damageSource = Damage.normalizeSource(def.damageSource)
 
     local vesselOpts = {
