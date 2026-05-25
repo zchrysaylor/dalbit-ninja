@@ -25,16 +25,18 @@ function PlayState:enterState(opts)
         end)
     end)
 
-    ---@param action StateInputAction
-    self.heraldGroup:hearken(Events.STATE_INPUT_PREFIX .. self.stateName, function(action)
-        if action == "interact" then
-            self.realm.player:interact()
-        elseif action == "toggle_menu" then
-            GStateStack:push(MenuState.new())
-        elseif action == "toggle_pause" then
-            self.isPaused = not self.isPaused
-        end
-    end)
+	---@param action StateInputAction
+	self.heraldGroup:hearken(Events.STATE_INPUT_PREFIX .. self.stateName, function(action)
+		if action == "interact" then
+			self.realm.player:interact()
+		elseif action == "fire_projectile" then
+			self.realm.player:fireProjectile()
+		elseif action == "toggle_menu" then
+			GStateStack:push(MenuState.new())
+		elseif action == "toggle_pause" then
+			self.isPaused = not self.isPaused
+		end
+	end)
 end
 
 ---Called when this state is deactivated.
@@ -45,8 +47,7 @@ function PlayState:exitState()
         self.heraldGroup = nil
     end
 
-    self.realm:destroyAll()
-    self.realm.player:destroy()
+    self.realm:destroy()
 end
 
 ---@param dt number Delta time in seconds

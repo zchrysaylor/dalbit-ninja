@@ -3,7 +3,6 @@
 local SoulSpawner = {}
 
 ---Spawn an NPC Soul from a Tiled map object.
----Returns nil for unrecognized object names.
 ---@param physics physics Physics instance
 ---@param player Player
 ---@param obj SoulMapObject Tiled map object with at minimum `name`, `x`, and `y` fields

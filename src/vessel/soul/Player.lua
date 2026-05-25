@@ -14,20 +14,22 @@ local Soul = require("src.vessel.soul.Soul")
 ---@alias PlayerDirection "up"|"down"|"left"|"right"|"upLeft"|"upRight"|"downLeft"|"downRight"
 
 ---@class PlayerDef : SoulDef
----@field health? number Initial health points.
 ---@field dirX? number Initial X move direction.
 ---@field dirY? number Initial Y move direction.
+
+---@class PlayerInventory
+---@field equippedRangedWeapon? string Registry name for the equipped ranged weapon.
 
 ---@class Player : Soul
 ---@field dirX number Current X move direction.
 ---@field dirY number Current Y move direction.
 ---@field direction? PlayerDirection Persisted facing direction.
 ---@field animations PlayerAnimations Player animation set.
----@field health number Current health points.
 ---@field damagedTimer number Invincibility time left.
 ---@field damagedFlashTimer number Flash interval time left.
 ---@field damagedFlashVisible boolean Whether flash is visible.
 ---@field stunTimer number Stun time left.
+---@field inventory PlayerInventory Equipped items and weapons.
 local Player = {}
 Player.__index = Player
 setmetatable(Player, { __index = Soul })
@@ -172,6 +174,36 @@ function Player:interact()
     end
 end
 
+---Request firing the currently equipped ranged weapon in the facing direction.
+---@return nil
+function Player:fireProjectile()
+    local weaponName = self.inventory.equippedRangedWeapon
+    if not weaponName then
+        return
+    end
+
+    local weapon = WeaponRegistry.ranged[weaponName]
+    if not weapon then
+        return
+    end
+
+    local px, py = self:getPosition()
+    local facing = INTERACT_FACING_OFFSETS[self.direction or "down"] or INTERACT_FACING_OFFSETS.down
+
+    ---@type ProjectileSpawnDef
+    local projectileDef = {
+        weaponName = weaponName,
+        x = px,
+        y = py,
+        dirX = facing.x,
+        dirY = facing.y,
+        offset = weapon.spawnOffset,
+        owner = self,
+    }
+
+    Herald.decree(Events.REALM_FIRE_PROJECTILE, projectileDef)
+end
+
 ---Return whether the player can currently take damage.
 ---@return boolean
 function Player:canTakeDamage()
@@ -263,6 +295,12 @@ function Player.new(def)
     self.damagedFlashTimer = 0
     self.damagedFlashVisible = true
     self.stunTimer = 0
+
+    -- TODO: refactor into more robust weapon management system
+    -- And we shouldn't hardcode shuriken here, we should pass in the def
+    self.inventory = {
+        equippedRangedWeapon = WeaponRegistry.ranged.shuriken.name,
+    }
 
     self.dirX = def.dirX or 0
     self.dirY = def.dirY or 1

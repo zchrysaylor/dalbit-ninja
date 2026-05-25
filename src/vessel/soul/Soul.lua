@@ -56,6 +56,8 @@
 ---@field previousX number Previous frame X position.
 ---@field previousY number Previous frame Y position.
 ---@field isAnimating boolean Whether animation is playing.
+---@field pendingRemoval boolean Whether this Soul is hidden and waiting for cleanup.
+---@field destroyed boolean Whether this Soul's physics body has been destroyed.
 ---@field interact? fun(self: Soul) Optional interaction handler.
 local Soul = {}
 Soul.__index = Soul
@@ -106,6 +108,12 @@ end
 ---@return boolean
 function Soul:isAIType(aiType)
     return self:isAI() and self.ai.type == aiType
+end
+
+---Return whether this Soul is no longer participating in gameplay.
+---@return boolean
+function Soul:isRemoved()
+    return self.pendingRemoval or self.destroyed
 end
 
 ---Return the Soul's current world position.
@@ -301,6 +309,10 @@ end
 ---@param dt number Delta time in seconds
 ---@return nil
 function Soul:postPhysicsUpdate(dt)
+    if self:isRemoved() then
+        return
+    end
+
     self.stateMachine:postPhysicsUpdate(dt)
 end
 
@@ -316,12 +328,20 @@ end
 ---Must be called each frame after the physics world steps.
 ---@return nil
 function Soul:syncPosition()
+    if self:isRemoved() then
+        return
+    end
+
     self.x, self.y = self.vessel:getPosition()
 end
 
 ---Record the soul's current position for post-physics movement checks.
 ---@return nil
 function Soul:capturePreviousPosition()
+    if self:isRemoved() then
+        return
+    end
+
     self.previousX = self.x
     self.previousY = self.y
 end
@@ -355,7 +375,7 @@ end
 ---Return whether this Soul is currently able to receive damage.
 ---@return boolean
 function Soul:canTakeDamage()
-    return true
+    return not self:isRemoved()
 end
 
 ---Check whether any damage hit is overlapping this Soul's hurtbox.
@@ -397,11 +417,39 @@ function Soul:hurt(hit)
     self.vessel:setLinearVelocity(dx * knockbackSpeed, dy * knockbackSpeed)
 
     self.health = self.health - damage
+    if self:isDead() then
+        self:markForRemoval()
+    end
+end
+
+---Return whether this Soul has no health remaining.
+---@return boolean
+function Soul:isDead()
+    return self.health <= 0
+end
+
+---Hide this Soul from gameplay and mark it for deferred destruction.
+---@return nil
+function Soul:markForRemoval()
+    if self.pendingRemoval then
+        return
+    end
+
+    self.pendingRemoval = true
+
+    self.vessel:setLinearVelocity(0, 0)
+    self.collider:removeAllTags()
+    self.collider.body:setActive(false)
 end
 
 ---Destroy the underlying Vessel (and its physics body).
 ---@return nil
 function Soul:destroy()
+    if self.destroyed then
+        return
+    end
+
+    self.destroyed = true
     self.vessel:destroy()
 end
 
@@ -409,6 +457,10 @@ end
 ---@param dt number Delta time in seconds
 ---@return nil
 function Soul:update(dt)
+    if self:isRemoved() then
+        return
+    end
+
     self.animations.current:update(dt)
     self.stateMachine:update(dt)
 end
@@ -416,6 +468,10 @@ end
 ---Draw the current animation frame centered at (x, y).
 ---@return nil
 function Soul:draw()
+    if self:isRemoved() then
+        return
+    end
+
     self.animations.current:draw(
         self.spriteSheet,
         self.x,
@@ -478,6 +534,9 @@ function Soul.new(def, subclass)
     if def.hurtbox then
         self.hurtbox = HurtBox.new(self, def.hurtbox)
     end
+
+    self.destroyed = false
+    self.pendingRemoval = false
 
     self.animations = {}
     self.isAnimating = false
