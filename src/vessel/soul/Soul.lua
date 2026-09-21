@@ -422,6 +422,7 @@ function Soul:hurt(hit)
     end
 end
 
+-- TODO: implement actual player death (& animation)
 ---Return whether this Soul has no health remaining.
 ---@return boolean
 function Soul:isDead()

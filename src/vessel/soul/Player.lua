@@ -253,15 +253,6 @@ function Player:meleeAttack()
     end
 end
 
----Advance melee timers alongside the active player state.
----@param dt number Delta time in seconds.
----@return nil
-function Player:update(dt)
-    self.meleeCooldown = math.max(0, self.meleeCooldown - dt)
-    self.meleeSwingTimer = math.max(0, self.meleeSwingTimer - dt)
-    Soul.update(self, dt)
-end
-
 ---Request firing the currently equipped ranged weapon in the facing direction.
 ---@return nil
 function Player:fireProjectile()
@@ -352,6 +343,15 @@ function Player:updateDamageTimers(dt)
             self.stunTimer = 0
         end
     end
+end
+
+---Advance melee timers alongside the active player state.
+---@param dt number Delta time in seconds.
+---@return nil
+function Player:update(dt)
+    self.meleeCooldown = math.max(0, self.meleeCooldown - dt)
+    self.meleeSwingTimer = math.max(0, self.meleeSwingTimer - dt)
+    Soul.update(self, dt)
 end
 
 ---Draw the player, flashing while invincible after taking damage.
