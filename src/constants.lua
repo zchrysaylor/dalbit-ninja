@@ -11,12 +11,14 @@ KEY_DOWN = "s"
 KEY_LEFT = "a"
 KEY_RIGHT = "d"
 
+-- TODO: move key constants to input.lua?
 KEY_DEBUG_COLLIDERS = "."
 KEY_DEBUG_MENU = ","
 KEY_INTERACT = "e"
 KEY_MENU = "tab"
 KEY_PAUSE = "p"
 KEY_FIRE_PROJECTILE = "q"
+KEY_MELEE_ATTACK = "k"
 
 -- rate in seconds of the start screen fade duration
 FADE_RATE = 0.6

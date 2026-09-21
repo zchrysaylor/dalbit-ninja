@@ -30,6 +30,11 @@ local Soul = require("src.vessel.soul.Soul")
 ---@field damagedFlashVisible boolean Whether flash is visible.
 ---@field stunTimer number Stun time left.
 ---@field inventory PlayerInventory Equipped items and weapons.
+-- TODO: these need to be in some kind of shared config (so for ex player stats can be modified)
+-- And state can be saved via json configs
+---@field meleeCooldown number Time until another melee attack is allowed.
+---@field meleeSwingTimer number Remaining swing animation time.
+---@field meleeSwingAngle number Facing angle captured when the swing starts.
 local Player = {}
 Player.__index = Player
 setmetatable(Player, { __index = Soul })
@@ -38,7 +43,13 @@ local ANIMATION_SPEED = 0.1
 local INTERACT_RADIUS = 8
 local INTERACT_OFFSET = 6
 local DIAGONAL_UNIT = 1 / math.sqrt(2)
-local INTERACT_FACING_OFFSETS = {
+local MELEE_RADIUS = 8
+local MELEE_OFFSET = 6
+local MELEE_DAMAGE = 1
+local MELEE_KNOCKBACK_SPEED = 150
+local MELEE_COOLDOWN = 0.3
+local MELEE_SWING_DURATION = 0.15
+local FACING_OFFSETS = {
     up = { x = 0, y = -1 },
     down = { x = 0, y = 1 },
     left = { x = -1, y = 0 },
@@ -157,7 +168,7 @@ function Player:interact()
     local px, py = self.collider:getPosition()
 
     -- offset the query circle in the direction the player faces
-    local facing = INTERACT_FACING_OFFSETS[self.direction or "down"] or INTERACT_FACING_OFFSETS.down
+    local facing = FACING_OFFSETS[self.direction or "down"] or FACING_OFFSETS.down
     local offX = facing.x * INTERACT_OFFSET
     local offY = facing.y * INTERACT_OFFSET
 
@@ -174,6 +185,83 @@ function Player:interact()
     end
 end
 
+---Cleave nearby targets in the facing direction, respecting cooldown and solid cover.
+---@return nil
+function Player:meleeAttack()
+    if self.meleeCooldown > 0 or self.stunTimer > 0 or self:isDead() or self:isRemoved() then
+        return
+    end
+
+    local world = self.collider.body:getWorld()
+    local px, py = self.collider:getPosition()
+    local facing = FACING_OFFSETS[self.direction or "down"] or FACING_OFFSETS.down
+    local x = px + facing.x * MELEE_OFFSET
+    local y = py + facing.y * MELEE_OFFSET
+
+    self.meleeCooldown = MELEE_COOLDOWN
+    self.meleeSwingTimer = MELEE_SWING_DURATION
+    self.meleeSwingAngle = math.atan2(facing.y, facing.x)
+
+    local attackSource = {
+        damageSource = Damage.normalizeSource({
+            type = Damage.TYPES.PLAYER_ATTACK,
+            amount = MELEE_DAMAGE,
+            knockbackSpeed = MELEE_KNOCKBACK_SPEED,
+        }),
+    }
+    local targets = Collision.queryCircleArea(world, x, y, MELEE_RADIUS, function(collider)
+        local owner = collider.owner
+        if not owner or owner == self or not owner.hurt or not owner.hurtbox then
+            return false
+        end
+        if owner.canTakeDamage and not owner:canTakeDamage() then
+            return false
+        end
+        return owner.hurtbox:acceptsDamageFrom(attackSource)
+    end, 1)
+
+    -- Hit every eligible target once; static non-sensor geometry blocks the strike.
+    for _, target in ipairs(targets) do
+        local tx, ty = target:getPosition()
+        local blocked = false
+        if px ~= tx or py ~= ty then
+            world:rayCast(px, py, tx, ty, function(fixture)
+                local body = fixture:getBody()
+                if
+                    body ~= self.collider.body
+                    and body ~= target.body
+                    and body:getType() == "static"
+                    and not fixture:isSensor()
+                then
+                    blocked = true
+                    return 0
+                end
+                return -1
+            end)
+        end
+        if not blocked then
+            target.owner:hurt({
+                source = self,
+                collider = self.collider,
+                damage = MELEE_DAMAGE,
+                knockbackSpeed = MELEE_KNOCKBACK_SPEED,
+                x = px,
+                y = py,
+                damageType = Damage.TYPES.PLAYER_ATTACK,
+            })
+        end
+    end
+end
+
+---Advance melee timers alongside the active player state.
+---@param dt number Delta time in seconds.
+---@return nil
+function Player:update(dt)
+    self.meleeCooldown = math.max(0, self.meleeCooldown - dt)
+    self.meleeSwingTimer = math.max(0, self.meleeSwingTimer - dt)
+    Soul.update(self, dt)
+end
+
 ---Request firing the currently equipped ranged weapon in the facing direction.
 ---@return nil
 function Player:fireProjectile()
@@ -188,7 +276,7 @@ function Player:fireProjectile()
     end
 
     local px, py = self:getPosition()
-    local facing = INTERACT_FACING_OFFSETS[self.direction or "down"] or INTERACT_FACING_OFFSETS.down
+    local facing = FACING_OFFSETS[self.direction or "down"] or FACING_OFFSETS.down
 
     ---@type ProjectileSpawnDef
     local projectileDef = {
@@ -278,6 +366,26 @@ function Player:draw()
     else
         Soul.draw(self)
     end
+
+    if self.meleeSwingTimer > 0 then
+        Util.safeDraw(function()
+            local progress = 1 - self.meleeSwingTimer / MELEE_SWING_DURATION
+            local angle = self.meleeSwingAngle + (progress - 0.5) * math.pi
+            local px, py = self:getPosition()
+            local color = GTheme.colors.meleeSwing
+            love.graphics.setColor(color[1], color[2], color[3], color[4] * (1 - progress))
+            love.graphics.setLineWidth(2)
+            love.graphics.arc(
+                "line",
+                "open",
+                px,
+                py,
+                MELEE_OFFSET + MELEE_RADIUS,
+                angle - math.pi / 4,
+                angle + math.pi / 4
+            )
+        end)
+    end
 end
 
 ---Create a new Player.
@@ -295,6 +403,9 @@ function Player.new(def)
     self.damagedFlashTimer = 0
     self.damagedFlashVisible = true
     self.stunTimer = 0
+    self.meleeCooldown = 0
+    self.meleeSwingTimer = 0
+    self.meleeSwingAngle = 0
 
     -- TODO: refactor into more robust weapon management system
     -- And we shouldn't hardcode shuriken here, we should pass in the def

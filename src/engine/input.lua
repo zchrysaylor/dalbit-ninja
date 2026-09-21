@@ -43,6 +43,8 @@ function input:keyPressed(key)
         Herald.decree(stateInputEvent, "toggle_pause")
     elseif key == KEY_FIRE_PROJECTILE then
         Herald.decree(stateInputEvent, "fire_projectile")
+    elseif key == KEY_MELEE_ATTACK then
+        Herald.decree(stateInputEvent, "melee_attack")
     end
 end
 

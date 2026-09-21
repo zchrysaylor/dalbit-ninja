@@ -25,18 +25,30 @@ function PlayState:enterState(opts)
         end)
     end)
 
-	---@param action StateInputAction
-	self.heraldGroup:hearken(Events.STATE_INPUT_PREFIX .. self.stateName, function(action)
-		if action == "interact" then
-			self.realm.player:interact()
-		elseif action == "fire_projectile" then
-			self.realm.player:fireProjectile()
-		elseif action == "toggle_menu" then
-			GStateStack:push(MenuState.new())
-		elseif action == "toggle_pause" then
-			self.isPaused = not self.isPaused
-		end
-	end)
+    ---@param action StateInputAction
+    self.heraldGroup:hearken(Events.STATE_INPUT_PREFIX .. self.stateName, function(action)
+        -- TODO: is there a global way to pause state instead of injecting everywhere
+        -- Without pausing menu? Or pausing game brings up menu?
+        if action == "toggle_pause" then
+            self.isPaused = not self.isPaused
+            return
+        elseif action == "toggle_menu" then
+            GStateStack:push(MenuState.new())
+            return
+        end
+
+        if self.isPaused or Transition.isActive then
+            return
+        end
+
+        if action == "interact" then
+            self.realm.player:interact()
+        elseif action == "fire_projectile" then
+            self.realm.player:fireProjectile()
+        elseif action == "melee_attack" then
+            self.realm.player:meleeAttack()
+        end
+    end)
 end
 
 ---Called when this state is deactivated.

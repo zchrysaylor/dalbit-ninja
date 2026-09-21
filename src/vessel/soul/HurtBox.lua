@@ -17,7 +17,7 @@ local HurtBox = {}
 HurtBox.__index = HurtBox
 
 ---Return whether this hurtbox accepts the source's damage type.
----@param source Soul|Husk
+---@param source { damageSource?: DamageSource } Entity or transient attack descriptor.
 ---@return boolean
 function HurtBox:acceptsDamageFrom(source)
     local damageSource = source.damageSource

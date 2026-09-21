@@ -11,6 +11,7 @@
 
 ---@class ThemeColors
 ---@field text ThemeColor
+---@field meleeSwing ThemeColor
 
 ---@class theme
 ---@field panels ThemePanels
@@ -33,6 +34,7 @@ theme.fonts = {
 ---@type ThemeColors
 theme.colors = {
     text = { 1, 1, 1, 1 },
+    meleeSwing = { 1, 0.9, 0.6, 1 },
 }
 
 -- TODO: consider refactoring to factory `theme.new(art, fonts)` to reduce global coupling
