@@ -102,6 +102,15 @@ function Realm:flushRemovedProjectiles()
     end
 end
 
+---Check all warp colliders and trigger a map transition event when needed.
+---@return nil
+function Realm:checkWarps()
+    local triggeredWarp = WarpSpawner.check(self.player.collider, self.warps)
+    if triggeredWarp then
+        Herald.decree(Events.REALM_WARP_TRIGGERED, triggeredWarp)
+    end
+end
+
 ---Advance camera follow, entities, physics, and warp handling.
 ---@param dt number Delta time in seconds
 ---@return nil
@@ -183,16 +192,6 @@ function Realm:draw()
     end
 
     Lens.detach()
-end
-
--- TODO: move above update()
----Check all warp colliders and trigger a map transition event when needed.
----@return nil
-function Realm:checkWarps()
-    local triggeredWarp = WarpSpawner.check(self.player.collider, self.warps)
-    if triggeredWarp then
-        Herald.decree(Events.REALM_WARP_TRIGGERED, triggeredWarp)
-    end
 end
 
 ---Destroy all map-scoped entities (walls, warps, souls) and reset the map table.
