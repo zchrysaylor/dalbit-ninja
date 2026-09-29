@@ -36,6 +36,8 @@ function herald.hearken(name, callback)
         list = {}
         handlers[name] = list
     end
+    -- TODO: Defer subscriptions made during emission. Removing a trailing handler can
+    -- shrink #list, letting a new handler reuse its slot and run in the current cycle.
     list[#list + 1] = callback
     return function()
         -- backwards search; only most recent registration removed
@@ -65,20 +67,19 @@ function herald.decree(name, ...)
 
     -- capture list length before emission; Lua's # is only guaranteed on sequences,
     -- and this also ensures handlers connected mid-emission don't fire in the current cycle
-    local n = #list
+    local listLength = #list
+
+    -- TODO: Track nested emissions of the same event. The inner dispatch currently clears
+    -- the outer dispatch's emitting marker, so later unsubs can shift the list and skip handlers.
 
     -- emit event/run callback function
+    local halted = false
     emitting[list] = true
-    for i = 1, n do
-        local cb = list[i]
-        if cb and cb(...) == false then
-            if emitting[list] == "dirty" then
-                emitting[list] = nil
-                Herald.compact(list, n)
-            else
-                emitting[list] = nil
-            end
-            return true
+    for i = 1, listLength do
+        local callback = list[i]
+        if callback and callback(...) == false then
+            halted = true
+            break
         end
     end
     local dirty = emitting[list] == "dirty"
@@ -87,7 +88,10 @@ function herald.decree(name, ...)
     -- compact potential nils introduced from mid-flight unsubs during emission
     -- only compacts if needed, common path (no mid-flight unsubs) can skip this step
     if dirty then
-        herald.compact(list, n)
+        herald.compact(list, listLength)
+    end
+    if halted then
+        return true
     end
 end
 
@@ -98,14 +102,14 @@ end
 ---@param listLength number The number of entries to inspect (pre-emission `#list`).
 ---@return nil
 function herald.compact(list, listLength)
-    local j = 0
+    local writeIndex = 0
     for i = 1, listLength do
         if list[i] then
-            j = j + 1
-            list[j] = list[i]
+            writeIndex = writeIndex + 1
+            list[writeIndex] = list[i]
         end
     end
-    for i = j + 1, listLength do
+    for i = writeIndex + 1, listLength do
         list[i] = nil
     end
 end

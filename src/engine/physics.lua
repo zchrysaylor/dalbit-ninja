@@ -1,4 +1,9 @@
 --- Factory and instance methods for Box2D colliders. Owns the Box2D world.
+local shapes = require("src.engine.shapes")
+
+local DEFAULT_CATEGORY = 1
+local COLLIDE_WITH_ALL_CATEGORIES = 0xFFFF
+
 ---@class physics
 ---@field world love.World
 local physics = {}
@@ -124,9 +129,9 @@ end
 ---@return collider
 function physics:collider(x, y, opts)
     opts = opts or {}
-    local w = opts.width or 16
-    local h = opts.height or 16
-    local s = opts.bevel or 4
+    local width = opts.width or 16
+    local height = opts.height or 16
+    local bevel = opts.bevel or 4
     local bodyType = opts.bodyType or "dynamic"
     local shape = opts.shape or "rectangle"
     local density = opts.density or 1
@@ -134,43 +139,23 @@ function physics:collider(x, y, opts)
     local body = love.physics.newBody(self.world, x, y, bodyType)
     body:setFixedRotation(true)
 
-    -- TODO: refactor shape definitions to common file, maybe collision.lua
     local physicsShape
     if shape == "octagon" then
-        physicsShape = love.physics.newPolygonShape(
-            -w / 2,
-            -h / 2 + s,
-            -w / 2 + s,
-            -h / 2,
-            w / 2 - s,
-            -h / 2,
-            w / 2,
-            -h / 2 + s,
-            w / 2,
-            h / 2 - s,
-            w / 2 - s,
-            h / 2,
-            -w / 2 + s,
-            h / 2,
-            -w / 2,
-            h / 2 - s
-        )
+        physicsShape = shapes.octagon(width, height, bevel)
     else -- "rectangle" default
-        physicsShape = love.physics.newRectangleShape(w, h)
+        physicsShape = shapes.rectangle(width, height)
     end
 
     local fixture = love.physics.newFixture(body, physicsShape, density)
-
     -- TODO: can later be defined in a vessel tag (i.e. tag "bouncy" sets restitution to a certain number)
     if opts.restitution then
         fixture:setRestitution(opts.restitution)
     end
-
     if opts.group ~= nil then
-        fixture:setFilterData(1, 0xFFFF, opts.group) -- 1 and 0xFFFF are the default values
+        fixture:setFilterData(DEFAULT_CATEGORY, COLLIDE_WITH_ALL_CATEGORIES, opts.group)
     end
 
-    local coll = setmetatable({
+    local physicsCollider = setmetatable({
         body = body,
         shape = physicsShape,
         fixture = fixture,
@@ -179,9 +164,9 @@ function physics:collider(x, y, opts)
 
     -- Registers the returned collider as the fixture's user data so spatial
     -- queries can recover this wrapper from raw Box2D fixtures.
-    fixture:setUserData(coll)
+    fixture:setUserData(physicsCollider)
 
-    return coll
+    return physicsCollider
 end
 
 ---Create a new Physics instance wrapping the given Box2D world.

@@ -1,4 +1,7 @@
 ---Keyboard input manager.
+
+local QUIT_COMMAND = ":q"
+
 ---@class input
 ---@field keysPressed table<string, boolean> Keys pressed this frame, cleared each update
 ---@field commandBuffer string Recently typed text for global command sequences
@@ -34,17 +37,22 @@ function input:keyPressed(key)
         return
     end
 
-    local stateInputEvent = Events.STATE_INPUT_PREFIX .. topState.stateName
+    local action
     if key == KEY_INTERACT then
-        Herald.decree(stateInputEvent, "interact")
+        action = Events.INPUT_ACTION.INTERACT
     elseif key == KEY_MENU then
-        Herald.decree(stateInputEvent, "toggle_menu")
+        action = Events.INPUT_ACTION.TOGGLE_MENU
     elseif key == KEY_PAUSE then
-        Herald.decree(stateInputEvent, "toggle_pause")
+        action = Events.INPUT_ACTION.TOGGLE_PAUSE
     elseif key == KEY_FIRE_PROJECTILE then
-        Herald.decree(stateInputEvent, "fire_projectile")
+        action = Events.INPUT_ACTION.FIRE_PROJECTILE
     elseif key == KEY_MELEE_ATTACK then
-        Herald.decree(stateInputEvent, "melee_attack")
+        action = Events.INPUT_ACTION.MELEE_ATTACK
+    end
+
+    if action then
+        local stateInputEvent = Events.STATE_INPUT_PREFIX .. topState.stateName
+        Herald.decree(stateInputEvent, action)
     end
 end
 
@@ -52,9 +60,9 @@ end
 ---@param text string
 ---@return nil
 function input:textInput(text)
-    self.commandBuffer = (self.commandBuffer .. text):sub(-2)
+    self.commandBuffer = (self.commandBuffer .. text):sub(-#QUIT_COMMAND)
 
-    if self.commandBuffer == ":q" then
+    if self.commandBuffer == QUIT_COMMAND then
         love.event.quit()
         self.commandBuffer = ""
     end

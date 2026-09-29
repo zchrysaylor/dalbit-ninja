@@ -55,8 +55,8 @@ end
 local function clampToMap(x, y, map)
     local mapWidth = map.width * map.tilewidth
     local mapHeight = map.height * map.tileheight
-    local halfViewW = love.graphics.getWidth() / (2 * cam.scale)
-    local halfViewH = love.graphics.getHeight() / (2 * cam.scale)
+    local halfViewW = View.getWidth() / (2 * cam.scale)
+    local halfViewH = View.getHeight() / (2 * cam.scale)
     local minX = halfViewW
     local maxX = mapWidth - halfViewW
     local minY = halfViewH
@@ -77,15 +77,6 @@ local function clampToMap(x, y, map)
     end
 
     return clampedX, clampedY
-end
-
----Compute the clamped target camera center for the current map bounds.
----@param player Soul Entity with x and y fields representing its center position
----@param map {width: number, height: number, tilewidth: number, tileheight: number} STI map bounds
----@return number targetX
----@return number targetY
-local function getFollowTarget(player, map)
-    return clampToMap(player.x, player.y, map)
 end
 
 ---Begin rendering through the camera viewport. All draw calls made between
@@ -119,7 +110,7 @@ end
 ---@param map {width: number, height: number, tilewidth: number, tileheight: number} STI map bounds
 ---@return nil
 function lens.follow(player, map)
-    local targetX, targetY = getFollowTarget(player, map)
+    local targetX, targetY = clampToMap(player.x, player.y, map)
     local dx = targetX - cam.x
     local dy = targetY - cam.y
     local settleDistance = CAMERA_SETTLE_SCREEN_PIXELS / cam.scale
@@ -136,7 +127,7 @@ end
 ---@param map {width: number, height: number, tilewidth: number, tileheight: number} STI map bounds
 ---@return nil
 function lens.snapTo(player, map)
-    local targetX, targetY = getFollowTarget(player, map)
+    local targetX, targetY = clampToMap(player.x, player.y, map)
     cam:lookAt(targetX, targetY)
 end
 
@@ -166,24 +157,25 @@ function lens.update(dt)
         shake.time = math.max(0, shake.time - dt)
     end
 
-    if shake.time > 0 or (shake.fade and shake.intensity > 0) then
-        shake.offsetX = shake.intensity * shake.dir
-
-        if shake.speedTimer <= 0 then
-            shake.dir = shake.dir * -1
-            shake.speedTimer = shake.speed
-        else
-            shake.speedTimer = math.max(0, shake.speedTimer - dt)
-        end
-
-        if shake.time <= 0 and shake.fade and shake.intensity > 0 then
-            shake.intensity = math.max(0, shake.intensity - dt * shake.fadeSpeed)
-            if shake.intensity <= 0 then
-                shake.offsetX = 0
-            end
-        end
-    else
+    if shake.time <= 0 and (not shake.fade or shake.intensity <= 0) then
         shake.offsetX = 0
+        return
+    end
+
+    shake.offsetX = shake.intensity * shake.dir
+
+    if shake.speedTimer <= 0 then
+        shake.dir = shake.dir * -1
+        shake.speedTimer = shake.speed
+    else
+        shake.speedTimer = math.max(0, shake.speedTimer - dt)
+    end
+
+    if shake.time <= 0 and shake.fade and shake.intensity > 0 then
+        shake.intensity = math.max(0, shake.intensity - dt * shake.fadeSpeed)
+        if shake.intensity <= 0 then
+            shake.offsetX = 0
+        end
     end
 end
 

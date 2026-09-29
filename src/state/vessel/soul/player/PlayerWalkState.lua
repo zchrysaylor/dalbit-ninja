@@ -43,6 +43,9 @@ function PlayerWalkState:movePlayer()
     local vx = self.player.dirX * speed
     local vy = self.player.dirY * speed
 
+    -- TODO: hard to "stop" in diagonal state; have to time it just right. Let's make it so if was
+    -- moving diagonal, stop diagonally.
+
     -- normalize diagonal movement so the player doesn't move faster on diagonals
     if vx ~= 0 and vy ~= 0 then
         local diagonalFactor = 1 / math.sqrt(2)

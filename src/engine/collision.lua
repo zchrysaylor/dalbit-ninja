@@ -58,9 +58,12 @@ local function pointInPolygon(px, py, vertices)
         local yi = vertices[i + 1]
         local xj = vertices[j]
         local yj = vertices[j + 1]
-        local intersects = ((yi > py) ~= (yj > py)) and (px < (xj - xi) * (py - yi) / (yj - yi) + xi)
-        if intersects then
-            inside = not inside
+        local crossesPointY = (yi > py) ~= (yj > py)
+        if crossesPointY then
+            local crossingX = (xj - xi) * (py - yi) / (yj - yi) + xi
+            if px < crossingX then
+                inside = not inside
+            end
         end
     end
     return inside
@@ -136,7 +139,7 @@ end
 ---@param y number Circle center Y in pixels
 ---@param radius number Circle radius in pixels
 ---@param filter? fun(collider: collider, fixture: love.Fixture): boolean Optional predicate to reject colliders before the narrow-phase test.
----@param debugFrames? number The number of debug frames to print in debug mode
+---@param debugFrames? number The number of frames to draw the query outline in debug mode
 ---@return collider[]
 function collision.queryCircleArea(world, x, y, radius, filter, debugFrames)
     local results = {}
@@ -206,12 +209,14 @@ function collision.drawColliders(world, alpha)
         local bodies = world:getBodies()
         for _, body in ipairs(bodies) do
             for _, fixture in ipairs(body:getFixtures()) do
-                if fixture:getShape():type() == "PolygonShape" then
-                    love.graphics.polygon("line", body:getWorldPoints(fixture:getShape():getPoints()))
-                elseif fixture:getShape():type() == "CircleShape" then
+                local shape = fixture:getShape()
+                local shapeType = shape:type()
+                if shapeType == "PolygonShape" then
+                    love.graphics.polygon("line", body:getWorldPoints(shape:getPoints()))
+                elseif shapeType == "CircleShape" then
                     local bodyX, bodyY = body:getPosition()
-                    local offsetX, offsetY = fixture:getShape():getPoint()
-                    love.graphics.circle("line", bodyX + offsetX, bodyY + offsetY, fixture:getShape():getRadius())
+                    local offsetX, offsetY = shape:getPoint()
+                    love.graphics.circle("line", bodyX + offsetX, bodyY + offsetY, shape:getRadius())
                 end
             end
         end

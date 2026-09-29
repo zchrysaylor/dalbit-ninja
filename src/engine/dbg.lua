@@ -18,7 +18,7 @@ Herald.hearken(Events.GAME_DEBUG_TOGGLED, function()
     dbg.showDebugMenu = not dbg.showDebugMenu
 end)
 
----Draw outlines for all bodies in the given world.
+---Draw collider outlines and recorded query outlines in the given world.
 ---@param world love.World The Box2D world to draw fixtures for
 ---@param alpha? number Opacity of the outlines (default 1)
 ---@return nil
@@ -27,28 +27,28 @@ function dbg.drawAll(world, alpha)
     Collision.drawQueries(alpha)
 end
 
----Draw the current FPS counter in the top-left corner of the virtual screen.
+---Draw the current FPS counter in the top-left corner of the screen.
 ---@return nil
 function dbg.drawFPS()
     local font = GFonts["debug"]
     local text = "FPS: " .. love.timer.getFPS()
-    -- padding between background border and text
     local padding = 8
+    local screenMargin = 16
 
-    local textW = font:getWidth(text)
-    local textH = font:getHeight()
-
-    -- screen margin
-    local x = 16
-    local y = 16
+    local textWidth = font:getWidth(text)
+    local textHeight = font:getHeight()
+    local textX = screenMargin + padding
+    local textY = screenMargin + padding
 
     Util.safeDraw(function()
         love.graphics.setColor(0, 0, 0, 0.7)
-        love.graphics.rectangle("fill", x, y, textW + padding * 2, textH + padding * 2)
+        love.graphics.rectangle(
+            "fill", screenMargin, screenMargin, textWidth + padding * 2, textHeight + padding * 2
+        )
 
         love.graphics.setColor(1, 1, 1, 1)
         love.graphics.setFont(font)
-        love.graphics.print(text, x + padding, y + padding)
+        love.graphics.print(text, textX, textY)
     end)
 end
 
@@ -56,15 +56,16 @@ end
 ---@return nil
 function dbg.drawMenu()
     -- TODO: finish implementing with option to show FPS, spawn enemies, change map, etc
-    -- screen margin
     local screenWidth = View.getWidth()
     local screenHeight = View.getHeight()
-    local x = screenWidth / 2 - screenWidth / 4
-    local y = screenHeight / 2 - screenHeight / 4
+    local menuWidth = screenWidth / 2
+    local menuHeight = screenHeight / 2
+    local menuX = (screenWidth - menuWidth) / 2
+    local menuY = (screenHeight - menuHeight) / 2
 
     Util.safeDraw(function()
         love.graphics.setColor(0, 0, 0, 0.4)
-        love.graphics.rectangle("fill", x, y, screenWidth / 2, screenHeight / 2)
+        love.graphics.rectangle("fill", menuX, menuY, menuWidth, menuHeight)
     end)
 end
 

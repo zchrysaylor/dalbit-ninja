@@ -1,13 +1,10 @@
---- A module for defining transition-related utilites.
+---Screen fade transitions.
 ---@class transition
 ---@field alpha number Current fade opacity from 0 to 1
 ---@field isActive boolean True while a fade transition is in progress
 local transition = {}
 
----@type number
 transition.alpha = 0
-
----@type boolean
 transition.isActive = false
 
 ---Perform a fade-out → callback → fade-in transition.
@@ -36,12 +33,14 @@ end
 ---Draw the black overlay. Call every frame from the draw pipeline.
 ---@return nil
 function transition.draw()
-    if transition.isActive then
-        Util.safeDraw(function()
-            love.graphics.setColor(0, 0, 0, transition.alpha)
-            love.graphics.rectangle("fill", 0, 0, View.getWidth(), View.getHeight())
-        end)
+    if not transition.isActive then
+        return
     end
+
+    Util.safeDraw(function()
+        love.graphics.setColor(0, 0, 0, transition.alpha)
+        love.graphics.rectangle("fill", 0, 0, View.getWidth(), View.getHeight())
+    end)
 end
 
 return transition

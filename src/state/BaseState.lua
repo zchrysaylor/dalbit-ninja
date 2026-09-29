@@ -1,6 +1,7 @@
 ---No-op base class for all game states.
 ---Subclasses override the lifecycle methods they need; unoverridden methods are harmless no-ops.
 ---@class BaseState
+---@field stateName string Name assigned by each concrete state.
 local BaseState = {}
 BaseState.__index = BaseState
 
